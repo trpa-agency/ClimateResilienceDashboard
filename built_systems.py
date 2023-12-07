@@ -25,7 +25,7 @@ def stackbar_percent(path_html, path_file, x, y, facet, color, y_title, x_title)
 
     fig.write_html(path_html)
 
-stackbar_percent("/Users/cahya/Dropbox (ECONW)/kathleen/TRPA/EnergyMix.html", 
-          "/Users/cahya/Dropbox (ECONW)/kathleen/TRPA/EnergyMix_long.csv",
+stackbar_percent("/Users/cahya/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/3.2(a)/EnergyMix.html", 
+          "/Users/cahya/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/3.2(a)/EnergyMix_long.csv",
           "Year","Share","Source","Type","% of Renewable Energy by Share of Total","Year")
 
