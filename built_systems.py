@@ -54,11 +54,3 @@ def groupedbar_percent(path_html, path_file, x, y, facet, color, y_title, x_titl
     fig.update_traces(hovertemplate='Year: %{x} <br>Percentage: %{y}')
     
     fig.write_html(config=config, file=path_html)
-
-stackbar_percent("/Users/cahya/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/3.2(a)/test1.html", 
-          "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/3.2(a)/EnergyMix_long.csv",
-          "Year","Share","Source","Type","% of Renewable Energy by Share of Total","Year")
-
-groupedbar_percent("/Users/cahya/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/3.2(a)/test2.html", 
-          "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/3.2(a)/EnergyMix_long.csv",
-          "Year","Share","Source","Type","% of Renewable Energy by Share of Total","Year")
