@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 100
+[tool.ruff]
+ignore = ['E501']
+line-length = 100
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+]
