@@ -1,12 +1,13 @@
 image: python:3.11
 
-before_script:
-  - apt-get update -qy
-  - pip install -U pip
-  - pip install -r requirements.txt
+# before_script:
+#   - apt-get update -qy
+#   - pip install -U pip
+#   - pip install -r requirements.txt
 
 pre-commit:
   script:
+    - pip install pre-commit
     - pre-commit run --all-files
   only:
     - branches
