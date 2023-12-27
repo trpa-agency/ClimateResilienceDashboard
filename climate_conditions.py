@@ -40,10 +40,7 @@ def plot_1_3_c(df):
     )
     fig.update_traces(marker=dict(size=10))
     fig.update_layout(
-        yaxis=dict(title="Secchi Depth"),
-        xaxis=dict(title="Year"),
-        hovermode="x unified",
-        template="plotly_white",
+        yaxis=dict(title="Secchi Depth"), xaxis=dict(title="Year"), template="plotly_white"
     )
     fig.add_trace(
         px.line(df, x="year", y="F5_year_average", color_discrete_sequence=["#208385"]).data[0]

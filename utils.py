@@ -39,7 +39,7 @@ def trendline(df, path_html, x, y, color, color_sequence, x_title, y_title):
     fig.update_layout(
         yaxis=dict(title=y_title),
         xaxis=dict(title=x_title),
-        hovermode="x unified",
+        hovermode="x",
         template="plotly_white",
     )
     fig.write_html(config=config, file=path_html)
