@@ -1,53 +1,51 @@
-import pandas as pd
 import plotly.express as px
-from arcgis.features import FeatureLayer
+
+from utils import get_fs_data, trendline
 
 # from pathlib import Path
 # from arcgis import GIS
 # import statsmodel
 
 
-def get_fs_data(service_url):
-    feature_layer = FeatureLayer(service_url)
-    query_result = feature_layer.query()
-    # Convert the query result to a list of dictionaries
-    feature_list = query_result.features
-    # Create a pandas DataFrame from the list of dictionaries
-    all_data = pd.DataFrame([feature.attributes for feature in feature_list])
-    # return data frame
-    return all_data
+def get_data_1_1_a():
+    return get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/124"
+    )
 
 
-def trendline(path_html, service_url, x, y, color, x_title, y_title):
-    df = get_fs_data(service_url)
-    df = df.sort_values(by=x)
-    config = {"displayModeBar": False}
-    fig = px.line(
+def plot_1_1_a(df):
+    trendline(
         df,
-        x=x,
-        y=y,
-        color=color,
-        color_discrete_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        path_html="html/1.1(a)_GHG.html",
+        x="Year",
+        y="MT_CO2",
+        color="Category",
+        color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        x_title="Year",
+        y_title="Amount of CO2",
     )
-    fig.update_layout(
-        yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title),
-        hovermode="x unified",
-        template="plotly_white",
-    )
-    fig.write_html(config=config, file=path_html)
 
 
-def scatterplot(path_html, service_url, x, y1, y2, x_title, y_title):
-    df = get_fs_data(service_url)
+def get_data_1_3_c():
+    return get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/125"
+    )
+
+
+# A pretty specific graph
+def plot_1_3_c(df):
     config = {"displayModeBar": False}
-    fig = px.scatter(df, x=x, y=y1, trendline="ols", color_discrete_sequence=["black"])
+    fig = px.scatter(
+        df, x="year", y="annual_average", trendline="ols", color_discrete_sequence=["black"]
+    )
     fig.update_traces(marker=dict(size=10))
     fig.update_layout(
-        yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title),
+        yaxis=dict(title="Secchi Depth"),
+        xaxis=dict(title="Year"),
         hovermode="x unified",
         template="plotly_white",
     )
-    fig.add_trace(px.line(df, x=x, y=y2, color_discrete_sequence=["#208385"]).data[0])
-    fig.write_html(config=config, file=path_html)
+    fig.add_trace(
+        px.line(df, x="year", y="F5_year_average", color_discrete_sequence=["#208385"]).data[0]
+    )
+    fig.write_html(config=config, file="html/1.3(c)_Secchi_Depth.html")
