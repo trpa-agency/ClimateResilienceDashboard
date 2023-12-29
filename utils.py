@@ -46,7 +46,7 @@ def trendline(df, path_html, x, y, color, color_sequence, x_title, y_title):
 
 
 # Stacked Percent Bar chart
-def stackbar_percent(df, path_html, x, y, facet, color, y_title, x_title):
+def stackbar_percent(df, path_html, x, y, facet, color, color_sequence, y_title, x_title):
     config = {"displayModeBar": False}
     fig = px.bar(
         df,
@@ -55,13 +55,14 @@ def stackbar_percent(df, path_html, x, y, facet, color, y_title, x_title):
         color=color,
         barmode="stack",
         facet_col=facet,
-        color_discrete_sequence=["#208385", "#FC9A62"],
+        color_discrete_sequence=color_sequence,
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
         yaxis=dict(tickformat=".0%", hoverformat=".0%", title=y_title),
         xaxis=dict(title=x_title),
         hovermode="x",
+        template="plotly_white",
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
     fig.update_traces(hovertemplate="Year: %{x} <br>Percentage: %{y}")
@@ -70,7 +71,7 @@ def stackbar_percent(df, path_html, x, y, facet, color, y_title, x_title):
 
 
 # Grouped Percent Bar chart
-def groupedbar_percent(df, path_html, x, y, facet, color, y_title, x_title):
+def groupedbar_percent(df, path_html, x, y, facet, color, color_sequence, y_title, x_title):
     config = {"displayModeBar": False}
     fig = px.bar(
         df,
@@ -79,13 +80,14 @@ def groupedbar_percent(df, path_html, x, y, facet, color, y_title, x_title):
         color=color,
         barmode="group",
         facet_col=facet,
-        color_discrete_sequence=["#208385", "#FC9A62"],
+        color_discrete_sequence=color_sequence,
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
         yaxis=dict(tickformat=".0%", hoverformat=".0%", title=y_title),
         xaxis=dict(title=x_title),
         hovermode="x",
+        template="plotly_white",
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
     fig.update_traces(hovertemplate="Year: %{x} <br>Percentage: %{y}")
