@@ -7,7 +7,7 @@
 
 ## Goal 2: Promote Resilient Natural Systems
 
-## Goal 3:Support Resilient Built Systems
+## Goal 3: Support Resilient Built Systems
 
 * [3.2(a) Percent of renewable energy as a share of total energy used](3.2(a)_EnergyMix.html)
 
