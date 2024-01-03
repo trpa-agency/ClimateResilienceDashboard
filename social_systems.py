@@ -83,7 +83,7 @@ def plot_4_1_b(df):
     )
 
 
-def get_data_4_1_d():
+def get_data_4_1_d_age():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
@@ -138,7 +138,7 @@ def get_data_4_1_d():
     return df
 
 
-def plot_4_1_d(df):
+def plot_4_1_d_age(df):
     stackbar_percent(
         df,
         path_html="html/4.1(d)_TenureByAge.html",
@@ -158,5 +158,61 @@ def plot_4_1_d(df):
             "#FCE3A4",
         ],
         y_title="% of Tenure by Age",
+        x_title="Tenure",
+    )
+
+
+def get_data_4_1_d_race():
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+    )
+    mask = data["Category"] == "Tenure by Race"
+    val = (
+        data[mask]
+        .loc[:, ["variable_name", "value", "Geography"]]
+        .rename(columns={"variable_name": "Race"})
+    )
+    val["Tenure"] = np.where(
+        val["Race"].str.startswith("Owner"), "Owner Occupied", "Renter Occupied"
+    )
+    val = val[(~val["Race"].str.contains("Total"))]
+    total = val.groupby(["Geography", "Tenure"]).sum()
+    df = val.merge(
+        total,
+        left_on=["Geography", "Tenure"],
+        right_on=["Geography", "Tenure"],
+        suffixes=("", "_total"),
+    )
+    df["share"] = df["value"] / df["value_total"]
+    df["Race"] = np.where(
+        df["Race"].str.contains("Asian"),
+        "Asian",
+        np.where(
+            df["Race"].str.contains("Black"),
+            "Black",
+            np.where(
+                df["Race"].str.contains("Native Hawaiian"),
+                "NHPI",
+                np.where(
+                    df["Race"].str.contains("Some"),
+                    "Some Other",
+                    np.where(df["Race"].str.contains("White"), "White", "AIAN"),
+                ),
+            ),
+        ),
+    )
+    return df
+
+
+def plot_4_1_d_race(df):
+    stackbar_percent(
+        df,
+        path_html="html/4.1(d)_TenureByRace.html",
+        x="Tenure",
+        y="share",
+        facet="Geography",
+        color="Race",
+        color_sequence=["#208385", "#FC9A62", "#F9C63E", "#632E5A", "#A48352", "#BCEDB8"],
+        y_title="% of Tenure by Race",
         x_title="Tenure",
     )
