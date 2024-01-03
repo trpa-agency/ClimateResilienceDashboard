@@ -81,3 +81,82 @@ def plot_4_1_b(df):
         y_title="% of Home Energy Sources by Share of Total",
         x_title="Year",
     )
+
+
+def get_data_4_1_d():
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+    )
+    mask = data["Category"] == "Tenure by Age"
+    val = (
+        data[mask]
+        .loc[:, ["variable_name", "value", "Geography"]]
+        .rename(columns={"variable_name": "Age"})
+    )
+    val["Tenure"] = np.where(
+        val["Age"].str.startswith("Owner"), "Owner Occupied", "Renter Occupied"
+    )
+    total = val.groupby(["Geography", "Tenure"]).sum()
+    df = val.merge(
+        total,
+        left_on=["Geography", "Tenure"],
+        right_on=["Geography", "Tenure"],
+        suffixes=("", "_total"),
+    )
+    df["share"] = df["value"] / df["value_total"]
+    df["Age"] = np.where(
+        df["Age"].str.contains("15"),
+        "15 to 24 Years",
+        np.where(
+            df["Age"].str.contains("25"),
+            "25 to 34 Years",
+            np.where(
+                df["Age"].str.contains("35"),
+                "35 to 44 Years",
+                np.where(
+                    df["Age"].str.contains("45"),
+                    "45 to 54 Years",
+                    np.where(
+                        df["Age"].str.contains("55"),
+                        "55 to 59 Years",
+                        np.where(
+                            df["Age"].str.contains("60"),
+                            "60 to 64 Years",
+                            np.where(
+                                df["Age"].str.contains("65"),
+                                "65 to 74 Years",
+                                np.where(
+                                    df["Age"].str.contains("75"), "75 to 84 Years", "85+ Years"
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    return df
+
+
+def plot_4_1_d(df):
+    stackbar_percent(
+        df,
+        path_html="html/4.1(d)_TenureByAge.html",
+        x="Tenure",
+        y="share",
+        facet="Geography",
+        color="Age",
+        color_sequence=[
+            "#208385",
+            "#FC9A62",
+            "#F9C63E",
+            "#632E5A",
+            "#A48352",
+            "#BCEDB8",
+            "#023F64",
+            "#B83F5D",
+            "#FCE3A4",
+        ],
+        y_title="% of Tenure by Age",
+        x_title="Tenure",
+    )
