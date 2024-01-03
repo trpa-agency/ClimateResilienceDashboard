@@ -17,6 +17,7 @@ def plot_1_1_a(df):
     trendline(
         df,
         path_html="html/1.1(a)_GHG.html",
+        div_id="1.1.a_GHG",
         x="Year",
         y="MT_CO2",
         color="Category",
@@ -45,4 +46,9 @@ def plot_1_3_c(df):
     fig.add_trace(
         px.line(df, x="year", y="F5_year_average", color_discrete_sequence=["#208385"]).data[0]
     )
-    fig.write_html(config=config, file="html/1.3(c)_Secchi_Depth.html")
+    fig.write_html(
+        config=config,
+        file="html/1.3(c)_Secchi_Depth.html",
+        include_plotlyjs="directory",
+        div_id="1.3.c_Secchi_Depth",
+    )

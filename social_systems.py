@@ -64,6 +64,7 @@ def plot_4_1_b(df):
     stackbar_percent(
         df,
         path_html="html/4.1(b)_RaceEthnicity.html",
+        div_id="4.1.b_RaceEthnicity",
         x="Year",
         y="share",
         facet="Geography",
@@ -142,6 +143,7 @@ def plot_4_1_d_age(df):
     stackbar_percent(
         df,
         path_html="html/4.1(d)_TenureByAge.html",
+        div_id="4.1.d_TenureByAge",
         x="Tenure",
         y="share",
         facet="Geography",
@@ -208,6 +210,7 @@ def plot_4_1_d_race(df):
     stackbar_percent(
         df,
         path_html="html/4.1(d)_TenureByRace.html",
+        div_id="4.1.d_TenureByRace",
         x="Tenure",
         y="share",
         facet="Geography",

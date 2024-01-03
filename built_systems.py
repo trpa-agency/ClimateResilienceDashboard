@@ -9,6 +9,7 @@ def plot_3_2_a(df):
     stackbar_percent(
         df,
         path_html="html/3.2(a)_EnergyMix.html",
+        div_id="3.2.a_EnergyMix",
         x="Year",
         y="Share",
         facet="Source",
@@ -48,6 +49,7 @@ def plot_3_1_b(df):
     stackbar_percent(
         df,
         path_html="html/3.1(b)_HomeHeatingFuels.html",
+        div_id="3.1.b_HomeHeatingFuels",
         x="Year",
         y="share",
         facet="Geography",

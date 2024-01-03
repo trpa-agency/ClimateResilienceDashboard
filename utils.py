@@ -26,7 +26,7 @@ def get_fs_data(service_url):
 
 
 # Trendline
-def trendline(df, path_html, x, y, color, color_sequence, x_title, y_title):
+def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_title):
     df = df.sort_values(by=x)
     config = {"displayModeBar": False}
     fig = px.line(
@@ -42,11 +42,16 @@ def trendline(df, path_html, x, y, color, color_sequence, x_title, y_title):
         hovermode="x",
         template="plotly_white",
     )
-    fig.write_html(config=config, file=path_html)
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
 
 
 # Stacked Percent Bar chart
-def stackbar_percent(df, path_html, x, y, facet, color, color_sequence, y_title, x_title):
+def stackbar_percent(df, path_html, div_id, x, y, facet, color, color_sequence, y_title, x_title):
     config = {"displayModeBar": False}
     fig = px.bar(
         df,
@@ -67,11 +72,16 @@ def stackbar_percent(df, path_html, x, y, facet, color, color_sequence, y_title,
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
     fig.update_traces(hovertemplate="Year: %{x} <br>Percentage: %{y}")
 
-    fig.write_html(config=config, file=path_html)
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
 
 
 # Grouped Percent Bar chart
-def groupedbar_percent(df, path_html, x, y, facet, color, color_sequence, y_title, x_title):
+def groupedbar_percent(df, path_html, div_id, x, y, facet, color, color_sequence, y_title, x_title):
     config = {"displayModeBar": False}
     fig = px.bar(
         df,
@@ -92,4 +102,9 @@ def groupedbar_percent(df, path_html, x, y, facet, color, color_sequence, y_titl
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
     fig.update_traces(hovertemplate="Year: %{x} <br>Percentage: %{y}")
 
-    fig.write_html(config=config, file=path_html)
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
