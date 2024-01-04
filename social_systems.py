@@ -22,40 +22,19 @@ def get_data_4_1_b():
     )
     df["Year"] = df["Year"].astype(str)
     df["share"] = df["value"] / df["value_total"]
-    df["Race"] = np.where(
-        df["Race"] == "Total population:  Hispanic or Latino",
-        "Hispanic",
-        np.where(
-            df["Race"] == "Total population:  Not Hispanic or Latino; White alone",
-            "White",
-            np.where(
-                df["Race"]
-                == "Total population:  Not Hispanic or Latino; Not Hispanic or Latino; American Indian and Alaska Native alone",
-                "AIAN",
-                np.where(
-                    df["Race"]
-                    == "Total population:  Not Hispanic or Latino; Black or African American alone",
-                    "Black",
-                    np.where(
-                        df["Race"] == "Total population:  Not Hispanic or Latino; Asian",
-                        "Asian",
-                        np.where(
-                            df["Race"]
-                            == "Total population:  Not Hispanic or Latino; Native Hawaiian and Other Pacific Islander alone",
-                            "NHPI",
-                            np.where(
-                                df["Race"]
-                                == "Total population:  Not Hispanic or Latino; Some other race alone",
-                                "Some Other",
-                                "Multi",
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        ),
+    df["Race"] = df["Race"].map(
+        {
+            "Total population:  Hispanic or Latino": "Hispanic",
+            "Total population:  Not Hispanic or Latino; White alone": "White",
+            "Total population:  Not Hispanic or Latino; Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
+            "Total population:  Not Hispanic or Latino; Black or African American alone": "Black",
+            "Total population:  Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
+            "Total population:  Not Hispanic or Latino; Asian alone": "Asian",
+            "Total population:  Not Hispanic or Latino; Native Hawaiian and Other Pacific Islander alone": "NHPI",
+            "Total population:  Not Hispanic or Latino; Some other race alone": "Some Other",
+            "Total population:  Not Hispanic or Latino; Two or more races": "Multi",
+        }
     )
-
     df = df.sort_values("Year")
     return df
 
@@ -79,7 +58,7 @@ def plot_4_1_b(df):
             "#023F64",
             "#B83F5D",
         ],
-        y_title="% of Home Energy Sources by Share of Total",
+        y_title="% of Race and Ethnicity of Total",
         x_title="Year",
     )
 
@@ -97,45 +76,35 @@ def get_data_4_1_d_age():
     val["Tenure"] = np.where(
         val["Age"].str.startswith("Owner"), "Owner Occupied", "Renter Occupied"
     )
-    total = val.groupby(["Geography", "Tenure"]).sum()
+    val["Age"] = val["Age"].map(
+        {
+            "Owner Occupied: Householder 25 To 34 Years": "25 to 34 Years",
+            "Owner Occupied: Householder 35 To 44 Years": "35 to 44 Years",
+            "Owner Occupied: Householder 45 To 54 Years": "45 to 54 Years",
+            "Owner Occupied: Householder 55 To 59 Years": "55 to 59 Years",
+            "Owner Occupied: Householder 60 To 64 Years": "60 to 64 Years",
+            "Owner Occupied: Householder 65 To 74 Years": "65 to 74 Years",
+            "Owner Occupied: Householder 75 To 84 Years": "75 to 84 Years",
+            "Owner Occupied: Householder 85 Years And Over": "85+ Years",
+            "Renter Occupied: Householder 15 To 24 Years": "15 to 24 Years",
+            "Renter Occupied: Householder 25 To 34 Years": "25 to 34 Years",
+            "Renter Occupied: Householder 35 To 44 Years": "35 to 44 Years",
+            "Renter Occupied: Householder 45 To 54 Years": "45 to 54 Years",
+            "Renter Occupied: Householder 55 To 59 Years": "55 to 59 Years",
+            "Renter Occupied: Householder 60 To 64 Years": "60 to 64 Years",
+            "Renter Occupied: Householder 65 To 74 Years": "65 to 74 Years",
+            "Renter Occupied: Householder 75 To 84 Years": "75 to 84 Years",
+            "Renter Occupied: Householder 85 Years And Over": "85+ Years",
+        }
+    )
+    total = val.groupby(["Geography", "Age"]).sum()
     df = val.merge(
         total,
-        left_on=["Geography", "Tenure"],
-        right_on=["Geography", "Tenure"],
+        left_on=["Geography", "Age"],
+        right_on=["Geography", "Age"],
         suffixes=("", "_total"),
     )
     df["share"] = df["value"] / df["value_total"]
-    df["Age"] = np.where(
-        df["Age"].str.contains("15"),
-        "15 to 24 Years",
-        np.where(
-            df["Age"].str.contains("25"),
-            "25 to 34 Years",
-            np.where(
-                df["Age"].str.contains("35"),
-                "35 to 44 Years",
-                np.where(
-                    df["Age"].str.contains("45"),
-                    "45 to 54 Years",
-                    np.where(
-                        df["Age"].str.contains("55"),
-                        "55 to 59 Years",
-                        np.where(
-                            df["Age"].str.contains("60"),
-                            "60 to 64 Years",
-                            np.where(
-                                df["Age"].str.contains("65"),
-                                "65 to 74 Years",
-                                np.where(
-                                    df["Age"].str.contains("75"), "75 to 84 Years", "85+ Years"
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        ),
-    )
     return df
 
 
@@ -144,10 +113,10 @@ def plot_4_1_d_age(df):
         df,
         path_html="html/4.1(d)_TenureByAge.html",
         div_id="4.1.d_TenureByAge",
-        x="Tenure",
+        x="Age",
         y="share",
         facet="Geography",
-        color="Age",
+        color="Tenure",
         color_sequence=[
             "#208385",
             "#FC9A62",
@@ -160,7 +129,7 @@ def plot_4_1_d_age(df):
             "#FCE3A4",
         ],
         y_title="% of Tenure by Age",
-        x_title="Tenure",
+        x_title="Age",
     )
 
 
@@ -169,40 +138,41 @@ def get_data_4_1_d_race():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
     mask = data["Category"] == "Tenure by Race"
-    val = (
-        data[mask]
-        .loc[:, ["variable_name", "value", "Geography"]]
-        .rename(columns={"variable_name": "Race"})
+    val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
+    val["Race"] = val["variable_name"].map(
+        {
+            "Owner Occupied: Asian Alone Householder": "Asian",
+            "Owner Occupied: Black Or African American Alone Householder": "Black",
+            "Owner Occupied: White Alone Householder": "White",
+            "Owner Occupied: Native Hawaiian And Other Pacific Islander Alone Householder": "NHPI",
+            "Owner Occupied: Some Other Race Alone Householder": "Some Other",
+            "Renter Occupied: Asian Alone Householder": "Asian",
+            "Renter Occupied: Black Or African American Alone Householder": "Black",
+            "Renter Occupied: White Alone Householder": "White",
+            "Renter Occupied: Native Hawaiian And Other Pacific Islander Alone Householder": "NHPI",
+            "Renter Occupied: Some Other Race Alone Householder": "Some Other",
+            "Renter Occupied: American Indian And Alaska Native Alone Householder": "AIAN",
+            "Total: Asian Alone Householder": "Asian",
+            "Total: Black Or African American Alone Householder": "Black",
+            "Total: Native Hawaiian And Other Pacific Islander Alone Householder": "NHPI",
+            "Total: Some Other Race Alone Householder": "Some Other",
+            "Total: American Indian And Alaska Native Alone Householder": "AIAN",
+            "Total: White Alone Householder": "White",
+            "Total: Two Or More Races Householder": "Multi",
+        }
     )
-    val["Tenure"] = np.where(
-        val["Race"].str.startswith("Owner"), "Owner Occupied", "Renter Occupied"
+    total = val[(val["variable_name"].str.contains("Total:"))]
+    val = val[(~val["variable_name"].str.contains("Total"))]
+    df = total.merge(
+        val,
+        left_on=["Geography", "Race"],
+        right_on=["Geography", "Race"],
+        suffixes=("_total", ""),
     )
-    val = val[(~val["Race"].str.contains("Total"))]
-    total = val.groupby(["Geography", "Tenure"]).sum()
-    df = val.merge(
-        total,
-        left_on=["Geography", "Tenure"],
-        right_on=["Geography", "Tenure"],
-        suffixes=("", "_total"),
+    df["Tenure"] = np.where(
+        df["variable_name"].str.startswith("Owner"), "Owner Occupied", "Renter Occupied"
     )
     df["share"] = df["value"] / df["value_total"]
-    df["Race"] = np.where(
-        df["Race"].str.contains("Asian"),
-        "Asian",
-        np.where(
-            df["Race"].str.contains("Black"),
-            "Black",
-            np.where(
-                df["Race"].str.contains("Native Hawaiian"),
-                "NHPI",
-                np.where(
-                    df["Race"].str.contains("Some"),
-                    "Some Other",
-                    np.where(df["Race"].str.contains("White"), "White", "AIAN"),
-                ),
-            ),
-        ),
-    )
     return df
 
 
@@ -211,11 +181,11 @@ def plot_4_1_d_race(df):
         df,
         path_html="html/4.1(d)_TenureByRace.html",
         div_id="4.1.d_TenureByRace",
-        x="Tenure",
+        x="Race",
         y="share",
         facet="Geography",
-        color="Race",
-        color_sequence=["#208385", "#FC9A62", "#F9C63E", "#632E5A", "#A48352", "#BCEDB8"],
+        color="Tenure",
+        color_sequence=["#208385", "#FC9A62"],
         y_title="% of Tenure by Race",
-        x_title="Tenure",
+        x_title="Race",
     )
