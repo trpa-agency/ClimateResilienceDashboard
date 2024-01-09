@@ -39,9 +39,12 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
     fig.update_layout(
         yaxis=dict(title=y_title),
         xaxis=dict(title=x_title),
-        hovermode="x",
+        hovermode="x unified",
         template="plotly_white",
+        dragmode=False,
     )
+    fig.update_traces(hovertemplate="%{y}")
+    fig.update_yaxes(tickformat=",r")
     fig.write_html(
         config=config,
         file=path_html,
@@ -51,7 +54,21 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
 
 
 # Stacked Percent Bar chart
-def stackbar_percent(df, path_html, div_id, x, y, facet, color, color_sequence, y_title, x_title):
+def stackbar_percent(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    facet,
+    color,
+    color_sequence,
+    orders,
+    y_title,
+    x_title,
+    hovertemplate,
+    hovermode,
+):
     config = {"displayModeBar": False}
     fig = px.bar(
         df,
@@ -61,16 +78,18 @@ def stackbar_percent(df, path_html, div_id, x, y, facet, color, color_sequence, 
         barmode="stack",
         facet_col=facet,
         color_discrete_sequence=color_sequence,
+        category_orders=orders,
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
         yaxis=dict(tickformat=".0%", hoverformat=".0%", title=y_title),
         xaxis=dict(title=x_title),
-        hovermode="x",
+        hovermode=hovermode,
         template="plotly_white",
+        dragmode=False,
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
-    fig.update_traces(hovertemplate="Year: %{x} <br>Percentage: %{y}")
+    fig.update_traces(hovertemplate=hovertemplate)
 
     fig.write_html(
         config=config,
@@ -81,7 +100,21 @@ def stackbar_percent(df, path_html, div_id, x, y, facet, color, color_sequence, 
 
 
 # Grouped Percent Bar chart
-def groupedbar_percent(df, path_html, div_id, x, y, facet, color, color_sequence, y_title, x_title):
+def groupedbar_percent(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    facet,
+    color,
+    color_sequence,
+    orders,
+    y_title,
+    x_title,
+    hovertemplate,
+    hovermode,
+):
     config = {"displayModeBar": False}
     fig = px.bar(
         df,
@@ -91,16 +124,18 @@ def groupedbar_percent(df, path_html, div_id, x, y, facet, color, color_sequence
         barmode="group",
         facet_col=facet,
         color_discrete_sequence=color_sequence,
+        category_orders=orders,
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
         yaxis=dict(tickformat=".0%", hoverformat=".0%", title=y_title),
         xaxis=dict(title=x_title),
-        hovermode="x",
+        hovermode=hovermode,
         template="plotly_white",
+        dragmode=False,
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
-    fig.update_traces(hovertemplate="Year: %{x} <br>Percentage: %{y}")
+    fig.update_traces(hovertemplate=hovertemplate)
 
     fig.write_html(
         config=config,

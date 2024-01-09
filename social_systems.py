@@ -1,9 +1,9 @@
 import numpy as np
 
-from utils import get_fs_data, stackbar_percent
+from utils import get_fs_data, groupedbar_percent, stackbar_percent
 
 
-def get_data_4_1_b():
+def get_data_4_4_a():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
@@ -39,11 +39,11 @@ def get_data_4_1_b():
     return df
 
 
-def plot_4_1_b(df):
+def plot_4_4_a(df):
     stackbar_percent(
         df,
-        path_html="html/4.1(b)_RaceEthnicity.html",
-        div_id="4.1.b_RaceEthnicity",
+        path_html="html/4.4(a)_RaceEthnicity_v1.html",
+        div_id="4.4.a_RaceEthnicity_v1",
         x="Year",
         y="share",
         facet="Geography",
@@ -58,12 +58,39 @@ def plot_4_1_b(df):
             "#023F64",
             "#B83F5D",
         ],
+        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
         y_title="% of Race and Ethnicity of Total",
         x_title="Year",
+        hovertemplate="%{y}",
+        hovermode="x unified",
+    )
+    groupedbar_percent(
+        df,
+        path_html="html/4.4(a)_RaceEthnicity_v2.html",
+        div_id="4.4.a_RaceEthnicity_v2",
+        x="Year",
+        y="share",
+        facet="Geography",
+        color="Race",
+        color_sequence=[
+            "#208385",
+            "#FC9A62",
+            "#F9C63E",
+            "#632E5A",
+            "#A48352",
+            "#BCEDB8",
+            "#023F64",
+            "#B83F5D",
+        ],
+        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        y_title="% of Race and Ethnicity of Total",
+        x_title="Year",
+        hovertemplate="%{y}",
+        hovermode="x unified",
     )
 
 
-def get_data_4_1_d_age():
+def get_data_4_1_c_age():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
@@ -108,11 +135,11 @@ def get_data_4_1_d_age():
     return df
 
 
-def plot_4_1_d_age(df):
+def plot_4_1_c_age(df):
     stackbar_percent(
         df,
-        path_html="html/4.1(d)_TenureByAge.html",
-        div_id="4.1.d_TenureByAge",
+        path_html="html/4.1(c)_TenureByAge.html",
+        div_id="4.1.c_TenureByAge",
         x="Age",
         y="share",
         facet="Geography",
@@ -128,12 +155,28 @@ def plot_4_1_d_age(df):
             "#B83F5D",
             "#FCE3A4",
         ],
+        orders={
+            "Age": [
+                "15 to 24 Years",
+                "25 to 34 Years",
+                "35 to 44 Years",
+                "45 to 54 Years",
+                "55 to 59 Years",
+                "60 to 64 Years",
+                "65 to 74 Years",
+                "75 to 84 Years",
+                "85+ Years",
+            ],
+            "Geography": ["Basin", "South Lake", "North Lake"],
+        },
         y_title="% of Tenure by Age",
         x_title="Age",
+        hovertemplate="%{y}",
+        hovermode="x unified",
     )
 
 
-def get_data_4_1_d_race():
+def get_data_4_1_c_race():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
@@ -176,16 +219,22 @@ def get_data_4_1_d_race():
     return df
 
 
-def plot_4_1_d_race(df):
+def plot_4_1_c_race(df):
     stackbar_percent(
         df,
-        path_html="html/4.1(d)_TenureByRace.html",
-        div_id="4.1.d_TenureByRace",
+        path_html="html/4.1(c)_TenureByRace.html",
+        div_id="4.1.c_TenureByRace",
         x="Race",
         y="share",
         facet="Geography",
         color="Tenure",
         color_sequence=["#208385", "#FC9A62"],
+        orders={
+            "Race": ["White", "Black", "Asian", "NHPI", "Some Other"],
+            "Geography": ["Basin", "South Lake", "North Lake"],
+        },
         y_title="% of Tenure by Race",
         x_title="Race",
+        hovertemplate="%{y}",
+        hovermode="x unified",
     )

@@ -15,8 +15,11 @@ def plot_3_2_a(df):
         facet="Source",
         color="Type",
         color_sequence=["#208385", "#FC9A62"],
+        orders={"Year": []},
         y_title="% of Renewable Energy by Share of Total",
         x_title="Year",
+        hovertemplate="Year: %{x} <br>Percentage: %{y}",
+        hovermode="x",
     )
 
 
@@ -41,6 +44,7 @@ def get_data_3_1_b():
         right_on=["Geography", "year_sample"],
         suffixes=("", "_total"),
     )
+    df["Year"] = df["Year"].astype("str")
     df["share"] = df["value"] / df["value_total"]
     return df
 
@@ -63,6 +67,9 @@ def plot_3_1_b(df):
             "#BCEDB8",
             "#023F64",
         ],
+        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
         y_title="% of Home Energy Sources by Share of Total",
         x_title="Year",
+        hovertemplate="%{y}",
+        hovermode="x unified",
     )
