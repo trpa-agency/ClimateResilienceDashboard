@@ -45,6 +45,7 @@ def plot_1_3_c(df):
         xaxis=dict(title="Year"),
         template="plotly_white",
         hovermode="x unified",
+        dragmode=False,
     )
     fig.update_yaxes(autorange="reversed")
     fig.add_trace(
