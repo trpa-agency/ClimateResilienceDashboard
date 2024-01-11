@@ -103,8 +103,9 @@ def get_data_4_1_c_age():
     val["Tenure"] = np.where(
         val["Age"].str.startswith("Owner"), "Owner Occupied", "Renter Occupied"
     )
-    val["Age"] = val["Age"].map(
+    val["Age"] = val["Age"].replace(
         {
+            "Owner Occupied: Householder 15 To 24 Years": "15 to 24 Years",
             "Owner Occupied: Householder 25 To 34 Years": "25 to 34 Years",
             "Owner Occupied: Householder 35 To 44 Years": "35 to 44 Years",
             "Owner Occupied: Householder 45 To 54 Years": "45 to 54 Years",
@@ -182,7 +183,7 @@ def get_data_4_1_c_race():
     )
     mask = data["Category"] == "Tenure by Race"
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
-    val["Race"] = val["variable_name"].map(
+    val["Race"] = val["variable_name"].replace(
         {
             "Owner Occupied: Asian Alone Householder": "Asian",
             "Owner Occupied: Black Or African American Alone Householder": "Black",

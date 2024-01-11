@@ -18,8 +18,8 @@ def plot_3_2_a(df):
         orders={"Year": []},
         y_title="% of Renewable Energy by Share of Total",
         x_title="Year",
-        hovertemplate="Year: %{x} <br>Percentage: %{y}",
-        hovermode="x",
+        hovertemplate="%{y}",
+        hovermode="x unified",
     )
 
 

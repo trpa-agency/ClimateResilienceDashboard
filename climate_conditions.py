@@ -47,7 +47,7 @@ def plot_1_3_c(df):
         hovermode="x unified",
         dragmode=False,
     )
-    fig.update_yaxes(autorange="reversed")
+    fig.update_yaxes(autorange="reversed", autorangeoptions=dict(include=0))
     fig.add_trace(
         px.line(df, x="year", y="F5_year_average", color_discrete_sequence=["#208385"]).data[0]
     )
