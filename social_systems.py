@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from utils import get_fs_data, groupedbar_percent, stackbar_percent
 
@@ -7,12 +8,17 @@ def get_data_4_4_a():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
-    mask = data["Category"] == "Race and Ethnicity"
+    mask1 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] != 2020)
+    mask2 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] == 2020)&(data["sample_level"] == "block group")
+    df1 = data[mask1]
+    df2 = data[mask2]
+    val = pd.concat([df1, df2], ignore_index = True) 
     val = (
-        data[mask]
+        val
         .loc[:, ["variable_name", "value", "Geography", "year_sample"]]
         .rename(columns={"year_sample": "Year", "variable_name": "Race"})
     )
+    # val = bind data1 and data2
     total = val.groupby(["Geography", "Year"]).sum()
     df = val.merge(
         total,
@@ -94,7 +100,7 @@ def get_data_4_1_c_age():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
-    mask = data["Category"] == "Tenure by Age"
+    mask = (data["Category"] == "Tenure by Age")&(data["year_sample"] == 2021)
     val = (
         data[mask]
         .loc[:, ["variable_name", "value", "Geography"]]
@@ -190,6 +196,7 @@ def get_data_4_1_c_race():
             "Owner Occupied: White Alone Householder": "White",
             "Owner Occupied: Native Hawaiian And Other Pacific Islander Alone Householder": "NHPI",
             "Owner Occupied: Some Other Race Alone Householder": "Some Other",
+            "Owner Occupied: American Indian And Alaska Native Alone Householder": "AIAN",
             "Renter Occupied: Asian Alone Householder": "Asian",
             "Renter Occupied: Black Or African American Alone Householder": "Black",
             "Renter Occupied: White Alone Householder": "White",

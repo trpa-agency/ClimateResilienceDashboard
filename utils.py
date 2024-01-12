@@ -44,7 +44,7 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
         dragmode=False,
     )
     fig.update_traces(hovertemplate="%{y:,.0f}")
-    fig.update_yaxes(tickformat=",r")
+    fig.update_yaxes(tickformat=",.0f")
     fig.write_html(
         config=config,
         file=path_html,
