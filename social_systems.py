@@ -4,98 +4,6 @@ import pandas as pd
 from utils import get_fs_data, groupedbar_percent, stackbar_percent
 
 
-def get_data_4_4_a():
-    data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
-    )
-    mask1 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] != 2020)
-    mask2 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] == 2020)&(data["sample_level"] == "block group")
-    df1 = data[mask1]
-    df2 = data[mask2]
-    val = pd.concat([df1, df2], ignore_index = True) 
-    val = (
-        val
-        .loc[:, ["variable_name", "value", "Geography", "year_sample"]]
-        .rename(columns={"year_sample": "Year", "variable_name": "Race"})
-    )
-    # val = bind data1 and data2
-    total = val.groupby(["Geography", "Year"]).sum()
-    df = val.merge(
-        total,
-        left_on=["Geography", "Year"],
-        right_on=["Geography", "Year"],
-        suffixes=("", "_total"),
-    )
-    df["Year"] = df["Year"].astype(str)
-    df["share"] = df["value"] / df["value_total"]
-    df["Race"] = df["Race"].map(
-        {
-            "Total population:  Hispanic or Latino": "Hispanic",
-            "Total population:  Not Hispanic or Latino; White alone": "White",
-            "Total population:  Not Hispanic or Latino; Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
-            "Total population:  Not Hispanic or Latino; Black or African American alone": "Black",
-            "Total population:  Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
-            "Total population:  Not Hispanic or Latino; Asian alone": "Asian",
-            "Total population:  Not Hispanic or Latino; Native Hawaiian and Other Pacific Islander alone": "NHPI",
-            "Total population:  Not Hispanic or Latino; Some other race alone": "Some Other",
-            "Total population:  Not Hispanic or Latino; Two or more races": "Multi",
-        }
-    )
-    df = df.sort_values("Year")
-    return df
-
-
-def plot_4_4_a(df):
-    stackbar_percent(
-        df,
-        path_html="html/4.4(a)_RaceEthnicity_v1.html",
-        div_id="4.4.a_RaceEthnicity_v1",
-        x="Year",
-        y="share",
-        facet="Geography",
-        color="Race",
-        color_sequence=[
-            "#208385",
-            "#FC9A62",
-            "#F9C63E",
-            "#632E5A",
-            "#A48352",
-            "#BCEDB8",
-            "#023F64",
-            "#B83F5D",
-        ],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
-        y_title="% of Race and Ethnicity of Total",
-        x_title="Year",
-        hovertemplate="%{y}",
-        hovermode="x unified",
-    )
-    groupedbar_percent(
-        df,
-        path_html="html/4.4(a)_RaceEthnicity_v2.html",
-        div_id="4.4.a_RaceEthnicity_v2",
-        x="Year",
-        y="share",
-        facet="Geography",
-        color="Race",
-        color_sequence=[
-            "#208385",
-            "#FC9A62",
-            "#F9C63E",
-            "#632E5A",
-            "#A48352",
-            "#BCEDB8",
-            "#023F64",
-            "#B83F5D",
-        ],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
-        y_title="% of Race and Ethnicity of Total",
-        x_title="Year",
-        hovertemplate="%{y}",
-        hovermode="x unified",
-    )
-
-
 def get_data_4_1_c_age():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
@@ -243,6 +151,97 @@ def plot_4_1_c_race(df):
         },
         y_title="% of Tenure by Race",
         x_title="Race",
+        hovertemplate="%{y}",
+        hovermode="x unified",
+    )
+
+def get_data_4_4_a():
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+    )
+    mask1 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] != 2020)
+    mask2 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] == 2020)&(data["sample_level"] == "block group")
+    df1 = data[mask1]
+    df2 = data[mask2]
+    val = pd.concat([df1, df2], ignore_index = True) 
+    val = (
+        val
+        .loc[:, ["variable_name", "value", "Geography", "year_sample"]]
+        .rename(columns={"year_sample": "Year", "variable_name": "Race"})
+    )
+    # val = bind data1 and data2
+    total = val.groupby(["Geography", "Year"]).sum()
+    df = val.merge(
+        total,
+        left_on=["Geography", "Year"],
+        right_on=["Geography", "Year"],
+        suffixes=("", "_total"),
+    )
+    df["Year"] = df["Year"].astype(str)
+    df["share"] = df["value"] / df["value_total"]
+    df["Race"] = df["Race"].map(
+        {
+            "Total population:  Hispanic or Latino": "Hispanic",
+            "Total population:  Not Hispanic or Latino; White alone": "White",
+            "Total population:  Not Hispanic or Latino; Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
+            "Total population:  Not Hispanic or Latino; Black or African American alone": "Black",
+            "Total population:  Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
+            "Total population:  Not Hispanic or Latino; Asian alone": "Asian",
+            "Total population:  Not Hispanic or Latino; Native Hawaiian and Other Pacific Islander alone": "NHPI",
+            "Total population:  Not Hispanic or Latino; Some other race alone": "Some Other",
+            "Total population:  Not Hispanic or Latino; Two or more races": "Multi",
+        }
+    )
+    df = df.sort_values("Year")
+    return df
+
+
+def plot_4_4_a(df):
+    stackbar_percent(
+        df,
+        path_html="html/4.4(a)_RaceEthnicity_v1.html",
+        div_id="4.4.a_RaceEthnicity_v1",
+        x="Year",
+        y="share",
+        facet="Geography",
+        color="Race",
+        color_sequence=[
+            "#208385",
+            "#FC9A62",
+            "#F9C63E",
+            "#632E5A",
+            "#A48352",
+            "#BCEDB8",
+            "#023F64",
+            "#B83F5D",
+        ],
+        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        y_title="% of Race and Ethnicity of Total",
+        x_title="Year",
+        hovertemplate="%{y}",
+        hovermode="x unified",
+    )
+    groupedbar_percent(
+        df,
+        path_html="html/4.4(a)_RaceEthnicity_v2.html",
+        div_id="4.4.a_RaceEthnicity_v2",
+        x="Year",
+        y="share",
+        facet="Geography",
+        color="Race",
+        color_sequence=[
+            "#208385",
+            "#FC9A62",
+            "#F9C63E",
+            "#632E5A",
+            "#A48352",
+            "#BCEDB8",
+            "#023F64",
+            "#B83F5D",
+        ],
+        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        y_title="% of Race and Ethnicity of Total",
+        x_title="Year",
         hovertemplate="%{y}",
         hovermode="x unified",
     )
