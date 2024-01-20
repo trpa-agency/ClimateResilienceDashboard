@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Climate Resilience Dashboard - Firewise Community, Emergency Services</title>
+    <title>Climate Resilience Dashboard - Prescribed Fire, Firewise Community, Emergency Services</title>
 
     <style>
       html,
@@ -78,6 +78,7 @@
         
         var map = new WebMap({
               portalItem: { // autocasts as new PortalItem()
+                // basemap webmap to use
                 id: "e1043a721b3943a6bba5f87ea468ecbb"
               }
             });
@@ -96,118 +97,94 @@
           view: view
         });
         view.ui.add(fullscreen, "top-left");
-          
-//         // setup local plan renderer
-//         var renderer = {
-//           type: "unique-value",  // autocasts as new UniqueValueRenderer()
-//           field: "NAME",
-// //          defaultSymbol: { type: "simple-fill" },  // autocasts as new SimpleFillSymbol()
-//           uniqueValueInfos: [{
-//             // All features with value of "Area Plan" will be blue
-//             value: "Threat",
-//             symbol: {
-//               type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-//               color:[ 51,51, 204,0.3],
-//             outline: {  // autocasts as new SimpleLineSymbol()
-//                   width: 0.4,
-//                   color: "grey"
-//                 }
-//             }
-//           }, {
-//             // All features with value of "Community Plan" will be green
-//             value: "Defense",
-//             symbol: {
-//               type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-//               color:[ 232,190, 255, 0.4 ],
-//             outline: {  // autocasts as new SimpleLineSymbol()
-//                   width: 0.3,
-//                   color: "grey"
-//                 }
-//             }
-//           }
-//         ]};
-          
-//         // Create a popupTemplate
-//         const template = {
-//           title: "Treatment Type: {ACT}",
-//           content:[
-//               {
-//           type: "fields",
-//           fieldInfos: [
-//                 { 
-//                   fieldName: "YEAR",
-//                   label: "Year"
-//                 }, 
-//                 { 
-//                   fieldName: "ACRES",
-//                   label: "Acres",
-//                 format: {
-//                         digitSeparator: true, // Uses a comma separator in numbers >999
-//                         places: 2 // Sets the number of decimal places to 0 and rounds up
-//                       }
-//                 },
-//                 {
-//                   fieldName: "OWN_FULL",
-//                   label: "Owner"
-//                 },
-// //                { 
-// //                  fieldName: "CATEGORY",
-// //                  label: "Category"
-// //                },
 
-//                 { 
-//                   fieldName: "PROJ",
-//                   label: "Project"
-//                 }
-//                 ]
-//               }
-//               ]            
-//         };
-        
+        // Create a popupTemplate
+        const incidentTemplate = {
+          title: "Fire Incident Name: {IncidentName}",
+          content:[
+              {
+          type: "fields",
+          fieldInfos: [
+                { 
+                  fieldName: "IncidentTypeCategory",
+                  label: "Incident Type"
+                }
+                ]
+              }
+              ]            
+        };
+
         // fire incident layer
         var fireIncident = new FeatureLayer({
-          url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/1",
+          url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/0",
           title: "Fire Incident",
+          popupTemplate: incidentTemplate
         });
         
         map.add(fireIncident);
+
+        // Create a popupTemplate
+        const firewiseTemplate = {
+          title: "Community: {Name}",
+          content:[
+              {
+          type: "fields",
+          fieldInfos: [
+                { 
+                  fieldName: "Status",
+                  label: "Status"
+                }, 
+                { 
+                  fieldName: "ApprovalYear",
+                  label: "Approval Year"
+                }
+                ]
+              }
+              ]            
+        };
 
         // firewise feature layer
         var firewiseLayer = new FeatureLayer({
           url: "https://services1.arcgis.com/0V03GIVRCAoxbtdR/ArcGIS/rest/services/Firewise_sites_In_Good_Standing_/FeatureServer/0",
           title: "Firewise Community",
-          // popupTemplate: template,
+          popupTemplate: firewiseTemplate,
         });
           
         map.add(firewiseLayer);
-          
+
+        // emergency services
+        var emergenyMedical = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/Emergency_Services/MapServer/2",
+          title: "Emergency Facilities",
+        });
+        map.add(emergenyMedical);
+        
         // boundary feature layer
         var trpaLayer = new FeatureLayer({
-          url: "https://maps.trpa.org/server/rest/services/Boundaries/MapServer/4",
+          url: "https://maps.trpa.org/server/rest/services/Boundaries/FeatureServer/4",
           title: "TRPA Boundary"
         });
           
         map.add(trpaLayer);
-          
+
         // create legend card
         var legend = new Legend({
         view: view,
         layerInfos: [
           {
+            layer: fireIncident,
+            title: "Fire Incident"
+
+          },
+          {
             layer: firewiseLayer,
             title: "Firewise Community in Good Standing"
 
           }
-        //   {
-        //     layer: ,
-        //     title: ""
-
-        //   }
         ]
         });
-
         // Add widget to the top right corner of the view
-        // view.ui.add(legend, "top-right");
+        view.ui.add(legend, "top-right");
         
         // Create collapasable button for legend
         var legendExpand = new Expand({
@@ -232,6 +209,7 @@
         view.ui.add(homeWidget, "top-left");            
      
     });
+
 	</script>
   </head>
   <body>

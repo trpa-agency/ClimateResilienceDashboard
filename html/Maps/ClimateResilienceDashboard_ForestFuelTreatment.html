@@ -97,13 +97,13 @@
         });
         view.ui.add(fullscreen, "top-left");
           
-        // setup local plan renderer
+        // setup renderer
         var renderer = {
           type: "unique-value",  // autocasts as new UniqueValueRenderer()
           field: "NAME",
 //          defaultSymbol: { type: "simple-fill" },  // autocasts as new SimpleFillSymbol()
           uniqueValueInfos: [{
-            // All features with value of "Area Plan" will be blue
+            // All features with value of "
             value: "Threat",
             symbol: {
               type: "simple-fill",  // autocasts as new SimpleFillSymbol()
@@ -114,7 +114,7 @@
                 }
             }
           }, {
-            // All features with value of "Community Plan" will be green
+            // All features with value of "
             value: "Defense",
             symbol: {
               type: "simple-fill",  // autocasts as new SimpleFillSymbol()
