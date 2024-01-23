@@ -8,7 +8,7 @@ def get_data_4_1_c_age():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
-    mask = (data["Category"] == "Tenure by Age")&(data["year_sample"] == 2021)
+    mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2021)
     val = (
         data[mask]
         .loc[:, ["variable_name", "value", "Geography"]]
@@ -155,19 +155,22 @@ def plot_4_1_c_race(df):
         hovermode="x unified",
     )
 
+
 def get_data_4_4_a():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
-    mask1 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] != 2020)
-    mask2 = (data["Category"] == "Race and Ethnicity")&(data["year_sample"] == 2020)&(data["sample_level"] == "block group")
+    mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
+    mask2 = (
+        (data["Category"] == "Race and Ethnicity")
+        & (data["year_sample"] == 2020)
+        & (data["sample_level"] == "block group")
+    )
     df1 = data[mask1]
     df2 = data[mask2]
-    val = pd.concat([df1, df2], ignore_index = True) 
-    val = (
-        val
-        .loc[:, ["variable_name", "value", "Geography", "year_sample"]]
-        .rename(columns={"year_sample": "Year", "variable_name": "Race"})
+    val = pd.concat([df1, df2], ignore_index=True)
+    val = val.loc[:, ["variable_name", "value", "Geography", "year_sample"]].rename(
+        columns={"year_sample": "Year", "variable_name": "Race"}
     )
     # val = bind data1 and data2
     total = val.groupby(["Geography", "Year"]).sum()

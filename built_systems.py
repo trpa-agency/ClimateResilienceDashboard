@@ -45,7 +45,7 @@ def plot_3_1_b(df):
             "#BCEDB8",
             "#023F64",
             "#62C0CC",
-            "#B83F5D"
+            "#B83F5D",
         ],
         orders={"Geography": ["Basin", "South Lake", "North Lake"]},
         y_title="% of Home Energy Sources by Share of Total",
@@ -75,4 +75,3 @@ def plot_3_2_a(df):
         hovertemplate="%{y}",
         hovermode="x unified",
     )
-
