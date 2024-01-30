@@ -4,7 +4,7 @@ import pandas as pd
 from utils import get_fs_data, groupedbar_percent, stackbar_percent
 
 
-def get_data_4_1_c_age():
+def get_data_tenure_by_age():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
@@ -50,7 +50,7 @@ def get_data_4_1_c_age():
     return df
 
 
-def plot_4_1_c_age(df):
+def plot_tenure_by_age(df):
     stackbar_percent(
         df,
         path_html="html/4.1(c)_TenureByAge.html",
@@ -91,11 +91,11 @@ def plot_4_1_c_age(df):
     )
 
 
-def get_data_4_1_c_race():
+def get_data_tenure_by_race():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
-    mask = data["Category"] == "Tenure by Race"
+    mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
     val["Race"] = val["variable_name"].replace(
         {
@@ -135,7 +135,7 @@ def get_data_4_1_c_race():
     return df
 
 
-def plot_4_1_c_race(df):
+def plot_tenure_by_race(df):
     stackbar_percent(
         df,
         path_html="html/4.1(c)_TenureByRace.html",
@@ -156,7 +156,7 @@ def plot_4_1_c_race(df):
     )
 
 
-def get_data_4_4_a():
+def get_data_race_ethnicity():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
@@ -199,7 +199,7 @@ def get_data_4_4_a():
     return df
 
 
-def plot_4_4_a(df):
+def plot_race_ethnicity(df):
     stackbar_percent(
         df,
         path_html="html/4.4(a)_RaceEthnicity_v1.html",

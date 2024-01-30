@@ -1,7 +1,7 @@
 from utils import get_fs_data, read_file, stackbar_percent
 
 
-def get_data_3_1_b():
+def get_data_home_heating():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
@@ -27,7 +27,7 @@ def get_data_3_1_b():
     return df
 
 
-def plot_3_1_b(df):
+def plot_home_heating(df):
     stackbar_percent(
         df,
         path_html="html/3.1(b)_HomeHeatingFuels.html",
@@ -55,11 +55,11 @@ def plot_3_1_b(df):
     )
 
 
-def get_data_3_2_a():
+def get_data_energy_mix():
     return read_file("data/EnergyMix_long.csv")
 
 
-def plot_3_2_a(df):
+def plot_energy_mix(df):
     stackbar_percent(
         df,
         path_html="html/3.2(a)_EnergyMix.html",
