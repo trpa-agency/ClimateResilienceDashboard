@@ -7,17 +7,17 @@ from utils import get_fs_data, trendline
 # import statsmodel
 
 
-def get_data_1_1_a():
+def get_data_greenhouse_gas():
     return get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/124"
     )
 
 
-def plot_1_1_a(df):
+def plot_greenhouse_gas(df):
     trendline(
         df,
-        path_html="html/1.1(a)_GHG.html",
-        div_id="1.1.a_GHG",
+        path_html="html/1.1(a)_Greenhouse_Gas.html",
+        div_id="1.1.a_greenhouse_gas",
         x="Year",
         y="MT_CO2",
         color="Category",
@@ -27,14 +27,14 @@ def plot_1_1_a(df):
     )
 
 
-def get_data_1_3_c():
+def get_data_secchi_depth():
     return get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/125"
     )
 
 
 # A pretty specific graph
-def plot_1_3_c(df):
+def plot_secchi_depth(df):
     config = {"displayModeBar": False}
     fig = px.scatter(
         df, x="year", y="annual_average", trendline="ols", color_discrete_sequence=["black"]
