@@ -95,7 +95,7 @@ def get_data_tenure_by_race():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
-    mask = data["Category"] == "Tenure by Race"
+    mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
     val["Race"] = val["variable_name"].replace(
         {
