@@ -143,3 +143,49 @@ def groupedbar_percent(
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
+
+# Bar chart
+def barchart(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    facet,
+    color,
+    color_sequence,
+    orders,
+    y_title,
+    x_title,
+    hovertemplate,
+    hovermode,
+):
+    config = {"displayModeBar": False}
+    fig = px.bar(
+        df,
+        x=x,
+        y=y,
+        color=color,
+        # barmode="group",
+        facet_col=facet,
+        color_discrete_sequence=color_sequence,
+        category_orders=orders,
+    )
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+    fig.update_layout(
+        yaxis=dict(title=y_title, tickformat=",.0f"),
+        xaxis=dict(title=x_title),
+        hovermode=hovermode,
+        template="plotly_white",
+        dragmode=False,
+    )
+    # fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
+    fig.update_traces(hovertemplate=hovertemplate)
+
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
