@@ -7,6 +7,8 @@
 
 ## Goal 2: Promote Resilient Natural Systems
 
+* 2.1(a) Forest Fuels treatments: chart, [map](Maps/ForestFuelTreatment.html)
+
 ## Goal 3: Support Resilient Built Systems
 
 * [3.1(b) Change in share of homes with electric or solar energy fuel compared to oil/gas over time](3.1(b)_HomeHeatingFuels.html)
