@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from utils import get_fs_data, groupedbar_percent, stackbar_percent
+from utils import get_fs_data, groupedbar_percent, stackedbar
 
 
 def get_data_tenure_by_age():
@@ -51,7 +51,7 @@ def get_data_tenure_by_age():
 
 
 def plot_tenure_by_age(df):
-    stackbar_percent(
+    stackedbar(
         df,
         path_html="html/4.1(c)_TenureByAge.html",
         div_id="4.1.c_TenureByAge",
@@ -88,6 +88,8 @@ def plot_tenure_by_age(df):
         x_title="Age",
         hovertemplate="%{y}",
         hovermode="x unified",
+        orientation=None,
+        format=".0%",
     )
 
 
@@ -136,7 +138,7 @@ def get_data_tenure_by_race():
 
 
 def plot_tenure_by_race(df):
-    stackbar_percent(
+    stackedbar(
         df,
         path_html="html/4.1(c)_TenureByRace.html",
         div_id="4.1.c_TenureByRace",
@@ -153,6 +155,8 @@ def plot_tenure_by_race(df):
         x_title="Race",
         hovertemplate="%{y}",
         hovermode="x unified",
+        orientation=None,
+        format=".0%",
     )
 
 
@@ -200,7 +204,7 @@ def get_data_race_ethnicity():
 
 
 def plot_race_ethnicity(df):
-    stackbar_percent(
+    stackedbar(
         df,
         path_html="html/4.4(a)_RaceEthnicity_v1.html",
         div_id="4.4.a_RaceEthnicity_v1",
@@ -223,6 +227,8 @@ def plot_race_ethnicity(df):
         x_title="Year",
         hovertemplate="%{y}",
         hovermode="x unified",
+        orientation=None,
+        format=".0%",
     )
     groupedbar_percent(
         df,
