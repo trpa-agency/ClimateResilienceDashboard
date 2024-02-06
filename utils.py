@@ -25,6 +25,13 @@ def get_fs_data(service_url):
     return all_data
 
 
+# Gets spatially enabled dataframe from TRPA server
+def get_fs_data_spatial(service_url):
+    feature_layer = FeatureLayer(service_url)
+    query_result = feature_layer.query().sdf
+    return query_result
+
+
 # Trendline
 def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_title):
     df = df.sort_values(by=x)

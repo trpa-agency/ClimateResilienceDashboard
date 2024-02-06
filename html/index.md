@@ -9,6 +9,7 @@
 
 * 2.1(a) Forest Fuels treatments: [chart](2.1(a)_ForestFuel.html), [map](Maps/ForestFuelTreatment.html)
 * 2.1(b) Old Growth Forest and Tree Species: [Seral Stage](2.1(b)_OldGrowthForest_SeralStage.html), [Tree Species](2.1(b)_OldGrowthForest_Species.html), [Structure](2.1(b)_OldGrowthForest_Structure.html)
+* 2.1(c) Probability of Fire: [chart](2.1(c)_Probability_of_Fire.html)
 
 ## Goal 3: Support Resilient Built Systems
 
