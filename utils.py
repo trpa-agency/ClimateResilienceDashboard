@@ -25,6 +25,13 @@ def get_fs_data(service_url):
     return all_data
 
 
+# Gets spatially enabled dataframe from TRPA server
+def get_fs_data_spatial(service_url):
+    feature_layer = FeatureLayer(service_url)
+    query_result = feature_layer.query().sdf
+    return query_result
+
+
 # Trendline
 def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_title):
     df = df.sort_values(by=x)
@@ -35,6 +42,7 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
         y=y,
         color=color,
         color_discrete_sequence=color_sequence,
+        markers=True,
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
@@ -54,7 +62,7 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
 
 
 # Stacked Percent Bar chart
-def stackbar_percent(
+def stackedbar(
     df,
     path_html,
     div_id,
@@ -68,6 +76,8 @@ def stackbar_percent(
     x_title,
     hovertemplate,
     hovermode,
+    orientation,
+    format,
 ):
     config = {"displayModeBar": False}
     fig = px.bar(
@@ -79,16 +89,17 @@ def stackbar_percent(
         facet_col=facet,
         color_discrete_sequence=color_sequence,
         category_orders=orders,
+        orientation=orientation,
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
-        yaxis=dict(tickformat=".0%", hoverformat=".0%", title=y_title),
-        xaxis=dict(title=x_title),
+        yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
+        xaxis=dict(title=x_title, tickformat=format),
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
     )
-    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
+    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_traces(hovertemplate=hovertemplate)
 
     fig.write_html(
@@ -114,6 +125,7 @@ def groupedbar_percent(
     x_title,
     hovertemplate,
     hovermode,
+    format,
 ):
     config = {"displayModeBar": False}
     fig = px.bar(
@@ -128,15 +140,64 @@ def groupedbar_percent(
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
-        yaxis=dict(tickformat=".0%", hoverformat=".0%", title=y_title),
+        yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
         xaxis=dict(title=x_title),
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
     )
-    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
+    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_traces(hovertemplate=hovertemplate)
 
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
+
+
+# Scatterplot
+def scatterplot(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    y2,
+    color,
+    color_sequence,
+    y_title,
+    x_title,
+    hovertemplate,
+    hovermode,
+    legend_number,
+    legend_otherline,
+):
+    config = {"displayModeBar": False}
+    fig = px.scatter(
+        df,
+        x=x,
+        y=y,
+        trendline="ols",
+        color=color,
+        color_discrete_sequence=color_sequence,
+        trendline_scope="overall",
+        trendline_color_override="black",
+    )
+    fig.update_traces(marker=dict(size=10))
+    fig.update_layout(
+        yaxis=dict(title=y_title),
+        xaxis=dict(title=x_title),
+        template="plotly_white",
+        hovermode=hovermode,
+        dragmode=False,
+    )
+    fig.update_yaxes(autorangeoptions=dict(include=0))
+    fig.add_trace(px.line(df, x=x, y=y2, color_discrete_sequence=["#208385"]).data[0])
+    fig.data[legend_number].name = legend_otherline
+    fig.data[legend_number].showlegend = True
+    fig.update_traces(hovertemplate=hovertemplate)
     fig.write_html(
         config=config,
         file=path_html,

@@ -1,9 +1,9 @@
-from utils import get_fs_data, read_file, stackbar_percent
+from utils import get_fs_data, read_file, stackedbar
 
 
 def get_data_home_heating():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask = (data["Category"] == "Home Heating Method") & (
         data["variable_name"] != "Total Heating Methods"
@@ -28,7 +28,7 @@ def get_data_home_heating():
 
 
 def plot_home_heating(df):
-    stackbar_percent(
+    stackedbar(
         df,
         path_html="html/3.1(b)_HomeHeatingFuels.html",
         div_id="3.1.b_HomeHeatingFuels",
@@ -52,6 +52,8 @@ def plot_home_heating(df):
         x_title="Year",
         hovertemplate="%{y}",
         hovermode="x unified",
+        orientation=None,
+        format=".0%",
     )
 
 
@@ -60,7 +62,7 @@ def get_data_energy_mix():
 
 
 def plot_energy_mix(df):
-    stackbar_percent(
+    stackedbar(
         df,
         path_html="html/3.2(a)_EnergyMix.html",
         div_id="3.2.a_EnergyMix",
@@ -74,4 +76,6 @@ def plot_energy_mix(df):
         x_title="Year",
         hovertemplate="%{y}",
         hovermode="x unified",
+        orientation=None,
+        format=".0%",
     )
