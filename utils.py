@@ -153,3 +153,51 @@ def groupedbar_percent(
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
+
+# Scatterplot
+def scatterplot(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    y2,
+    color,
+    color_sequence,
+    y_title,
+    x_title,
+    hovertemplate,
+    hovermode,
+    legend_number,
+    legend_otherline,
+):
+    config = {"displayModeBar": False}
+    fig = px.scatter(
+        df,
+        x=x,
+        y=y,
+        trendline="ols",
+        color=color,
+        color_discrete_sequence=color_sequence,
+        trendline_scope="overall",
+        trendline_color_override="black",
+    )
+    fig.update_traces(marker=dict(size=10))
+    fig.update_layout(
+        yaxis=dict(title=y_title),
+        xaxis=dict(title=x_title),
+        template="plotly_white",
+        hovermode=hovermode,
+        dragmode=False,
+    )
+    fig.add_trace(px.line(df, x=x, y=y2, color_discrete_sequence=["#208385"]).data[0])
+    fig.data[legend_number].name = legend_otherline
+    fig.data[legend_number].showlegend = True
+    fig.update_traces(hovertemplate=hovertemplate)
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )

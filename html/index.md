@@ -3,6 +3,7 @@
 ## Goal 1: Track Changing Climate Conditions
 
 * [1.1(a) Total GHG emissions by Sector](1.1(a)_Greenhouse_Gas.html)
+* 1.2(a) Air Quality: [CO](1.2(a)_Air_Quality_CO.html), [O3](1.2(a)_Air_Quality_O3.html), [PM2.5](1.2(a)_Air_Quality_PM2.5.html), [PM10](1.2(a)_Air_Quality_PM10.html)
 * [1.3(c) Lake clarity measured by Secchi Depth](1.3(c)_Secchi_Depth.html)
 
 ## Goal 2: Promote Resilient Natural Systems
