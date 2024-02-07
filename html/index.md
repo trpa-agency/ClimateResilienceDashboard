@@ -20,7 +20,6 @@
 * 2.3(a) Acres of restored high-quality wetlands and meadows helping to store flood waters
 * 2.3(b) Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements
 * 2.3(c) Increase in square feet of urban development treated by areawide stormwater infrastructure within key watersheds
-*
 
 ## Goal 3: Support Resilient Built Systems
 
