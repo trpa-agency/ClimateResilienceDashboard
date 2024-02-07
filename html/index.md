@@ -20,6 +20,7 @@
 
 ## Goal 4: Support Resilient Social Systems
 
+* 4.1(a) Median Household Income ([option 1](4.1(a)_Household_Income_v1.html), [option 2](4.1(a)_Household_Income_v2.html))
 * 4.1(c) Housing tenure (rented full-time, owner-occupied, second home), disaggregated by [race, ethnicity](4.1(c)_TenureByRace.html), and [age](4.1(c)_TenureByAge.html)
 * [4.3(a) Wildfire Incidents Map](Maps/Firewise_IncidentsRxBurn_EmergencyServices.html)
 * 4.4(a) Population disaggregated by race and ethnicity, age groups ([option 1](4.4(a)_RaceEthnicity_v1.html), [option 2](4.4(a)_RaceEthnicity_v2.html))

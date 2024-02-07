@@ -42,6 +42,7 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
         y=y,
         color=color,
         color_discrete_sequence=color_sequence,
+        markers=True,
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
@@ -124,6 +125,7 @@ def groupedbar_percent(
     x_title,
     hovertemplate,
     hovermode,
+    format,
 ):
     config = {"displayModeBar": False}
     fig = px.bar(
@@ -138,13 +140,13 @@ def groupedbar_percent(
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
-        yaxis=dict(tickformat=".0%", hoverformat=".0%", title=y_title),
+        yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
         xaxis=dict(title=x_title),
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
     )
-    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=".0%"))
+    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_traces(hovertemplate=hovertemplate)
 
     fig.write_html(
@@ -191,6 +193,7 @@ def scatterplot(
         hovermode=hovermode,
         dragmode=False,
     )
+    fig.update_yaxes(autorangeoptions=dict(include=0))
     fig.add_trace(px.line(df, x=x, y=y2, color_discrete_sequence=["#208385"]).data[0])
     fig.data[legend_number].name = legend_otherline
     fig.data[legend_number].showlegend = True

@@ -3,7 +3,7 @@ from utils import get_fs_data, read_file, stackedbar
 
 def get_data_home_heating():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask = (data["Category"] == "Home Heating Method") & (
         data["variable_name"] != "Total Heating Methods"

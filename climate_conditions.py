@@ -9,7 +9,7 @@ from utils import get_fs_data, scatterplot, trendline
 
 def get_data_greenhouse_gas():
     return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/124"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/125"
     )
 
 
@@ -29,7 +29,7 @@ def plot_greenhouse_gas(df):
 
 def get_data_secchi_depth():
     return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/125"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/126"
     )
 
 
@@ -155,45 +155,3 @@ def plot_air_quality(df):
         legend_number=2,
         legend_otherline="Threshold",
     )
-
-
-def test(df):
-    # PM2.5
-    pm25 = df[df["Pollutant"] == "PM2.5"]
-    scatterplot(
-        df=pm25,
-        path_html="html/1.2(a)_Air_Quality_PM25.html",
-        div_id="1.2.a_Air_Quality_PM25",
-        x="Year",
-        y="Value",
-        y2="Threshold_Value",
-        color="Site",
-        color_sequence=["#FC9A62"],
-        y_title="3 Year 24-Hour Average Concentration of PM2.5",
-        x_title="Year",
-        hovertemplate="%{y:.2f}",
-        hovermode="x unified",
-        legend_number=2,
-        legend_otherline="Threshold",
-    )
-
-
-# def plot_secchi_depth_v2(df):
-#     scatterplot(
-#         df=df,
-#         path_html="html/1.3(c)_Secchi_Depth_v2.html",
-#         div_id="1.3.c_Secchi_Depth_v2",
-#         x="Tear",
-#         y="annual_average",
-#         y2="F5_year_average",
-#         color=None,
-#         color_sequence=["black"],
-#         y_title="Secchi Depth (meters)",
-#         x_title="Year",
-#         hovertemplate="%{y:.2f}",
-#         hovermode="x unified",
-#         autorange="reversed",
-#         legend_points=None,
-#         legend_trendline=None,
-#         legend_otherline="5-Year Average",
-#     )

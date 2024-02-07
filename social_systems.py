@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 
-from utils import get_fs_data, groupedbar_percent, stackedbar
+from utils import get_fs_data, groupedbar_percent, stackedbar, trendline
 
 
 def get_data_tenure_by_age():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2021)
     val = (
@@ -95,7 +95,7 @@ def plot_tenure_by_age(df):
 
 def get_data_tenure_by_race():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
@@ -162,7 +162,7 @@ def plot_tenure_by_race(df):
 
 def get_data_race_ethnicity():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
     mask2 = (
@@ -253,4 +253,44 @@ def plot_race_ethnicity(df):
         x_title="Year",
         hovertemplate="%{y}",
         hovermode="x unified",
+        format=".0%",
+    )
+
+
+def get_data_household_income():
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+    )
+    df = data[data["Category"] == "Household Income"]
+    df = df.rename(columns={"year_sample": "Year"})
+    return df
+
+
+def plot_household_income(df):
+    groupedbar_percent(
+        df,
+        path_html="html/4.1(a)_Household_Income_v1.html",
+        div_id="4.1.a_Household_Income_v1",
+        x="Year",
+        y="value",
+        facet="Geography",
+        color="Geography",
+        color_sequence=["#208385", "#FC9A62", "#632E5A"],
+        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        y_title="Median Household Income ($)",
+        x_title="Year",
+        hovertemplate="%{y}",
+        hovermode="x unified",
+        format=",.0f",
+    )
+    trendline(
+        df,
+        path_html="html/4.1(a)_Household_Income_v2.html",
+        div_id="4.1.a_Household_Income_v2",
+        x="Year",
+        y="value",
+        color="Geography",
+        color_sequence=["#208385", "#FC9A62", "#632E5A"],
+        x_title="Year",
+        y_title="Median Household Income ($)",
     )
