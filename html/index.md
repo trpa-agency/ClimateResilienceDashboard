@@ -16,8 +16,8 @@
 * 2.1(a) Forest Fuels treatments: [chart](2.1(a)_ForestFuel.html), [map](Maps/ForestFuelTreatment.html)
 * 2.1(b) Old Growth Forest and Tree Species: [Seral Stage](2.1(b)_OldGrowthForest_SeralStage.html), [Tree Species](2.1(b)_OldGrowthForest_Species.html), [Structure](2.1(b)_OldGrowthForest_Structure.html)
 * 2.1(c) Probability of Fire: [Low Severity](2.1(c)_Probability_of_Low_Severity_Fire.html), [High Severity](2.1(c)_Probability_of_High_Severity_Fire.html)
-* 2.2(a) Acres treated for aquatic invasive species
-* 2.3(a) Acres of restored high-quality wetlands and meadows helping to store flood waters
+* [2.2(a) Acres treated for aquatic invasive species](2.2(a)_Aquatic_Species.html)
+* [2.3(a) Acres of restored high-quality wetlands and meadows helping to store flood waters](2.3(a)_Restored_Wetlands_Meadows.html)
 * 2.3(b) Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements
 * 2.3(c) Increase in square feet of urban development treated by areawide stormwater infrastructure within key watersheds
 

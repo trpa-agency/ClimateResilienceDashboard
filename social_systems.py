@@ -39,6 +39,7 @@ def get_data_tenure_by_age():
             "Renter Occupied: Householder 85 Years And Over": "85+ Years",
         }
     )
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
     total = val.groupby(["Geography", "Age"]).sum()
     df = val.merge(
         total,
@@ -82,7 +83,7 @@ def plot_tenure_by_age(df):
                 "75 to 84 Years",
                 "85+ Years",
             ],
-            "Geography": ["Basin", "South Lake", "North Lake"],
+            "Geography": ["Lake Tahoe Region", "South Lake", "North Lake"],
         },
         y_title="% of Tenure by Age",
         x_title="Age",
@@ -122,6 +123,7 @@ def get_data_tenure_by_race():
             "Total: Two Or More Races Householder": "Multi",
         }
     )
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
     total = val[(val["variable_name"].str.contains("Total:"))]
     val = val[(~val["variable_name"].str.contains("Total"))]
     df = total.merge(
@@ -149,7 +151,7 @@ def plot_tenure_by_race(df):
         color_sequence=["#208385", "#FC9A62"],
         orders={
             "Race": ["White", "Black", "Asian", "NHPI", "Some Other"],
-            "Geography": ["Basin", "South Lake", "North Lake"],
+            "Geography": ["Lake Tahoe Region", "South Lake", "North Lake"],
         },
         y_title="% of Tenure by Race",
         x_title="Race",
@@ -176,7 +178,7 @@ def get_data_race_ethnicity():
     val = val.loc[:, ["variable_name", "value", "Geography", "year_sample"]].rename(
         columns={"year_sample": "Year", "variable_name": "Race"}
     )
-    # val = bind data1 and data2
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
     total = val.groupby(["Geography", "Year"]).sum()
     df = val.merge(
         total,
@@ -222,7 +224,7 @@ def plot_race_ethnicity(df):
             "#023F64",
             "#B83F5D",
         ],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="% of Race and Ethnicity of Total",
         x_title="Year",
         hovertemplate="%{y}",
@@ -248,7 +250,7 @@ def plot_race_ethnicity(df):
             "#023F64",
             "#B83F5D",
         ],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="% of Race and Ethnicity of Total",
         x_title="Year",
         hovertemplate="%{y}",
@@ -262,6 +264,7 @@ def get_data_household_income():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     df = data[data["Category"] == "Household Income"]
+    df["Geography"] = df["Geography"].replace({"Basin": "Lake Tahoe Region"})
     df = df.rename(columns={"year_sample": "Year"})
     return df
 
@@ -276,7 +279,7 @@ def plot_household_income(df):
         facet="Geography",
         color="Geography",
         color_sequence=["#208385", "#FC9A62", "#632E5A"],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="Median Household Income ($)",
         x_title="Year",
         hovertemplate="%{y}",

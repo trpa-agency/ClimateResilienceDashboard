@@ -5,6 +5,7 @@ def get_data_home_heating():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
+    data["Geography"] = data["Geography"].replace({"Basin": "Lake Tahoe Region"})
     mask = (data["Category"] == "Home Heating Method") & (
         data["variable_name"] != "Total Heating Methods"
     )
@@ -47,7 +48,7 @@ def plot_home_heating(df):
             "#62C0CC",
             "#B83F5D",
         ],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="% of Home Energy Sources by Share of Total",
         x_title="Year",
         hovertemplate="%{y}",

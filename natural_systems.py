@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from utils import get_fs_data, get_fs_data_spatial, stackedbar
+from utils import get_fs_data, get_fs_data_spatial, stackedbar, trendline
 
 
 def get_data_forest_fuel():
@@ -193,4 +193,60 @@ def plot_probability_of_low_severity_fire(df):
         hovermode="x unified",
         orientation=None,
         format=".0%",
+    )
+
+
+def get_data_aquatic_species():
+    eipInvasive = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/15"
+    data = pd.read_json(eipInvasive)
+    data = data.rename(
+        columns={
+            "IndicatorProjectYear": "Year",
+            "PMSubcategoryOption1": "Invasive Species Type",
+            "IndicatorProjectValue": "Acres",
+        }
+    )
+    df = data.groupby(["Year", "Invasive Species Type"])["Acres"].sum().reset_index()
+    return df
+
+
+def plot_aquatic_species(df):
+    trendline(
+        df,
+        path_html="html/2.2(a)_Aquatic_Species.html",
+        div_id="2.2.a_Aquatic_Species",
+        x="Year",
+        y="Acres",
+        color="Invasive Species Type",
+        color_sequence=["#023f64", "#7ebfb5"],
+        x_title="Year",
+        y_title="Acres",
+    )
+
+
+def get_data_restored_wetlands_meadows():
+    eipSEZRestored = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/9"
+    data = pd.read_json(eipSEZRestored)
+    data = data.rename(
+        columns={
+            "IndicatorProjectYear": "Year",
+            "PMSubcategoryOption1": "Action Performed",
+            "IndicatorProjectValue": "Acres",
+        }
+    )
+    df = data.groupby(["Year", "Action Performed"])["Acres"].sum().reset_index()
+    return df
+
+
+def plot_restored_wetlands_meadows(df):
+    trendline(
+        df,
+        path_html="html/2.3(a)_Restored_Wetlands_Meadows.html",
+        div_id="2.3.a_Restored_Wetlands_Meadows",
+        x="Year",
+        y="Acres",
+        color="Action Performed",
+        color_sequence=["#023f64", "#7ebfb5"],
+        x_title="Year",
+        y_title="Acres",
     )
