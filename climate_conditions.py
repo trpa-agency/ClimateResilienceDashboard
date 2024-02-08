@@ -22,6 +22,7 @@ def plot_greenhouse_gas(df):
         y="MT_CO2",
         color="Category",
         color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        orders=None,
         x_title="Year",
         y_title="Amount of CO2 (MT CO2e)",
     )

@@ -219,6 +219,7 @@ def plot_aquatic_species(df):
         y="Acres",
         color="Invasive Species Type",
         color_sequence=["#023f64", "#7ebfb5"],
+        orders=None,
         x_title="Year",
         y_title="Acres",
     )
@@ -247,6 +248,7 @@ def plot_restored_wetlands_meadows(df):
         y="Acres",
         color="Action Performed",
         color_sequence=["#023f64", "#7ebfb5"],
+        orders=None,
         x_title="Year",
         y_title="Acres",
     )

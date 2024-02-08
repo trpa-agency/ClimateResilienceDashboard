@@ -33,7 +33,7 @@ def get_fs_data_spatial(service_url):
 
 
 # Trendline
-def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_title):
+def trendline(df, path_html, div_id, x, y, color, color_sequence, orders, x_title, y_title):
     df = df.sort_values(by=x)
     config = {"displayModeBar": False}
     fig = px.line(
@@ -42,6 +42,7 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
         y=y,
         color=color,
         color_discrete_sequence=color_sequence,
+        category_orders=orders,
         markers=True,
     )
     fig.update_layout(
