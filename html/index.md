@@ -37,7 +37,7 @@
 ## Goal 4: Support Resilient Social Systems
 
 * 4.1(a) Median Household Income ([option 1](4.1(a)_Household_Income_v1.html), [option 2](4.1(a)_Household_Income_v2.html))
-* 4.1(b) Housing costs (median home sales price and rental rates, by jurisdiction); include cost per unit and cost per square foot
+* 4.1(b) Housing costs (median home sales price and rental rates, by jurisdiction); include cost per unit and cost per square foot: [rent prices](4.1(b)_Rent_Prices.html), [home price](4.1(b)_Median_Sale_Prices.html)
 * 4.1(c) Housing tenure (rented full-time, owner-occupied, second home), disaggregated by [race, ethnicity](4.1(c)_TenureByRace.html), and [age](4.1(c)_TenureByAge.html)
 * 4.1(d) Percent of workers who commute into the basin, origin demographics, distance traveled
 * 4.2(a) Transient Occupancy Tax revenue and changes over time

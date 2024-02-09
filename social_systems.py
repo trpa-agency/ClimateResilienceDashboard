@@ -295,6 +295,7 @@ def plot_household_income(df):
         color="Geography",
         color_sequence=["#208385", "#FC9A62", "#632E5A"],
         orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
+        sort="Year",
         x_title="Year",
         y_title="Median Household Income ($)",
     )
@@ -326,9 +327,60 @@ def plot_rent_prices(df):
         y="Effective Rent Per Unit",
         color="Unit Sizes",
         color_sequence=["#208385", "#FC9A62", "#632E5A", "#B83F5D", "#A48352", "#62C0CC"],
+        sort="Period",
         orders={
             "Unit Sizes": ["All", "Studio", "1-Bedroom", "2-Bedroom", "3-Bedroom", "4-Bedroom"]
         },
         x_title="Year",
         y_title="Rent Prices ($)",
+    )
+
+
+def get_data_median_home_price():
+    price19 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2019.csv"
+    )
+    price20 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2020.csv"
+    )
+    price21 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2021.csv"
+    )
+    price22 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2022.csv"
+    )
+    price23_24 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2023to2024.csv"
+    )
+    data = pd.concat([price19, price20, price21, price22, price23_24], ignore_index=True)
+    data = data[
+        (data["City"] != "Truckee")
+        & (
+            data["Purchase Date"]
+            != "The information contained in this report is subject to the license restrictions and all other terms contained in PropertyRadar.com's User Agreement."
+        )
+    ]
+    data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
+    data["year"] = data["Purchase Date"].dt.year
+    data["month"] = data["Purchase Date"].dt.month
+    df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
+    df["Month"] = df["year"].astype(int).astype(str) + "-" + df["month"].astype(int).astype(str)
+    df = df.dropna()
+    df.to_csv("data/property_radar.csv")
+    return df
+
+
+def plot_median_home_price(df):
+    trendline(
+        df,
+        path_html="html/4.1(b)_Median_Sale_Prices.html",
+        div_id="4.1.b_Median_Sale_Prices",
+        x="Month",
+        y="Purchase Amt",
+        color=None,
+        color_sequence=["#208385"],
+        orders=None,
+        sort=["year", "month"],
+        x_title="Year",
+        y_title="Median Sale Prices ($)",
     )
