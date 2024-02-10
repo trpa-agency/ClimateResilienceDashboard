@@ -1,4 +1,8 @@
+from datetime import datetime, timedelta
+
+import pandas as pd
 import plotly.express as px
+import requests
 
 from utils import get_fs_data, scatterplot, trendline
 
@@ -156,4 +160,44 @@ def plot_air_quality(df):
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+    )
+
+
+def get_data_lake_level(days):
+    site_number = 10337000
+
+    # Calculate the start and end dates based on the selected time range
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+
+    start_date_str = start_date.strftime("%Y-%m-%d")
+    end_date_str = end_date.strftime("%Y-%m-%d")
+
+    url = f"https://waterservices.usgs.gov/nwis/iv/?format=json&sites={site_number}&parameterCd=00065&startDT={start_date_str}&endDT={end_date_str}"
+
+    response = requests.get(url)
+    data = response.json()
+
+    time_series_data = data["value"]["timeSeries"][0]["values"][0]["value"]
+
+    df = pd.DataFrame(time_series_data)
+    df["value"] = pd.to_numeric(df["value"])
+    df["dateTime"] = pd.to_datetime(df["dateTime"])
+    df["value"] = df["value"] + 6220
+    return df
+
+
+def plot_lake_level(df):
+    trendline(
+        df,
+        path_html="html/1.3(a)_Lake_Level.html",
+        div_id="1.3.a_Lake_Level",
+        x="dateTime",
+        y="value",
+        color=None,
+        color_sequence=["#023f64"],
+        sort="dateTime",
+        orders=None,
+        x_title="Time",
+        y_title="Water Level (ft)",
     )

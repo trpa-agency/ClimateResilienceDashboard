@@ -6,7 +6,7 @@
 * 1.2(a) Poor air quality days, wildfire smoke days, and number of extreme heat days per year.
   * Historical Data: [CO](1.2(a)_Air_Quality_CO.html), [O3](1.2(a)_Air_Quality_O3.html), [PM2.5](1.2(a)_Air_Quality_PM2.5.html), [PM10](1.2(a)_Air_Quality_PM10.html)
   * Purple Air data 2018-present
-* 1.3(a) Lake Tahoe water level
+* [1.3(a) Lake Tahoe water level](1.3(a)_Lake_Level.html)
 * 1.3(b) Annual average water temperature, including surface water temperature
 * [1.3(c) Lake clarity measured by Secchi Depth](1.3(c)_Secchi_Depth.html)
 * 1.4(a) Total precipitation in water per year, extreme precipitation, and snow as a fraction of annual precipitation
