@@ -223,6 +223,8 @@ def plot_aquatic_species(df):
         orders=None,
         x_title="Year",
         y_title="Acres",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
     )
 
 
@@ -253,4 +255,6 @@ def plot_restored_wetlands_meadows(df):
         sort="Year",
         x_title="Year",
         y_title="Acres",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
     )

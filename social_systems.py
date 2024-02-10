@@ -298,6 +298,8 @@ def plot_household_income(df):
         sort="Year",
         x_title="Year",
         y_title="Median Household Income ($)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
     )
 
 
@@ -333,6 +335,8 @@ def plot_rent_prices(df):
         },
         x_title="Year",
         y_title="Rent Prices ($)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
     )
 
 
@@ -383,4 +387,6 @@ def plot_median_home_price(df):
         sort=["year", "month"],
         x_title="Year",
         y_title="Median Sale Prices ($)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
     )

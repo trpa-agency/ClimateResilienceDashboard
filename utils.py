@@ -33,7 +33,21 @@ def get_fs_data_spatial(service_url):
 
 
 # Trendline
-def trendline(df, path_html, div_id, x, y, color, color_sequence, sort, orders, x_title, y_title):
+def trendline(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    color,
+    color_sequence,
+    sort,
+    orders,
+    x_title,
+    y_title,
+    format,
+    hovertemplate,
+):
     df = df.sort_values(by=sort)
     config = {"displayModeBar": False}
     fig = px.line(
@@ -52,8 +66,8 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, sort, orders, 
         template="plotly_white",
         dragmode=False,
     )
-    fig.update_traces(hovertemplate="%{y:,.0f}")
-    fig.update_yaxes(tickformat=",.0f")
+    fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_yaxes(tickformat=format)
     fig.write_html(
         config=config,
         file=path_html,

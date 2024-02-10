@@ -30,6 +30,8 @@ def plot_greenhouse_gas(df):
         orders=None,
         x_title="Year",
         y_title="Amount of CO2 (MT CO2e)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
     )
 
 
@@ -200,4 +202,32 @@ def plot_lake_level(df):
         orders=None,
         x_title="Time",
         y_title="Water Level (ft)",
+        hovertemplate="%{y:,.0f}",
+        format=",.0f",
+    )
+
+
+def get_data_lake_temp():
+    lakeTempURL = "https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate=20240130&rptend=20240202&id=4"
+    response = requests.get(lakeTempURL)
+    df = pd.DataFrame(response.json())
+    df["LS_Temp_Avg"] = df["LS_Temp_Avg"].astype(float)
+    return df
+
+
+def plot_lake_temp(df):
+    trendline(
+        df,
+        path_html="html/1.3(b)_Lake_Temp.html",
+        div_id="1.3.b_Lake_Temp",
+        x="TmStamp",
+        y="LS_Temp_Avg",
+        color=None,
+        color_sequence=["#023f64"],
+        sort="TmStamp",
+        orders=None,
+        x_title="Time",
+        y_title="Average Lake Surface Temperature ",
+        format=".1f",
+        hovertemplate="%{y:.2f}",
     )
