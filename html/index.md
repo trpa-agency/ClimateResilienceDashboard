@@ -25,7 +25,7 @@
 
 * 3.1(a) Total number of housing units in town centers and share of affordable housing in Town Centers
 * [3.1(b) Change in share of homes with electric or solar energy fuel compared to oil/gas over time](3.1(b)_HomeHeatingFuels.html)
-* 3.1(c) Number of deed-restricted affordable, moderate, and achievable units
+* [3.1(c) Number of deed-restricted affordable, moderate, and achievable units](3.1(c)_Deed_Restricted_Units.html)
 * [3.2(a) Percent of renewable energy as a share of total energy used](3.2(a)_EnergyMix.html)
 * 3.3(a) Total transit ridership by transit systems
 * 3.3(b) Daily per capita Vehicles Miles Traveled (VMT) and progress towards VMT target
