@@ -32,7 +32,7 @@
 * 3.3(c) [Alternative Fuel Stations Map](Maps/AlternateFuelStations.html), [Electric Transportation Infrastructure Map](Maps/ElectricTransportationInfrastructure.html)
 * 3.3(d) Baseline mode share and weekday or seasonal variation
 * 3.3(e) Transportation access in priority communities
-* 3.3(f) Increased lane miles of low-stress bicycle facilities
+* [3.3(f) Increased lane miles of low-stress bicycle facilities](3.3(f)_Low_Stress_Bicycle.html)
 
 ## Goal 4: Support Resilient Social Systems
 

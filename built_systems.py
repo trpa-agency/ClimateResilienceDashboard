@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from utils import get_fs_data, read_file, stackedbar, trendline
+from utils import get_fs_data, get_fs_data_spatial, read_file, stackedbar, trendline
 
 
 def get_data_home_heating():
@@ -148,4 +148,89 @@ def plot_data_deed_restricted(df):
         y_title="Cumuluative Total of Deed Restricted Parcels",
         format=".0f",
         hovertemplate="%{y:.0f}",
+    )
+
+
+def get_data_low_stress_bicycle():
+    sdf_bikelane = get_fs_data_spatial(
+        "https://maps.trpa.org/server/rest/services/Transportation/MapServer/3"
+    )
+    # recalc miles field from shape length
+    sdf_bikelane.MILES = sdf_bikelane["Shape.STLength()"] / 1609.34
+
+    # filter for CLASS = 1 2 or 3
+    filtered_sdf_bikelane = sdf_bikelane[sdf_bikelane["CLASS"].isin(["1", "2", "3"])]
+
+    # fix bad values
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        ["before 2010", " before 2010"], "2010"
+    )
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        ["before 2006", "Before 2006", "BEFORE 2006"], "2006"
+    )
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        [" 2014"], "2014"
+    )
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        ["2007 (1A) 2008 (1B)"], "2008"
+    )
+
+    # drop rows with <NA> values
+    filtered_sdf_bikelane = filtered_sdf_bikelane.dropna(subset=["YR_OF_CONS"])
+    # drop rows with 'i dont know' or 'UNKNOWN' values
+    filtered_sdf_bikelane = filtered_sdf_bikelane[
+        ~filtered_sdf_bikelane["YR_OF_CONS"].isin(["i dont know", "UNKNOWN"])
+    ]
+
+    # rename columns
+    df = filtered_sdf_bikelane.rename(
+        columns={"CLASS": "Class", "YR_OF_CONS": "Year", "MILES": "Miles"}
+    )
+
+    # Create a DataFrame with all possible combinations of 'Type' and 'Year'
+    df_all = pd.DataFrame(
+        {
+            "Class": np.repeat(df["Class"].unique(), df["Year"].nunique()),
+            "Year": df["Year"].unique().tolist() * df["Class"].nunique(),
+        }
+    )
+
+    # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
+    df = pd.merge(df_all, df, on=["Class", "Year"], how="left")
+
+    # add 2005 to the Year field for Class 1 2, and 3
+    dict = {"Class": ["1", "2", "3"], "Year": ["2005", "2005", "2005"], "Miles": [0, 0, 0]}
+
+    df2 = pd.DataFrame(dict)
+
+    df = pd.concat([df, df2], ignore_index=True)
+    # cast Year as integer
+    df["Year"] = df["Year"].astype(int)
+    # sort by year and miles
+    df.sort_values(["Year", "Miles"], inplace=True)
+
+    # Replace NaN values in 'MILES' with 0
+    df["Miles"] = df["Miles"].fillna(0)
+
+    # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
+    df["Cumulative Count"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
+
+    return df
+
+
+def plot_low_stress_bicycle(df):
+    trendline(
+        df,
+        path_html="html/3.3(f)_Low_Stress_Bicycle.html",
+        div_id="3.3.f_Low_Stress_Bicycle",
+        x="Year",
+        y="Cumulative Count",
+        color="Class",
+        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
+        sort="Year",
+        orders=None,
+        x_title="Year",
+        y_title="Cumuluative Miles of Bike Lane",
+        format=".2f",
+        hovertemplate="%{y:.2f}",
     )
