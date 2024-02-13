@@ -15,11 +15,11 @@
 
 * 2.1(a) Forest Fuels treatments: [chart](2.1(a)_ForestFuel.html), [map](Maps/ForestFuelTreatment.html)
 * 2.1(b) Old Growth Forest and Tree Species: [Seral Stage](2.1(b)_OldGrowthForest_SeralStage.html), [Tree Species](2.1(b)_OldGrowthForest_Species.html), [Structure](2.1(b)_OldGrowthForest_Structure.html)
-* 2.1(c) Probability of Fire: [Low Severity](2.1(c)_Probability_of_Low_Severity_Fire.html), [High Severity](2.1(c)_Probability_of_High_Severity_Fire.html)
+* 2.1(c) Probability of Fire: [Low Severity](2.1(c)_Probability_of_Low_Severity_Fire.html), [High Severity](2.1(c)_Probability_of_High_Severity_Fire.html) [High Severity Map](Maps/HighSeverityFireProbable.html)
 * [2.2(a) Acres treated for aquatic invasive species](2.2(a)_Aquatic_Species.html)
 * [2.3(a) Acres of restored high-quality wetlands and meadows helping to store flood waters](2.3(a)_Restored_Wetlands_Meadows.html)
-* 2.3(b) Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements
-* 2.3(c) Increase in square feet of urban development treated by areawide stormwater infrastructure within key watersheds
+* 2.3(b) Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements [map](Maps/BMPStormwater.html)
+* 2.3(c) Increase in square feet of urban development treated by areawide stormwater infrastructure within key watersheds [map](Maps/AreawideStormwater.html)
 
 ## Goal 3: Support Resilient Built Systems
 
@@ -42,7 +42,7 @@
 * 4.1(d) Percent of workers who commute into the basin, origin demographics, distance traveled
 * 4.2(a) Transient Occupancy Tax revenue and changes over time
 * 4.2(b) Consistent employment and median wages by sector and overall
-* 4.2(c) Access to recreation sites, fresh food, and healthcare for zero-vehicle households
+* 4.2(c) Access to recreation sites, fresh food, and healthcare for zero-vehicle households [equity map](Maps/Equity.html)
 * 4.2(d) Placeholder to add Sustainable Recreation indicator(s) when information is collected from the recreational stewardship project
 * [4.3(a) Wildfire Incidents Map](Maps/Firewise_IncidentsRxBurn_EmergencyServices.html)
 * 4.4(a) Population disaggregated by race and ethnicity, age groups ([option 1](4.4(a)_RaceEthnicity_v1.html), [option 2](4.4(a)_RaceEthnicity_v2.html))
