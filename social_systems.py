@@ -365,6 +365,8 @@ def get_data_median_home_price():
         )
     ]
     data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
+    data.drop_duplicates(inplace=True)
+    data = data[data["Purchase Date"].dt.year >= 2019]
     data["year"] = data["Purchase Date"].dt.year
     data["month"] = data["Purchase Date"].dt.month
     df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
@@ -385,8 +387,8 @@ def plot_median_home_price(df):
         color_sequence=["#208385"],
         orders=None,
         sort=["year", "month"],
-        x_title="Year",
-        y_title="Median Sale Prices ($)",
+        x_title="Sale Date",
+        y_title="Median Sale Price ($)",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
     )
