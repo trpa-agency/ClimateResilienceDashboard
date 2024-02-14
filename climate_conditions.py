@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import requests
 
-from utils import get_fs_data, scatterplot, trendline
+from utils import get_fs_data, read_file, scatterplot, trendline
 
 # from pathlib import Path
 # from arcgis import GIS
@@ -162,6 +163,66 @@ def plot_air_quality(df):
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+    )
+
+
+def calcAQI(Cp, Ih, Il, BPh, BPl):
+    a = Ih - Il
+    b = BPh - BPl
+    c = Cp - BPl
+    val = round((a / b) * c + Il)
+    return val
+
+
+def get_data_purple_air():
+    df = read_file("data/daily_averaged_values.csv")
+    df["AQI"] = np.where(
+        df["daily_mean_25pm"] > 350.5,
+        calcAQI(df["daily_mean_25pm"], 500, 401, 500.4, 350.5),
+        np.where(
+            df["daily_mean_25pm"] > 250.5,
+            calcAQI(df["daily_mean_25pm"], 400, 301, 350.4, 250.5),
+            np.where(
+                df["daily_mean_25pm"] > 150.5,
+                calcAQI(df["daily_mean_25pm"], 300, 201, 250.4, 150.5),
+                np.where(
+                    df["daily_mean_25pm"] > 55.5,
+                    calcAQI(df["daily_mean_25pm"], 200, 151, 150.4, 55.5),
+                    np.where(
+                        df["daily_mean_25pm"] > 35.5,
+                        calcAQI(df["daily_mean_25pm"], 150, 101, 55.4, 35.5),
+                        np.where(
+                            df["daily_mean_25pm"] > 12.1,
+                            calcAQI(df["daily_mean_25pm"], 100, 51, 35.4, 12.1),
+                            np.where(
+                                df["daily_mean_25pm"] >= 0,
+                                calcAQI(df["daily_mean_25pm"], 50, 0, 12, 0),
+                                9999999,
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    return df
+
+
+def plot_purple_air(df):
+    trendline(
+        df,
+        path_html="html/1.2(a)_Purple_Air.html",
+        div_id="1.2.a_Purple_Air",
+        x="time_stamp",
+        y="AQI",
+        color=None,
+        color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        sort="time_stamp",
+        orders=None,
+        x_title="Time",
+        y_title="AQI",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
     )
 
 
