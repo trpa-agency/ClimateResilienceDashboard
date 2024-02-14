@@ -33,6 +33,7 @@ def plot_greenhouse_gas(df):
         y_title="Amount of CO2 (MT CO2e)",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
+        markers=True,
     )
 
 
@@ -205,6 +206,10 @@ def get_data_purple_air():
             ),
         ),
     )
+    df["moving_avg"] = df["AQI"].rolling(window=7).mean()
+    # df["time_stamp"] = pd.to_datetime(df["time_stamp"])
+    # df.set_index('time_stamp', inplace=True)
+    # weekly_avg = df.resample('W').mean().reset_index()
     return df
 
 
@@ -214,15 +219,16 @@ def plot_purple_air(df):
         path_html="html/1.2(a)_Purple_Air.html",
         div_id="1.2.a_Purple_Air",
         x="time_stamp",
-        y="AQI",
+        y="moving_avg",
         color=None,
         color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
         sort="time_stamp",
         orders=None,
         x_title="Time",
-        y_title="AQI",
+        y_title="AQI (rolling average)",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
+        markers=False,
     )
 
 
@@ -265,6 +271,7 @@ def plot_lake_level(df):
         y_title="Water Level (ft)",
         hovertemplate="%{y:,.0f}",
         format=",.0f",
+        markers=True,
     )
 
 
@@ -291,4 +298,5 @@ def plot_lake_temp(df):
         y_title="Average Lake Surface Temperature ",
         format=".1f",
         hovertemplate="%{y:.2f}",
+        markers=True,
     )

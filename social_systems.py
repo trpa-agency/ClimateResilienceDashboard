@@ -300,6 +300,7 @@ def plot_household_income(df):
         y_title="Median Household Income ($)",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
+        markers=True,
     )
 
 
@@ -337,6 +338,7 @@ def plot_rent_prices(df):
         y_title="Rent Prices ($)",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
+        markers=True,
     )
 
 
@@ -391,4 +393,5 @@ def plot_median_home_price(df):
         y_title="Median Sale Price ($)",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
+        markers=True,
     )

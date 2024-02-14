@@ -225,6 +225,7 @@ def plot_aquatic_species(df):
         y_title="Acres",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
+        markers=True,
     )
 
 
@@ -257,4 +258,5 @@ def plot_restored_wetlands_meadows(df):
         y_title="Acres",
         format=",.0f",
         hovertemplate="%{y:,.0f}",
+        markers=True,
     )

@@ -148,6 +148,7 @@ def plot_data_deed_restricted(df):
         y_title="Cumuluative Total of Deed Restricted Parcels",
         format=".0f",
         hovertemplate="%{y:.0f}",
+        markers=True,
     )
 
 
@@ -233,4 +234,5 @@ def plot_low_stress_bicycle(df):
         y_title="Cumuluative Miles of Bike Lane",
         format=".2f",
         hovertemplate="%{y:.2f}",
+        markers=True,
     )

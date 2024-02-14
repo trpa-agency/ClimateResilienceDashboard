@@ -47,6 +47,7 @@ def trendline(
     y_title,
     format,
     hovertemplate,
+    markers,
 ):
     df = df.sort_values(by=sort)
     config = {"displayModeBar": False}
@@ -57,7 +58,7 @@ def trendline(
         color=color,
         color_discrete_sequence=color_sequence,
         category_orders=orders,
-        markers=True,
+        markers=markers,
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
