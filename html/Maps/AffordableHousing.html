@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Climate Resilience Dashboard - Transportation Equity</title>
+    <title>Climate Resilience Dashboard - Affordable Housing Units<title>
 
     <style>
       html,
@@ -59,8 +59,7 @@
         "esri/widgets/Home",
         "esri/widgets/LayerList",
         "esri/widgets/Legend",
-        "esri/widgets/Fullscreen",
-        "esri/smartMapping/renderers/relationship"
+        "esri/widgets/Fullscreen"
       ], function(
         esriConfig,
         MapView,
@@ -72,8 +71,7 @@
         Home,
         LayerList,
         Legend,
-        Fullscreen,
-        relationshipRendererCreator
+        Fullscreen
       ) {
           {
         esriConfig.portalUrl = "https://maps.trpa.org/portal/";
@@ -99,54 +97,59 @@
         var fullscreen = new Fullscreen({
           view: view
         });
-
         view.ui.add(fullscreen, "top-left");
 
-        // equity layer
-        var equityLayer = new FeatureLayer({
-          url: "https://services5.arcgis.com/fXXSUzHD5JjcOt1v/arcgis/rest/services/Transportation_Equity_Analysis_Tesseellation/FeatureServer",
-          title: "Equity",
-          opacity: 0.6,
-          definitionExpression: "IS_URBAN = 1",
-        });
-
-        // add equity layer to map
-        map.add(equityLayer);
-
-        const params ={
-          layer: equityLayer,
-          view: view,
-          field1: {
-            field: "ZEROVHH_DENSITY"
-          },
-          field2: {
-            field: "FOOD_ACCESS_DISTANCE"
-          },
-          focus: "HH", // changes orientation of the legend
-          numClasses: 2 // 2x2 grid of classes
+        // Create a popupTemplate
+        const deedTemplate = {
+          title: "Deed Restricted Parcel: {APN}",
+          content:[
+              {
+          type: "fields",
+          fieldInfos: [
+                { 
+                  fieldName: "DeedRestrictionType ",
+                  label: "Deed Restriction Type "
+                }
+                ]
+              }
+              ]            
         };
 
-        // create uniqueValue renderer
-        const renderer = relationshipRendererCreator.createRenderer(params).then((response) => {
-          equityLayer.renderer = response.renderer;
+        // Set a basic symbol on a layer to visualize all features the same way
+        var polyRenderer = {
+          type: "simple",  // autocasts as new SimpleRenderer()
+          symbol: {
+            type: "simple-fill",  // autocasts as new SimpleMarkerSymbol()
+            size: 6,
+            color: "#279bdc",
+            outline: {  // autocasts as new SimpleLineSymbol()
+              width: 0.5,
+              color: "white"
+            }
+          }
+        };
+
+        // town center layer
+        var towncenterLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/LocalPlan/MapServer/2",
+          title: "Town Center",
+          opacity: 0.6
         });
 
-        // renderer.uniqueValueInfos.forEach((info)=>{
-        //   switch (info.value){
-        //     case "HH":
-        //       info.label = "High ZVH Density, Far from Food";
-        //       break;
-        //     case "HL":
-        //       info.label = "High ZVH Density, Close to food";
-        //       break;
-        //     case "LH":
-        //       info.label = "Low ZVH Density, Far from Food";
-        //       break;
-        //     case "LL":
-        //       info.label = "Low ZVH Density, Close to Food";
-        //       break;
-        //   }
-        // });
+        map.add(towncenterLayer);
+
+        // affordable housing deed restriction feature layer
+        var deedLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/20",
+          title: "Deed Restricted Affordable Housing Units",
+          popupTemplate: deedTemplate,
+          renderer: polyRenderer,
+          effect: "drop-shadow(1px, 1px, 1px, black)",
+          blendMode: "multiply",
+          opacity: 0.7
+        });
+
+        map.add(deedLayer);
 
         // boundary feature layer
         var trpaLayer = new FeatureLayer({
@@ -161,12 +164,17 @@
         view: view,
         layerInfos: [
           {
-            layer: equityLayer,
-            title: "Equity"
+            layer: towncenterLayer,
+            title: "Town Center"
+
+          },
+          {
+            layer: deedLayer,
+            title: "Affordable Housing Units"
+
           }
         ]
         });
-        
         // Add widget to the top right corner of the view
         view.ui.add(legend, "top-right");
         
@@ -188,9 +196,6 @@
         var homeWidget = new Home({
             view: view
         });
-        // add a ValuePick
-
-
       });
     
 
