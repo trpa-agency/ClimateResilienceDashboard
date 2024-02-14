@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Climate Resilience Dashboard - Affordable Housing Units<title>
+    <title>Climate Resilience Dashboard - Affordable Housing Units</title>
 
     <style>
       html,
@@ -115,6 +115,93 @@
               ]            
         };
 
+        const less10 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#fffcd4",
+          // style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+
+        const less50 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#b1cdc2",
+          // style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+
+        const more50 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#38627a",
+          // style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+
+        const more75 = {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: "#0d2644",
+          // style: "solid",
+          // outline: {
+          //   width: 0.2,
+          //   color: [255, 255, 255, 0.5]
+          // }
+        };
+
+        const unitsRenderer = {
+          type: "class-breaks", // autocasts as new ClassBreaksRenderer()
+          field: "Residential_Units",
+          // normalizationField: "",
+          legendOptions: {
+            title: "Number of Residential Units"
+          },
+          defaultSymbol: {
+            type: "simple-fill", // autocasts as new SimpleFillSymbol()
+            // color: "black",
+            // style: "none",
+            // opacity: 0,
+            // outline: {
+            //   width: 0.5,
+            //   color: [50, 50, 50, 0.6]
+            // }
+          },
+          defaultLabel: "no data",
+          classBreakInfos: [
+            {
+              minValue: 1,
+              maxValue: 10,
+              symbol: less10,
+              label: "1 - 10"
+            },
+            {
+              minValue: 11,
+              maxValue: 15,
+              symbol: less50,
+              label: "10 - 50"
+            },
+            {
+              minValue: 16,
+              maxValue: 25,
+              symbol: more50,
+              label: "50 - 75"
+            },
+            {
+              minValue: 26,
+              maxValue: 1000,
+              symbol: more75,
+              label: ">75"
+            }
+          ]
+        };
+
+        // 
         // Set a basic symbol on a layer to visualize all features the same way
         var polyRenderer = {
           type: "simple",  // autocasts as new SimpleRenderer()
@@ -128,12 +215,41 @@
             }
           }
         };
+                // Set a basic symbol on a layer to visualize all features the same way
+        var tcRenderer = {
+          type: "simple",  // autocasts as new SimpleRenderer()
+          symbol: {
+            type: "simple-fill",  // autocasts as new SimpleMarkerSymbol()
+            size: 6,
+            color: "#A3A300",
+            outline: {  // autocasts as new SimpleLineSymbol()
+              width: 1,
+              color: "#757500"
+            }
+          }
+        };
+        
+        // units
+        var unitsLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17",
+          title: "Residential Units",
+          // popupTemplate: ,
+          renderer: unitsRenderer,
+          // effect: "drop-shadow(1px, 1px, 1px, black)",
+          // blendMode: "multiply",
+          // opacity: 0.7
+          definitionExpression: "Year = 2022 AND Residential_Units > 0 AND Residential_Units IS NOT NULL"
+        });
+
+        map.add(unitsLayer);
 
         // town center layer
         var towncenterLayer = new FeatureLayer({
           url: "https://maps.trpa.org/server/rest/services/LocalPlan/MapServer/2",
           title: "Town Center",
-          opacity: 0.6
+          renderer: tcRenderer,
+          opacity: 0.6,
+          minScale: 0
         });
 
         map.add(towncenterLayer);
