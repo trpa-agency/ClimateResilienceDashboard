@@ -6,7 +6,7 @@ from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendl
 
 def get_data_tenure_by_age():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2021)
     val = (
@@ -96,7 +96,7 @@ def plot_tenure_by_age(df):
 
 def get_data_tenure_by_race():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
@@ -164,7 +164,7 @@ def plot_tenure_by_race(df):
 
 def get_data_race_ethnicity():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
     mask2 = (
@@ -261,7 +261,7 @@ def plot_race_ethnicity(df):
 
 def get_data_household_income():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     df = data[data["Category"] == "Household Income"]
     df["Geography"] = df["Geography"].replace({"Basin": "Lake Tahoe Region"})
@@ -305,20 +305,7 @@ def plot_household_income(df):
 
 
 def get_data_rent_prices():
-    bed1 = read_file("data/CoStar/LakeTahoe_MF_1Bed.csv")
-    bed1["Unit Sizes"] = "1-Bedroom"
-    bed2 = pd.read_csv("data/CoStar/LakeTahoe_MF_2Bed.csv")
-    bed2["Unit Sizes"] = "2-Bedroom"
-    bed3 = pd.read_csv("data/CoStar/LakeTahoe_MF_3Bed.csv")
-    bed3["Unit Sizes"] = "3-Bedroom"
-    bed4 = pd.read_csv("data/CoStar/LakeTahoe_MF_4Bed.csv")
-    bed4["Unit Sizes"] = "4-Bedroom"
-    bed0 = pd.read_csv("data/CoStar/LakeTahoe_MF_Studio.csv")
-    bed0["Unit Sizes"] = "Studio"
-    bed_all = pd.read_csv("data/CoStar/LakeTahoe_MF_AllBeds.csv")
-    bed_all["Unit Sizes"] = "All"
-    df = pd.concat([bed0, bed1, bed2, bed3, bed4, bed_all], ignore_index=True)
-    return df
+    return read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
 
 
 def plot_rent_prices(df):
@@ -328,12 +315,10 @@ def plot_rent_prices(df):
         div_id="4.1.b_Rent_Prices",
         x="Period",
         y="Effective Rent Per Unit",
-        color="Unit Sizes",
-        color_sequence=["#208385", "#FC9A62", "#632E5A", "#B83F5D", "#A48352", "#62C0CC"],
+        color=None,
+        color_sequence=["#208385"],
         sort="Period",
-        orders={
-            "Unit Sizes": ["All", "Studio", "1-Bedroom", "2-Bedroom", "3-Bedroom", "4-Bedroom"]
-        },
+        orders=None,
         x_title="Year",
         y_title="Rent Prices ($)",
         format=",.0f",

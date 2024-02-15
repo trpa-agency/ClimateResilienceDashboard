@@ -6,7 +6,7 @@ from utils import get_fs_data, get_fs_data_spatial, read_file, stackedbar, trend
 
 def get_data_home_heating():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     data["Geography"] = data["Geography"].replace({"Basin": "Lake Tahoe Region"})
     mask = (data["Category"] == "Home Heating Method") & (

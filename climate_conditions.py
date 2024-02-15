@@ -52,7 +52,7 @@ def plot_secchi_depth(df):
     fig.update_traces(marker=dict(size=10))
     fig.update_layout(
         yaxis=dict(title="Secchi Depth (meters)"),
-        xaxis=dict(title="Year"),
+        xaxis=dict(title="Year", showgrid=False),
         template="plotly_white",
         hovermode="x unified",
         dragmode=False,
@@ -250,8 +250,8 @@ def get_data_lake_level(days):
     time_series_data = data["value"]["timeSeries"][0]["values"][0]["value"]
 
     df = pd.DataFrame(time_series_data)
+    df["dateTime"] = pd.to_datetime(df["dateTime"], utc=True)
     df["value"] = pd.to_numeric(df["value"])
-    df["dateTime"] = pd.to_datetime(df["dateTime"])
     df["value"] = df["value"] + 6220
     return df
 
@@ -271,7 +271,7 @@ def plot_lake_level(df):
         y_title="Water Level (ft)",
         hovertemplate="%{y:,.0f}",
         format=",.0f",
-        markers=True,
+        markers=False,
     )
 
 
@@ -298,5 +298,5 @@ def plot_lake_temp(df):
         y_title="Average Lake Surface Temperature ",
         format=".1f",
         hovertemplate="%{y:.2f}",
-        markers=True,
+        markers=False,
     )

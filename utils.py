@@ -62,7 +62,7 @@ def trendline(
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title),
+        xaxis=dict(title=x_title, showgrid=False),
         hovermode="x",
         template="plotly_white",
         dragmode=False,
@@ -204,7 +204,7 @@ def scatterplot(
     fig.update_traces(marker=dict(size=10))
     fig.update_layout(
         yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title),
+        xaxis=dict(title=x_title, showgrid=False),
         template="plotly_white",
         hovermode=hovermode,
         dragmode=False,
