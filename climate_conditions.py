@@ -253,7 +253,8 @@ def get_data_lake_level(days):
     df["dateTime"] = pd.to_datetime(df["dateTime"], utc=True)
     df["value"] = pd.to_numeric(df["value"])
     df["value"] = df["value"] + 6220
-    return df
+    weekly = df.groupby(pd.Grouper(key="dateTime", freq="W"))["value"].mean().reset_index()
+    return weekly
 
 
 def plot_lake_level(df):
