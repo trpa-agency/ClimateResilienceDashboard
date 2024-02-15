@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 
-from utils import get_fs_data, groupedbar_percent, stackedbar, trendline
+from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline
 
 
 def get_data_tenure_by_age():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2021)
     val = (
@@ -39,6 +39,7 @@ def get_data_tenure_by_age():
             "Renter Occupied: Householder 85 Years And Over": "85+ Years",
         }
     )
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
     total = val.groupby(["Geography", "Age"]).sum()
     df = val.merge(
         total,
@@ -82,7 +83,7 @@ def plot_tenure_by_age(df):
                 "75 to 84 Years",
                 "85+ Years",
             ],
-            "Geography": ["Basin", "South Lake", "North Lake"],
+            "Geography": ["Lake Tahoe Region", "South Lake", "North Lake"],
         },
         y_title="% of Tenure by Age",
         x_title="Age",
@@ -95,7 +96,7 @@ def plot_tenure_by_age(df):
 
 def get_data_tenure_by_race():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
@@ -122,6 +123,7 @@ def get_data_tenure_by_race():
             "Total: Two Or More Races Householder": "Multi",
         }
     )
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
     total = val[(val["variable_name"].str.contains("Total:"))]
     val = val[(~val["variable_name"].str.contains("Total"))]
     df = total.merge(
@@ -149,7 +151,7 @@ def plot_tenure_by_race(df):
         color_sequence=["#208385", "#FC9A62"],
         orders={
             "Race": ["White", "Black", "Asian", "NHPI", "Some Other"],
-            "Geography": ["Basin", "South Lake", "North Lake"],
+            "Geography": ["Lake Tahoe Region", "South Lake", "North Lake"],
         },
         y_title="% of Tenure by Race",
         x_title="Race",
@@ -162,7 +164,7 @@ def plot_tenure_by_race(df):
 
 def get_data_race_ethnicity():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
     mask2 = (
@@ -176,7 +178,7 @@ def get_data_race_ethnicity():
     val = val.loc[:, ["variable_name", "value", "Geography", "year_sample"]].rename(
         columns={"year_sample": "Year", "variable_name": "Race"}
     )
-    # val = bind data1 and data2
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
     total = val.groupby(["Geography", "Year"]).sum()
     df = val.merge(
         total,
@@ -222,7 +224,7 @@ def plot_race_ethnicity(df):
             "#023F64",
             "#B83F5D",
         ],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="% of Race and Ethnicity of Total",
         x_title="Year",
         hovertemplate="%{y}",
@@ -248,7 +250,7 @@ def plot_race_ethnicity(df):
             "#023F64",
             "#B83F5D",
         ],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="% of Race and Ethnicity of Total",
         x_title="Year",
         hovertemplate="%{y}",
@@ -259,9 +261,10 @@ def plot_race_ethnicity(df):
 
 def get_data_household_income():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
     )
     df = data[data["Category"] == "Household Income"]
+    df["Geography"] = df["Geography"].replace({"Basin": "Lake Tahoe Region"})
     df = df.rename(columns={"year_sample": "Year"})
     return df
 
@@ -276,7 +279,7 @@ def plot_household_income(df):
         facet="Geography",
         color="Geography",
         color_sequence=["#208385", "#FC9A62", "#632E5A"],
-        orders={"Geography": ["Basin", "South Lake", "North Lake"]},
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="Median Household Income ($)",
         x_title="Year",
         hovertemplate="%{y}",
@@ -291,6 +294,89 @@ def plot_household_income(df):
         y="value",
         color="Geography",
         color_sequence=["#208385", "#FC9A62", "#632E5A"],
+        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
+        sort="Year",
         x_title="Year",
         y_title="Median Household Income ($)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
+        markers=True,
+    )
+
+
+def get_data_rent_prices():
+    return read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
+
+
+def plot_rent_prices(df):
+    trendline(
+        df,
+        path_html="html/4.1(b)_Rent_Prices.html",
+        div_id="4.1.b_Rent_Prices",
+        x="Period",
+        y="Effective Rent Per Unit",
+        color=None,
+        color_sequence=["#208385"],
+        sort="Period",
+        orders=None,
+        x_title="Year",
+        y_title="Rent Prices ($)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
+        markers=True,
+    )
+
+
+def get_data_median_home_price():
+    price19 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2019.csv"
+    )
+    price20 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2020.csv"
+    )
+    price21 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2021.csv"
+    )
+    price22 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2022.csv"
+    )
+    price23_24 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2023to2024.csv"
+    )
+    data = pd.concat([price19, price20, price21, price22, price23_24], ignore_index=True)
+    data = data[
+        (data["City"] != "Truckee")
+        & (
+            data["Purchase Date"]
+            != "The information contained in this report is subject to the license restrictions and all other terms contained in PropertyRadar.com's User Agreement."
+        )
+    ]
+    data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
+    data.drop_duplicates(inplace=True)
+    data = data[data["Purchase Date"].dt.year >= 2019]
+    data["year"] = data["Purchase Date"].dt.year
+    data["month"] = data["Purchase Date"].dt.month
+    df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
+    df["Month"] = df["year"].astype(int).astype(str) + "-" + df["month"].astype(int).astype(str)
+    df = df.dropna()
+    df.to_csv("data/property_radar.csv")
+    return df
+
+
+def plot_median_home_price(df):
+    trendline(
+        df,
+        path_html="html/4.1(b)_Median_Sale_Prices.html",
+        div_id="4.1.b_Median_Sale_Prices",
+        x="Month",
+        y="Purchase Amt",
+        color=None,
+        color_sequence=["#208385"],
+        orders=None,
+        sort=["year", "month"],
+        x_title="Sale Date",
+        y_title="Median Sale Price ($)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
+        markers=True,
     )
