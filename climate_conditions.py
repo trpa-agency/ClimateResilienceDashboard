@@ -1,6 +1,11 @@
-import plotly.express as px
+from datetime import datetime, timedelta
 
-from utils import get_fs_data, scatterplot, trendline
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import requests
+
+from utils import get_fs_data, read_file, scatterplot, trendline
 
 # from pathlib import Path
 # from arcgis import GIS
@@ -22,8 +27,13 @@ def plot_greenhouse_gas(df):
         y="MT_CO2",
         color="Category",
         color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        sort="Year",
+        orders=None,
         x_title="Year",
         y_title="Amount of CO2 (MT CO2e)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
+        markers=True,
     )
 
 
@@ -42,7 +52,7 @@ def plot_secchi_depth(df):
     fig.update_traces(marker=dict(size=10))
     fig.update_layout(
         yaxis=dict(title="Secchi Depth (meters)"),
-        xaxis=dict(title="Year"),
+        xaxis=dict(title="Year", showgrid=False),
         template="plotly_white",
         hovermode="x unified",
         dragmode=False,
@@ -154,4 +164,140 @@ def plot_air_quality(df):
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+    )
+
+
+def calcAQI(Cp, Ih, Il, BPh, BPl):
+    a = Ih - Il
+    b = BPh - BPl
+    c = Cp - BPl
+    val = round((a / b) * c + Il)
+    return val
+
+
+def get_data_purple_air():
+    df = read_file("data/daily_averaged_values.csv")
+    df["AQI"] = np.where(
+        df["daily_mean_25pm"] > 350.5,
+        calcAQI(df["daily_mean_25pm"], 500, 401, 500.4, 350.5),
+        np.where(
+            df["daily_mean_25pm"] > 250.5,
+            calcAQI(df["daily_mean_25pm"], 400, 301, 350.4, 250.5),
+            np.where(
+                df["daily_mean_25pm"] > 150.5,
+                calcAQI(df["daily_mean_25pm"], 300, 201, 250.4, 150.5),
+                np.where(
+                    df["daily_mean_25pm"] > 55.5,
+                    calcAQI(df["daily_mean_25pm"], 200, 151, 150.4, 55.5),
+                    np.where(
+                        df["daily_mean_25pm"] > 35.5,
+                        calcAQI(df["daily_mean_25pm"], 150, 101, 55.4, 35.5),
+                        np.where(
+                            df["daily_mean_25pm"] > 12.1,
+                            calcAQI(df["daily_mean_25pm"], 100, 51, 35.4, 12.1),
+                            np.where(
+                                df["daily_mean_25pm"] >= 0,
+                                calcAQI(df["daily_mean_25pm"], 50, 0, 12, 0),
+                                9999999,
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    df["moving_avg"] = df["AQI"].rolling(window=7).mean()
+    # df["time_stamp"] = pd.to_datetime(df["time_stamp"])
+    # df.set_index('time_stamp', inplace=True)
+    # weekly_avg = df.resample('W').mean().reset_index()
+    return df
+
+
+def plot_purple_air(df):
+    trendline(
+        df,
+        path_html="html/1.2(a)_Purple_Air.html",
+        div_id="1.2.a_Purple_Air",
+        x="time_stamp",
+        y="moving_avg",
+        color=None,
+        color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        sort="time_stamp",
+        orders=None,
+        x_title="Time",
+        y_title="AQI (rolling average)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
+        markers=False,
+    )
+
+
+def get_data_lake_level(days):
+    site_number = 10337000
+
+    # Calculate the start and end dates based on the selected time range
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+
+    start_date_str = start_date.strftime("%Y-%m-%d")
+    end_date_str = end_date.strftime("%Y-%m-%d")
+
+    url = f"https://waterservices.usgs.gov/nwis/iv/?format=json&sites={site_number}&parameterCd=00065&startDT={start_date_str}&endDT={end_date_str}"
+
+    response = requests.get(url)
+    data = response.json()
+
+    time_series_data = data["value"]["timeSeries"][0]["values"][0]["value"]
+
+    df = pd.DataFrame(time_series_data)
+    df["dateTime"] = pd.to_datetime(df["dateTime"], utc=True)
+    df["value"] = pd.to_numeric(df["value"])
+    df["value"] = df["value"] + 6220
+    weekly = df.groupby(pd.Grouper(key="dateTime", freq="W"))["value"].mean().reset_index()
+    return weekly
+
+
+def plot_lake_level(df):
+    trendline(
+        df,
+        path_html="html/1.3(a)_Lake_Level.html",
+        div_id="1.3.a_Lake_Level",
+        x="dateTime",
+        y="value",
+        color=None,
+        color_sequence=["#023f64"],
+        sort="dateTime",
+        orders=None,
+        x_title="Time",
+        y_title="Water Level (ft)",
+        hovertemplate="%{y:,.0f}",
+        format=",.0f",
+        markers=False,
+    )
+
+
+def get_data_lake_temp():
+    lakeTempURL = "https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate=20240130&rptend=20240202&id=4"
+    response = requests.get(lakeTempURL)
+    df = pd.DataFrame(response.json())
+    df["LS_Temp_Avg"] = df["LS_Temp_Avg"].astype(float)
+    return df
+
+
+def plot_lake_temp(df):
+    trendline(
+        df,
+        path_html="html/1.3(b)_Lake_Temp.html",
+        div_id="1.3.b_Lake_Temp",
+        x="TmStamp",
+        y="LS_Temp_Avg",
+        color=None,
+        color_sequence=["#023f64"],
+        sort="TmStamp",
+        orders=None,
+        x_title="Time",
+        y_title="Average Lake Surface Temperature ",
+        format=".1f",
+        hovertemplate="%{y:.2f}",
+        markers=False,
     )

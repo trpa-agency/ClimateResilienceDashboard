@@ -33,8 +33,23 @@ def get_fs_data_spatial(service_url):
 
 
 # Trendline
-def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_title):
-    df = df.sort_values(by=x)
+def trendline(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    color,
+    color_sequence,
+    sort,
+    orders,
+    x_title,
+    y_title,
+    format,
+    hovertemplate,
+    markers,
+):
+    df = df.sort_values(by=sort)
     config = {"displayModeBar": False}
     fig = px.line(
         df,
@@ -42,17 +57,18 @@ def trendline(df, path_html, div_id, x, y, color, color_sequence, x_title, y_tit
         y=y,
         color=color,
         color_discrete_sequence=color_sequence,
-        markers=True,
+        category_orders=orders,
+        markers=markers,
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title),
+        xaxis=dict(title=x_title, showgrid=False),
         hovermode="x",
         template="plotly_white",
         dragmode=False,
     )
-    fig.update_traces(hovertemplate="%{y:,.0f}")
-    fig.update_yaxes(tickformat=",.0f")
+    fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_yaxes(tickformat=format)
     fig.write_html(
         config=config,
         file=path_html,
@@ -188,7 +204,7 @@ def scatterplot(
     fig.update_traces(marker=dict(size=10))
     fig.update_layout(
         yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title),
+        xaxis=dict(title=x_title, showgrid=False),
         template="plotly_white",
         hovermode=hovermode,
         dragmode=False,
