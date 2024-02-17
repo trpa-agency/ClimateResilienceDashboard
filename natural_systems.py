@@ -228,7 +228,6 @@ def plot_aquatic_species(df):
         markers=True,
     )
 
-
 def get_data_restored_wetlands_meadows():
     eipSEZRestored = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/9"
     data = pd.read_json(eipSEZRestored)
@@ -259,4 +258,48 @@ def plot_restored_wetlands_meadows(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+    )
+
+def get_data_bmp():
+    # BMP map service from BMP database
+    bmpsLayer = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/121"
+    # get data from map service
+    data = get_fs_data(bmpsLayer)
+    # select rows where BMPs CertificateIssued = 1 (True)
+    data.loc[data['CertificateIssued'] == 1]
+    # create Year column
+    data['Year'] = pd.DatetimeIndex(data['CertDate']).year
+    # total bmps certified by year
+    bmpsCertByYear = data.groupby('Year')['OBJECTID'].count().reset_index()
+    # total developed parcel rows
+    parcelsDeveloped = data.loc[~data['EXISTING_LANDUSE'].isin(['Vacant', 'Open Space'])]
+    # set total developed parcels field
+    bmpsCertByYear['Developed Parcels'] = parcelsDeveloped['OBJECTID'].count()
+    # cumulative sum of BMPs installed per year
+    bmpsCertByYear['Cumulative BMPs Installed'] = bmpsCertByYear['OBJECTID'].cumsum()
+    # BMPs installed per year compared to total developed parcels per year
+    bmpsCertByYear['BMPs per Developed Parcel'] = (bmpsCertByYear['Cumulative BMPs Installed'] / bmpsCertByYear['Developed Parcels']).round(2)
+    # BMPs installed per year compared to total developed parcels per year but subtracting the BMPs installed from the total developed parcels
+    bmpsCertByYear['Developed Parcels Without a BMP'] = bmpsCertByYear['Developed Parcels'] - bmpsCertByYear['Cumulative BMPs Installed']
+    # drop objectid
+    df = bmpsCertByYear.drop(columns=['OBJECTID'])
+    return df
+
+def plot_bmp(df):
+    stackedbar(
+        df,
+        path_html="html/2.3(b)_BMP.html",
+        div_id="2.3.b_BMP",
+        x="Year",
+        y=['Cumulative BMPs Installed', 'Developed Parcels Without a BMP'],
+        facet=None,
+        color=None,
+        color_sequence=["#208385","#808080"],
+        orders=None,
+        y_title="Cumulative BMPs Installed",
+        x_title="Year",
+        hovertemplate="%{y:.0f}",
+        hovermode="x unified",
+        orientation=None,
+        format=",.0f",
     )
