@@ -18,7 +18,7 @@
 * 2.1(c) Probability of Fire: [Low Severity](2.1(c)_Probability_of_Low_Severity_Fire.html), [High Severity](2.1(c)_Probability_of_High_Severity_Fire.html) [High Severity Map](Maps/HighSeverityFireProbable.html)
 * [2.2(a) Acres treated for aquatic invasive species](2.2(a)_Aquatic_Species.html)
 * [2.3(a) Acres of restored high-quality wetlands and meadows helping to store flood waters](2.3(a)_Restored_Wetlands_Meadows.html)
-* 2.3(b) Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements [map](Maps/BMPStormwater.html)
+* 2.3(b) Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements [BMPs installed]( [map](Maps/BMPStormwater.html)
 * 2.3(c) Increase in square feet of urban development treated by areawide stormwater infrastructure within key watersheds [map](Maps/AreawideStormwater.html)
 
 ## Goal 3: Support Resilient Built Systems
