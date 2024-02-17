@@ -66,6 +66,7 @@ def trendline(
         hovermode="x",
         template="plotly_white",
         dragmode=False,
+        legend_title=None
     )
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
@@ -114,8 +115,10 @@ def stackedbar(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
+        legend_title=None
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
+    fig.update_xaxes(tickformat=".0f")
     fig.update_traces(hovertemplate=hovertemplate)
 
     fig.write_html(
@@ -161,6 +164,7 @@ def groupedbar_percent(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
+        legend_title=None
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_traces(hovertemplate=hovertemplate)
