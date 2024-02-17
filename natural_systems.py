@@ -291,14 +291,59 @@ def plot_bmp(df):
         path_html="html/2.3(b)_BMP.html",
         div_id="2.3.b_BMP",
         x="Year",
-        y=['Cumulative BMPs Installed', 'Developed Parcels Without a BMP'],
+        y=['Total BMPs Installed', 'Developed Parcels without a BMP'],
         facet=None,
         color=None,
         color_sequence=["#208385","#808080"],
         orders=None,
         y_title="Cumulative BMPs Installed",
         x_title="Year",
-        hovertemplate="%{y:.0f}",
+        hovertemplate="%{y:,.0f}",
+        hovermode="x unified",
+        orientation=None,
+        format=",.0f",
+    )
+
+def get_areawide_data():
+    # areawide overlay URL
+    areawideOverlay = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/140"
+    # get data from map service
+    data = get_fs_data(areawideOverlay)
+    # summarize total area of Surface = Hard Surface
+    df = data.loc[data['Surface'] == 'Hard']
+    # calculate total acres
+    total_acres = df['Acres'].sum()
+    # summarize the area of hard surface covered by status = completed or active
+    sdf_impervious_hard_summary = df.groupby(['Status', 'Year_Completed'])['Acres'].sum().reset_index()
+    # sort years
+    sdf_impervious_hard_summary = sdf_impervious_hard_summary.sort_values(by='Year_Completed')
+    # filter out Status is not ''
+    sdf_impervious_hard_summary = sdf_impervious_hard_summary[sdf_impervious_hard_summary['Status'] != '']
+    # group status active and constructed to completed
+    sdf_impervious_hard_summary['Status'] = sdf_impervious_hard_summary['Status'].replace(['Active', 'Constructed'], 'Completed')
+    # add acres in cumulative sum
+    sdf_impervious_hard_summary['Cumulative Acres'] = sdf_impervious_hard_summary.groupby('Status')['Acres'].cumsum()
+    # create cumulative sum of acres of status - completed
+    sdf_impervious_hard_summary['Cumulative Acres'] = sdf_impervious_hard_summary['Acres'].cumsum()
+    # subtract area covereed by cumulatve sum from total acres
+    sdf_impervious_hard_summary['Acres Remaining'] = total_acres - sdf_impervious_hard_summary['Cumulative Acres']
+    df = sdf_impervious_hard_summary
+    return df
+
+def plot_areawide(df):
+    stackedbar(
+        df,
+        path_html="html/2.4.(c)_Areawide_Covering_Impervious.html",
+        div_id="2.4.c_Areawide",
+        x="Year_Completed",
+        y=['Acres Covered', 'Acres Remaining'],
+        facet=None,
+        color=None,
+        color_sequence=["#208385","#808080"],
+        orders=None,
+        y_title="Impervious Surface Covered by Stormwater Areawide Treatment",
+        x_title="Year",
+        hovertemplate="%{y:,.0f}",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
