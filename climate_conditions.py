@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.express as px
 import requests
 
-from utils import get_fs_data, read_file, scatterplot, trendline
+from utils import get_fs_data, read_file, scatterplot, trendline, stackedbar
 
 # from pathlib import Path
 # from arcgis import GIS
@@ -300,4 +300,48 @@ def plot_lake_temp(df):
         format=".1f",
         hovertemplate="%{y:.2f}",
         markers=False,
+    )
+
+def get_data_precip():
+    # snowlab precip data
+    url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/145"
+    data = get_fs_data(url)
+
+    # cast to float
+    data['Pct_of_Precip_as_Snow'] = data['Pct_of_Precip_as_Snow'].astype(float)
+    data['Pct_of_Precip_as_Rain'] = data['Pct_of_Precip_as_Rain'].astype(float)
+
+    # new fields for total snow and rain from pct fields
+    data['Daily_Precip_Rain_mm'] = data.Full_Day_Total_Precip_mm * (data.Pct_of_Precip_as_Rain/100)
+    data['Daily_Precip_Snow_mm'] = data.Full_Day_Total_Precip_mm * (data.Pct_of_Precip_as_Snow/100)
+
+    # group by year and sum the daily precip fields
+    dfYearly = data.groupby('Year').agg({'Daily_Precip_Rain_mm': 'sum', 'Daily_Precip_Snow_mm': 'sum'}).reset_index()
+    dfYearly['Total_Precip_mm'] = dfYearly['Daily_Precip_Rain_mm'] + dfYearly['Daily_Precip_Snow_mm']
+
+    # create percent fields
+    dfYearly['Pct_of_Precip_as_Rain'] = (dfYearly['Daily_Precip_Rain_mm'] / dfYearly['Total_Precip_mm']) * 100
+    dfYearly['Pct_of_Precip_as_Snow'] = (dfYearly['Daily_Precip_Snow_mm'] / dfYearly['Total_Precip_mm']) * 100
+
+    # drop all years before 1987 (no data)
+    df = dfYearly[dfYearly['Year'] >= 1987]
+    return df
+
+def plot_precip(df):
+    stackedbar(
+        df,
+        path_html="html/1.3(d)_Precip.html",
+        div_id="1.3.d_Precip",
+        x="Year",
+        y=["Pct_of_Precip_as_Rain", "Pct_of_Precip_as_Snow"],
+        facet=None,
+        color=None,
+        color_sequence=["#BFD7ED", "#60A3D9"],
+        orders=None,
+        x_title="Year",
+        y_title="% of Precipitation",
+        hovertemplate="%{y:,.0f}",
+        hovermode="x unified",
+        orientation=None,
+        format=",.0f"
     )
