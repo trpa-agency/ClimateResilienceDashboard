@@ -9,7 +9,7 @@
 * [1.3(a) Lake Tahoe water level](1.3(a)_Lake_Level.html)
 * [1.3(b) Annual average water temperature, including surface water temperature](1.3(b)_Lake_Temp.html)
 * [1.3(c) Lake clarity measured by Secchi Depth](1.3(c)_Secchi_Depth.html)
-* 1.4(a) Total precipitation in water per year, extreme precipitation, and snow as a fraction of annual precipitation
+* [1.4(a) Total precipitation in water per year, extreme precipitation, and snow as a fraction of annual precipitation](1.3(d)_Precip.html)
 
 ## Goal 2: Promote Resilient Natural Systems
 
