@@ -276,11 +276,11 @@ def get_data_bmp():
     # set total developed parcels field
     bmpsCertByYear['Developed Parcels'] = parcelsDeveloped['OBJECTID'].count()
     # cumulative sum of BMPs installed per year
-    bmpsCertByYear['Cumulative BMPs Installed'] = bmpsCertByYear['OBJECTID'].cumsum()
+    bmpsCertByYear['Total BMPs Installed'] = bmpsCertByYear['OBJECTID'].cumsum()
     # BMPs installed per year compared to total developed parcels per year
-    bmpsCertByYear['BMPs per Developed Parcel'] = (bmpsCertByYear['Cumulative BMPs Installed'] / bmpsCertByYear['Developed Parcels']).round(2)
+    bmpsCertByYear['BMPs per Developed Parcel'] = (bmpsCertByYear['Total BMPs Installed'] / bmpsCertByYear['Developed Parcels']).round(2)
     # BMPs installed per year compared to total developed parcels per year but subtracting the BMPs installed from the total developed parcels
-    bmpsCertByYear['Developed Parcels Without a BMP'] = bmpsCertByYear['Developed Parcels'] - bmpsCertByYear['Cumulative BMPs Installed']
+    bmpsCertByYear['Developed Parcels without a BMP'] = bmpsCertByYear['Developed Parcels'] - bmpsCertByYear['Total BMPs Installed']
     # drop objectid
     df = bmpsCertByYear.drop(columns=['OBJECTID'])
     return df
@@ -321,12 +321,10 @@ def get_areawide_data():
     sdf_impervious_hard_summary = sdf_impervious_hard_summary[sdf_impervious_hard_summary['Status'] != '']
     # group status active and constructed to completed
     sdf_impervious_hard_summary['Status'] = sdf_impervious_hard_summary['Status'].replace(['Active', 'Constructed'], 'Completed')
-    # add acres in cumulative sum
-    sdf_impervious_hard_summary['Cumulative Acres'] = sdf_impervious_hard_summary.groupby('Status')['Acres'].cumsum()
     # create cumulative sum of acres of status - completed
-    sdf_impervious_hard_summary['Cumulative Acres'] = sdf_impervious_hard_summary['Acres'].cumsum()
+    sdf_impervious_hard_summary['Acres Covered'] = sdf_impervious_hard_summary['Acres'].cumsum()
     # subtract area covereed by cumulatve sum from total acres
-    sdf_impervious_hard_summary['Acres Remaining'] = total_acres - sdf_impervious_hard_summary['Cumulative Acres']
+    sdf_impervious_hard_summary['Acres Remaining'] = total_acres - sdf_impervious_hard_summary['Acres Covered']
     df = sdf_impervious_hard_summary
     return df
 
