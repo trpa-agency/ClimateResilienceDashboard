@@ -213,8 +213,11 @@ def get_data_low_stress_bicycle():
     # Replace NaN values in 'MILES' with 0
     df["Miles"] = df["Miles"].fillna(0)
 
+    # create grouped dataframe
+    df = df.groupby(['Year', 'Class'])['Miles'].sum().reset_index()
+
     # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
-    df["Cumulative Count"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
+    df["Total Miles"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
 
     return df
 
@@ -225,13 +228,13 @@ def plot_low_stress_bicycle(df):
         path_html="html/3.3(f)_Low_Stress_Bicycle.html",
         div_id="3.3.f_Low_Stress_Bicycle",
         x="Year",
-        y="Cumulative Count",
+        y="Total Miles",
         color="Class",
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         sort="Year",
         orders=None,
         x_title="Year",
-        y_title="Cumuluative Miles of Bike Lane",
+        y_title="Total Miles of Bike Lane",
         format=".2f",
         hovertemplate="%{y:.2f}",
         markers=True,

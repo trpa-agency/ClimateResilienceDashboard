@@ -63,10 +63,9 @@ def trendline(
     fig.update_layout(
         yaxis=dict(title=y_title),
         xaxis=dict(title=x_title, showgrid=False),
-        hovermode="x",
+        hovermode="x unified",
         template="plotly_white",
         dragmode=False,
-        legend_title=None
     )
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
