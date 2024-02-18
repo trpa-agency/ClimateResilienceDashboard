@@ -8,8 +8,10 @@
   * [CO - Chart](1.2(a)_Air_Quality_CO.html)
   * [O3 - Chart](1.2(a)_Air_Quality_O3.html)
   * [PM2.5 - Chart](1.2(a)_Air_Quality_PM2.5.html)
-  * [PM10 - CHart](1.2(a)_Air_Quality_PM10.html)
+  * [PM10 - Chart](1.2(a)_Air_Quality_PM10.html)
   * [Purple Air 2018-present - Chart](1.2(a)_Purple_Air.html)
+  * [Tahoe Temperature - Chart](1.2(a)_TahoeTemp.html)
+  * [Extreme Heat Days - Chart](1.2(a)_ExtremeHeatDays.html)
 * Lake Tahoe water level
   * [Lake Level - Chart](1.3(a)_Lake_Level.html)
 * Annual average water temperature, including surface water temperature
@@ -32,9 +34,9 @@
   * Trees Per Acre - Map Coming soon
   * Seral Stage - Map Coming soon
 * Probability of Fire 
-  * [Low Severity](2.1(c)_Probability_of_Low_Severity_Fire.html) 
-  * [High Severity](2.1(c)_Probability_of_High_Severity_Fire.html) 
-  * [High Severity Map](Maps/HighSeverityFireProbable.html)
+  * [Low Severity - Chart](2.1(c)_Probability_of_Low_Severity_Fire.html) 
+  * [High Severity - Chart](2.1(c)_Probability_of_High_Severity_Fire.html) 
+  * [High Severity - Map](Maps/HighSeverityFireProbable.html)
 * Acres treated for aquatic invasive species
   * [Acres Treated - Chart](2.2(a)_Aquatic_Species.html)
 * Acres of restored high-quality wetlands and meadows helping to store flood waters
@@ -62,12 +64,12 @@
 * Daily per capita Vehicles Miles Traveled (VMT) and progress towards VMT target
   * VMT - Chart Coming soon
 * Coverage of electric bus routes and alternative fuel, such as EV charging for vehicles and bicycles
-  * [Alternative Fuel Stations Map](Maps/AlternateFuelStations.html) 
-  * [Electric Transportation Infrastructure Map](Maps/ElectricTransportationInfrastructure.html)
+  * [Alternative Fuel Stations - Map](Maps/AlternateFuelStations.html) 
+  * [Electric Transportation Infrastructure - Map](Maps/ElectricTransportationInfrastructure.html)
 * Baseline mode share and weekday or seasonal variation
   * Mode Share - Chart Coming soon
 * Transportation access in priority communities
-  *  [Increased lane miles of low-stress bicycle facilities](3.3(f)_Low_Stress_Bicycle.html)
+  *  [Increased lane miles of low-stress bicycle facilities - Chart](3.3(f)_Low_Stress_Bicycle.html)
 
 ## Goal 4: Support Resilient Social Systems
 
@@ -79,7 +81,7 @@
   * [Median Sale Price - Chart](4.1(b)_Median_Sale_Prices.html)
 * Housing tenure (rented full-time, owner-occupied, second home), disaggregated by race, ethnicity, and age
   * [Tenure by Race - Chart](4.1(c)_TenureByRace.html)
-  * [Tenure by Age](4.1(c)_TenureByAge.html)
+  * [Tenure by Age - Chart](4.1(c)_TenureByAge.html)
 * Percent of workers who commute into the basin, origin demographics, distance traveled
   * Commute - Maps Coming Soon
 * Transient Occupancy Tax revenue and changes over time
