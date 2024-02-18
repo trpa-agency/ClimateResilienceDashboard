@@ -1,9 +1,76 @@
 import numpy as np
 import pandas as pd
 
-from utils import get_fs_data, get_fs_data_spatial, read_file, stackedbar, trendline
+from utils import get_fs_data, get_fs_data_spatial, get_fs_data_spatial_query, read_file, stackedbar, trendline
 
+def get_data_affordable_units():
+    # parcel development history layer 
+    parcelURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17"
+    # deed restricted housing layer
+    deedURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/20"
 
+    parcelUnits = get_fs_data_spatial_query(parcelURL, "Year = 2022")
+    deedUnits   = get_fs_data_spatial_query(deedURL, "DeedRestrictionType = 'Affordable Housing'")  
+
+    # merge the two dataframes on the parcel id
+    df = pd.merge(parcelUnits, deedUnits, on="APN", how="left")
+
+    # group by LOCATION_TO_TOWNCENTER and sum of OBJECTID_y and Residential_Units
+    df = df.groupby('LOCATION_TO_TOWNCENTER').agg({'OBJECTID_y':'count', 'Residential_Units':'sum'}).reset_index()
+
+    # add the values in the first row to the second row
+    df.iloc[1] = df.iloc[0] + df.iloc[1]
+
+    # drop index row 0
+    df = df.drop(df.index[0])
+
+    # rename column OBJECTID_y to Total Deed Restricted Housing
+    df = df.rename(columns={'LOCATION_TO_TOWNCENTER':'Location to Town Center',
+                                'OBJECTID_y':'Total Deed Restricted Housing', 
+                                'Residential_Units':'Total Residential Units'})
+
+    # cast Total Deed Restricted Housing to int and Residential Units to int
+    df['Total Deed Restricted Housing'] = df['Total Deed Restricted Housing'].astype(int)
+    df['Total Residential Units'] = df['Total Residential Units'].astype(int)
+    return df
+
+def plot_affordable_units(df):
+    stackedbar(
+        df,
+        path_html="html/3.1(a)_Affordable_Units.html",
+        div_id="3.1.a_Affordable_Units",
+        x="Location to Town Center",
+        y=["Total Deed Restricted Housing",'Total Residential Units'],
+        facet=None,
+        color=None,
+        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
+        orders=None,
+        y_title="Total Units",
+        x_title="Location to Town Center",
+        format=".0f",
+        hovertemplate="%{y:.0f}",
+        hovermode="x unified",
+        orientation=None,
+    )
+
+def plot_precip(df):
+    stackedbar(
+        df,
+        path_html="html/1.3(d)_Precip.html",
+        div_id="1.3.d_Precip",
+        x="Year",
+        y=["% Snow", "% Rain"],
+        facet=None,
+        color=None,
+        color_sequence=["#BFD7ED", "#60A3D9"],
+        orders=None,
+        x_title="Year",
+        y_title="% of Precipitation",
+        hovertemplate="%{y:,.0f}",
+        hovermode="x unified",
+        orientation=None,
+        format=",.0f"
+    )
 def get_data_home_heating():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
@@ -29,7 +96,6 @@ def get_data_home_heating():
     df["Year"] = df["Year"].astype("str")
     df["share"] = df["value"] / df["value_total"]
     return df
-
 
 def plot_home_heating(df):
     stackedbar(

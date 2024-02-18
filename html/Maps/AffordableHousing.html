@@ -229,30 +229,41 @@
           }
         };
         
-        // units
-        var unitsLayer = new FeatureLayer({
-          url: "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17",
-          title: "Residential Units",
-          // popupTemplate: ,
-          renderer: unitsRenderer,
-          // effect: "drop-shadow(1px, 1px, 1px, black)",
-          // blendMode: "multiply",
-          // opacity: 0.7
-          definitionExpression: "Year = 2022 AND Residential_Units > 0 AND Residential_Units IS NOT NULL"
-        });
+        // // units
+        // var unitsLayer = new FeatureLayer({
+        //   url: "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17",
+        //   title: "Residential Units",
+        //   // popupTemplate: ,
+        //   renderer: unitsRenderer,
+        //   // effect: "drop-shadow(1px, 1px, 1px, black)",
+        //   // blendMode: "multiply",
+        //   // opacity: 0.7
+        //   definitionExpression: "Year = 2022 AND Residential_Units > 0 AND Residential_Units IS NOT NULL"
+        // });
 
-        map.add(unitsLayer);
-
-        // town center layer
-        var towncenterLayer = new FeatureLayer({
-          url: "https://maps.trpa.org/server/rest/services/LocalPlan/MapServer/2",
-          title: "Town Center",
-          renderer: tcRenderer,
-          opacity: 0.6,
+        // map.add(unitsLayer);
+        
+        // town center buffer layer
+        var bufferLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/Planning/MapServer/4",
+          title: "Town Center Buffer",
+          // renderer: polyRenderer,
+          // opacity: 0.6,
           minScale: 0
         });
 
-        map.add(towncenterLayer);
+        map.add(bufferLayer);
+
+        // // town center layer
+        // var towncenterLayer = new FeatureLayer({
+        //   url: "https://maps.trpa.org/server/rest/services/LocalPlan/MapServer/2",
+        //   title: "Town Center",
+        //   renderer: tcRenderer,
+        //   opacity: 0.6,
+        //   minScale: 0
+        // });
+
+        // map.add(towncenterLayer);
 
         // affordable housing deed restriction feature layer
         var deedLayer = new FeatureLayer({
@@ -280,8 +291,8 @@
         view: view,
         layerInfos: [
           {
-            layer: towncenterLayer,
-            title: "Town Center"
+            layer: bufferLayer,
+            title: "Town Center Buffer"
 
           },
           {
