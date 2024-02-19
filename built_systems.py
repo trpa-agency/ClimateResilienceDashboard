@@ -53,24 +53,6 @@ def plot_affordable_units(df):
         orientation=None,
     )
 
-def plot_precip(df):
-    stackedbar(
-        df,
-        path_html="html/1.3(d)_Precip.html",
-        div_id="1.3.d_Precip",
-        x="Year",
-        y=["% Snow", "% Rain"],
-        facet=None,
-        color=None,
-        color_sequence=["#BFD7ED", "#60A3D9"],
-        orders=None,
-        x_title="Year",
-        y_title="% of Precipitation",
-        hovertemplate="%{y:,.0f}",
-        hovermode="x unified",
-        orientation=None,
-        format=",.0f"
-    )
 def get_data_home_heating():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
@@ -154,29 +136,22 @@ def plot_energy_mix(df):
 def get_data_deed_restricted():
     # deed restriction service
     deedRestrictionService = "https://www.laketahoeinfo.org/WebServices/GetDeedRestrictedParcels/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476"
-
     # read in deed restricted parcels
     dfDeed = pd.read_json(deedRestrictionService)
-
     # filter out deed restrictions that are not affordable housing
     dfDeed = dfDeed.loc[
         dfDeed["DeedRestrictionType"].isin(
             ["Affordable Housing", "Achievable Housing", "Moderate Income Housing"]
         )
     ]
-
     # create year column
     dfDeed["Year"] = dfDeed["RecordingDate"].str[-4:]
-
     # group by type and year
     df = dfDeed.groupby(["DeedRestrictionType", "Year"]).size().reset_index(name="Total")
-
     # sort by year
     df.sort_values("Year", inplace=True)
-
     # rename columns
     df = df.rename(columns={"DeedRestrictionType": "Type", "Year": "Year", "Total": "Count"})
-
     # Create a DataFrame with all possible combinations of 'Type' and 'Year'
     df_all = pd.DataFrame(
         {
@@ -184,16 +159,12 @@ def get_data_deed_restricted():
             "Year": df["Year"].unique().tolist() * df["Type"].nunique(),
         }
     )
-
     # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
     df = pd.merge(df_all, df, on=["Type", "Year"], how="left")
-
     # Replace NaN values in 'Count' with 0
     df["Count"] = df["Count"].fillna(0)
-
     # Ensure 'Count' is of integer type
     df["Count"] = df["Count"].astype(int)
-
     # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
     df["Cumulative Count"] = df.sort_values("Year").groupby("Type")["Count"].cumsum()
     return df
@@ -224,10 +195,8 @@ def get_data_low_stress_bicycle():
     )
     # recalc miles field from shape length
     sdf_bikelane.MILES = sdf_bikelane["Shape.STLength()"] / 1609.34
-
     # filter for CLASS = 1 2 or 3
     filtered_sdf_bikelane = sdf_bikelane[sdf_bikelane["CLASS"].isin(["1", "2", "3"])]
-
     # fix bad values
     filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
         ["before 2010", " before 2010"], "2010"
@@ -241,19 +210,16 @@ def get_data_low_stress_bicycle():
     filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
         ["2007 (1A) 2008 (1B)"], "2008"
     )
-
     # drop rows with <NA> values
     filtered_sdf_bikelane = filtered_sdf_bikelane.dropna(subset=["YR_OF_CONS"])
     # drop rows with 'i dont know' or 'UNKNOWN' values
     filtered_sdf_bikelane = filtered_sdf_bikelane[
         ~filtered_sdf_bikelane["YR_OF_CONS"].isin(["i dont know", "UNKNOWN"])
     ]
-
     # rename columns
     df = filtered_sdf_bikelane.rename(
         columns={"CLASS": "Class", "YR_OF_CONS": "Year", "MILES": "Miles"}
     )
-
     # Create a DataFrame with all possible combinations of 'Type' and 'Year'
     df_all = pd.DataFrame(
         {
@@ -261,27 +227,20 @@ def get_data_low_stress_bicycle():
             "Year": df["Year"].unique().tolist() * df["Class"].nunique(),
         }
     )
-
     # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
     df = pd.merge(df_all, df, on=["Class", "Year"], how="left")
-
     # add 2005 to the Year field for Class 1 2, and 3
     dict = {"Class": ["1", "2", "3"], "Year": ["2005", "2005", "2005"], "Miles": [0, 0, 0]}
-
     df2 = pd.DataFrame(dict)
-
     df = pd.concat([df, df2], ignore_index=True)
     # cast Year as integer
     df["Year"] = df["Year"].astype(int)
     # sort by year and miles
     df.sort_values(["Year", "Miles"], inplace=True)
-
     # Replace NaN values in 'MILES' with 0
     df["Miles"] = df["Miles"].fillna(0)
-
     # create grouped dataframe
     df = df.groupby(['Year', 'Class'])['Miles'].sum().reset_index()
-
     # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
     df["Total Miles"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
 
@@ -305,3 +264,54 @@ def plot_low_stress_bicycle(df):
         hovertemplate="%{y:.2f}",
         markers=True,
     )
+
+def get_data_transit():
+    url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/131"
+    # get data from map service
+    data = get_fs_data(url)
+    # drop ObjectID
+    data = data.drop(columns=['OBJECTID'])
+    # stack data by month
+    data = data.melt(id_vars=['MONTH'], var_name='Name', value_name='Ridership')
+    # create Year field from last two characters of month but add 20 prefix
+    data['Year'] = '20' + data['MONTH'].str[-2:]
+    # change Name column to Transit Provider
+    data = data.rename(columns={'Name': 'Transit Provider'})
+    # strip the last three characters from month
+    data['Month'] = data['MONTH'].str[:-3]
+    # drop MONTH
+    data = data.drop(columns=['MONTH'])
+    # make the values in Month the real names of the months
+    data['Month'] = data['Month'].replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], 
+                                        ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
+    # create a Date type field of Month and Year
+    data['Date'] = data['Month'] + ' ' + data['Year']
+    # convert Date to datetime
+    data['Date'] = pd.to_datetime(data['Date'], format='%B %Y')
+    df = data.sort_values('Date')
+    # drop Name = Total
+    df = df.loc[df['Transit Provider'] != 'Total']
+    # drop Name IN _Paratransit
+    df = df.loc[~df['Transit Provider'].str.contains('_Paratransit')]
+    # drop _ in Name values
+    df['Transit Provider'] = df['Transit Provider'].str.replace('_', ' ')
+    return df
+
+def plot_transit(df):
+    trendline(
+        df,
+        path_html="html/3.3(a)_Transit_Ridership.html",
+        div_id="3.3.a_Transit_Ridership",
+        x="Date",
+        y="Ridership",
+        color="Transit Provider",
+        color_sequence=["#023f64", "#7ebfb5", "#a48352","#FC9A62"],
+        sort="Date",
+        orders=None,
+        x_title="Date",
+        y_title="Ridership",
+        format=".0f",
+        hovertemplate="%{y:,.0f}",
+        markers=True,
+    )
+
