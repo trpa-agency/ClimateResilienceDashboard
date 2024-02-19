@@ -1,5 +1,7 @@
 # ClimateResilienceDashboard Draft Visualizations
 
+### [Give your feedback](https://arcg.is/z90110)
+
 ## Goal 1: Track Changing Climate Conditions
 
 * Total GHG emissions by Sector
