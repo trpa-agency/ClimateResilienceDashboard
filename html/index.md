@@ -62,7 +62,7 @@
 * Percent of renewable energy as a share of total energy used
   * [Energy Mix - Chart](3.2(a)_EnergyMix.html)
 * Total transit ridership by transit systems
-  * [Transit Ridership - Chart]()
+  * [Transit Ridership - Chart](3.3(a)_Transit_Ridership.html)
 * Daily per capita Vehicles Miles Traveled (VMT) and progress towards VMT target
   * VMT - Chart Coming soon
 * Coverage of electric bus routes and alternative fuel, such as EV charging for vehicles and bicycles
@@ -71,7 +71,7 @@
 * Baseline mode share and weekday or seasonal variation
   * Mode Share - Chart Coming soon
 * Transportation access in priority communities
-  *  [Increased lane miles of low-stress bicycle facilities - Chart](3.3(f)_Low_Stress_Bicycle.html)
+  * [Increased lane miles of low-stress bicycle facilities - Chart](3.3(f)_Low_Stress_Bicycle.html)
 
 ## Goal 4: Support Resilient Social Systems
 
