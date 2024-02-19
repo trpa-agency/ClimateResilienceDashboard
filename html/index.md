@@ -53,7 +53,7 @@
 ## Goal 3: Support Resilient Built Systems
 
 * Total number of housing units in town centers and share of affordable housing in Town Centers
-  * [Affodable Units Relative to Town Center - Chart](3.1(a)_Affordable_Units.html)
+  * [Affordable Units Relative to Town Center - Chart](3.1(a)_Affordable_Units.html)
   * [Deed Restricted Affordable Units - Map](Maps/AffordableHousing.html)
 * Change in share of homes with electric or solar energy fuel compared to oil/gas over time
   * [Home Heating - Chart](3.1(b)_HomeHeatingFuels.html)
@@ -89,7 +89,7 @@
 * Transient Occupancy Tax revenue and changes over time
   * TOT - Chart coming soon
 * Consistent employment and median wages by sector and overall
-  * Employement - Chart coming soon
+  * Employment - Chart coming soon
 * Access to recreation sites, fresh food, and healthcare for zero-vehicle households 
   * [Equity - Map](Maps/Equity.html)
 * Placeholder to add Sustainable Recreation indicator(s) when information is collected from the recreational stewardship project
@@ -97,6 +97,6 @@
   * [Wildfire - Map](Maps/Firewise_IncidentsRxBurn_EmergencyServices.html)
 * Population disaggregated by race and ethnicity, age groups 
   * [Ethnicity - Chart Option 1](4.4(a)_RaceEthnicity_v1.html)
-  * [Ethnicity - Chart Ooption 2](4.4(a)_RaceEthnicity_v2.html))
+  * [Ethnicity - Chart Option 2](4.4(a)_RaceEthnicity_v2.html))
 * Number/share of households with access and functional needs (These can be referred to as vulnerable populations including populations such as persons with disabilities, older adults, children, limited English proficiency, and transportation disadvantages)
   * Chart Coming Soon
