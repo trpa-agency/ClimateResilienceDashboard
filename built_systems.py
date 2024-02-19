@@ -310,7 +310,7 @@ def plot_transit(df):
         orders=None,
         x_title="Date",
         y_title="Ridership",
-        format=".0f",
+        format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
     )
