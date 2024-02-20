@@ -242,3 +242,46 @@ def scatterplot(
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
+
+# Stacked Area Chart
+def stacked_area(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    color,
+    line_group,
+    color_sequence,
+    x_title,
+    y_title,
+    hovermode,
+    format,
+    hovertemplate,
+):
+    fig = px.area(
+        df,
+        x=x,
+        y=y,
+        color=color,
+        line_group=line_group,
+        color_discrete_sequence=color_sequence,
+    )
+    fig.update_layout(
+        yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
+        xaxis=dict(title=x_title, tickformat=format, showgrid=False),
+        hovermode=hovermode,
+        template="plotly_white",
+        dragmode=False,
+    )
+    fig.update_traces(hovertemplate=hovertemplate)
+
+    config = {"displayModeBar": False}
+
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )

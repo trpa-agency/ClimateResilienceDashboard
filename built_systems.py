@@ -7,6 +7,7 @@ from utils import (
     get_fs_data_spatial,
     get_fs_data_spatial_query,
     read_file,
+    stacked_area,
     stackedbar,
     trendline,
 )
@@ -213,6 +214,7 @@ def get_data_low_stress_bicycle():
     sdf_bikelane = get_fs_data_spatial(
         "https://maps.trpa.org/server/rest/services/Transportation/MapServer/3"
     )
+
     # recalc miles field from shape length
     sdf_bikelane.MILES = sdf_bikelane["Shape.STLength()"] / 1609.34
     # filter for CLASS = 1 2 or 3
@@ -253,8 +255,10 @@ def get_data_low_stress_bicycle():
     dict = {"Class": ["1", "2", "3"], "Year": ["2005", "2005", "2005"], "Miles": [0, 0, 0]}
     df2 = pd.DataFrame(dict)
     df = pd.concat([df, df2], ignore_index=True)
+
     # cast Year as integer
     df["Year"] = df["Year"].astype(int)
+
     # sort by year and miles
     df.sort_values(["Year", "Miles"], inplace=True)
     # Replace NaN values in 'MILES' with 0
@@ -263,26 +267,26 @@ def get_data_low_stress_bicycle():
     df = df.groupby(["Year", "Class"])["Miles"].sum().reset_index()
     # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
     df["Total Miles"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
+    df["Year"] = df["Year"].astype(str)
 
     return df
 
 
 def plot_low_stress_bicycle(df):
-    trendline(
+    stacked_area(
         df,
         path_html="html/3.3(f)_Low_Stress_Bicycle.html",
         div_id="3.3.f_Low_Stress_Bicycle",
         x="Year",
         y="Total Miles",
         color="Class",
+        line_group="Class",
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
-        sort="Year",
-        orders=None,
         x_title="Year",
         y_title="Total Miles of Bike Lane",
+        hovermode="x unified",
         format=".2f",
         hovertemplate="%{y:.2f}",
-        markers=True,
     )
 
 
