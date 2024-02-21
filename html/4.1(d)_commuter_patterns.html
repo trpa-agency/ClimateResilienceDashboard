@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>pydeck</title>
+        <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <script src='https://cdn.jsdelivr.net/npm/@deck.gl/jupyter-widget@~8.8.*/dist/index.js'></script>
+    <style>
+    body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#deck-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+#deck-container canvas {
+  z-index: 1;
+  background: none;
+}
+    </style>
+  </head>
+  <body>
+    <div id="deck-container">
+    </div>
+  </body>
+  <script>
+    const container = document.getElementById('deck-container');
+    const jsonInput = {
+  "initialViewState": {
+    "bearing": 45,
+    "latitude": 38.8973752961,
+    "longitude": -120.007333471,
+    "pitch": 50,
+    "zoom": 8
+  },
+  "layers": [
+    {
+      "@@type": "ArcLayer",
+      "autoHighlight": true,
+      "data": [
+        {
+          "S000": 23,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.26125418,
+          "h_tract_long": -120.3604215,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 39,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34214609,
+          "h_tract_long": -120.2613868,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 37,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.32374913,
+          "h_tract_long": -120.2451425,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 22,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.35065894,
+          "h_tract_long": -120.1915394,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 109,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34067027,
+          "h_tract_long": -120.1717402,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 31,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34067027,
+          "h_tract_long": -120.1717402,
+          "w_tract_TRPAID": "060610201042020",
+          "w_tract_lat": 39.20017067,
+          "w_tract_long": -120.1388019
+        },
+        {
+          "S000": 29,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34067027,
+          "h_tract_long": -120.1717402,
+          "w_tract_TRPAID": "060610201072020",
+          "w_tract_lat": 39.24970187,
+          "w_tract_long": -120.0142005
+        },
+        {
+          "S000": 25,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34067027,
+          "h_tract_long": -120.1717402,
+          "w_tract_TRPAID": "060610201062020",
+          "w_tract_lat": 39.26281204,
+          "w_tract_long": -120.0398583
+        },
+        {
+          "S000": 25,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.2752311,
+          "h_tract_long": -120.1325254,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 22,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.2752311,
+          "h_tract_long": -120.1325254,
+          "w_tract_TRPAID": "060610201042020",
+          "w_tract_lat": 39.20017067,
+          "w_tract_long": -120.1388019
+        },
+        {
+          "S000": 19,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.2752311,
+          "h_tract_long": -120.1325254,
+          "w_tract_TRPAID": "060610201062020",
+          "w_tract_lat": 39.26281204,
+          "w_tract_long": -120.0398583
+        },
+        {
+          "S000": 88,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34433247,
+          "h_tract_long": -120.1058271,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 33,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34433247,
+          "h_tract_long": -120.1058271,
+          "w_tract_TRPAID": "060610201042020",
+          "w_tract_lat": 39.20017067,
+          "w_tract_long": -120.1388019
+        },
+        {
+          "S000": 30,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.34433247,
+          "h_tract_long": -120.1058271,
+          "w_tract_TRPAID": "060610201072020",
+          "w_tract_lat": 39.24970187,
+          "w_tract_long": -120.0142005
+        },
+        {
+          "S000": 19,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.51774197,
+          "h_tract_long": -119.9676511,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.52493699,
+          "h_tract_long": -119.934069,
+          "w_tract_TRPAID": "060610222002020",
+          "w_tract_lat": 39.17073298,
+          "w_tract_long": -120.1696418
+        },
+        {
+          "S000": 27,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.59725598,
+          "h_tract_long": -119.8206658,
+          "w_tract_TRPAID": "060170316022020",
+          "w_tract_lat": 38.94110843,
+          "w_tract_long": -119.935896
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.59725598,
+          "h_tract_long": -119.8206658,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 15,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.92261489,
+          "h_tract_long": -119.8188454,
+          "w_tract_TRPAID": "060170304022020",
+          "w_tract_lat": 38.89735244,
+          "w_tract_long": -120.0073303
+        },
+        {
+          "S000": 27,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.36593034,
+          "h_tract_long": -119.794277,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 20,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.09710464,
+          "h_tract_long": -119.7900806,
+          "w_tract_TRPAID": "060170304022020",
+          "w_tract_lat": 38.89735244,
+          "w_tract_long": -120.0073303
+        },
+        {
+          "S000": 33,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.09710464,
+          "h_tract_long": -119.7900806,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 50,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.09710464,
+          "h_tract_long": -119.7900806,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 43,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.09710464,
+          "h_tract_long": -119.7900806,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 19,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.9599783,
+          "h_tract_long": -119.7708389,
+          "w_tract_TRPAID": "060170304022020",
+          "w_tract_lat": 38.89735244,
+          "w_tract_long": -120.0073303
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.9599783,
+          "h_tract_long": -119.7708389,
+          "w_tract_TRPAID": "060170316022020",
+          "w_tract_lat": 38.94110843,
+          "w_tract_long": -119.935896
+        },
+        {
+          "S000": 27,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.9599783,
+          "h_tract_long": -119.7708389,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 22,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.9599783,
+          "h_tract_long": -119.7708389,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 20,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.40110287,
+          "h_tract_long": -119.7695543,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 36,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.09283254,
+          "h_tract_long": -119.7662178,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 24,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.09283254,
+          "h_tract_long": -119.7662178,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.89944581,
+          "h_tract_long": -119.7588435,
+          "w_tract_TRPAID": "060170316022020",
+          "w_tract_lat": 38.94110843,
+          "w_tract_long": -119.935896
+        },
+        {
+          "S000": 29,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.89944581,
+          "h_tract_long": -119.7588435,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 39,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.89944581,
+          "h_tract_long": -119.7588435,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 19,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.13738358,
+          "h_tract_long": -119.7582483,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 20,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.13738358,
+          "h_tract_long": -119.7582483,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 24,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.1842864,
+          "h_tract_long": -119.7567097,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 20,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.1842864,
+          "h_tract_long": -119.7567097,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 19,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.1842864,
+          "h_tract_long": -119.7567097,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 17,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.14560338,
+          "h_tract_long": -119.7552344,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 27,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.14560338,
+          "h_tract_long": -119.7552344,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.14560338,
+          "h_tract_long": -119.7552344,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 15,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.17514427,
+          "h_tract_long": -119.7541297,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 20,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.15609705,
+          "h_tract_long": -119.7500872,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 27,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.15609705,
+          "h_tract_long": -119.7500872,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 17,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.93544028,
+          "h_tract_long": -119.7365874,
+          "w_tract_TRPAID": "060170304022020",
+          "w_tract_lat": 38.89735244,
+          "w_tract_long": -120.0073303
+        },
+        {
+          "S000": 60,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.93544028,
+          "h_tract_long": -119.7365874,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 44,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.93544028,
+          "h_tract_long": -119.7365874,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 21,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.121572,
+          "h_tract_long": -119.7365572,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.44380799,
+          "h_tract_long": -119.7354736,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 31,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.88710633,
+          "h_tract_long": -119.7330119,
+          "w_tract_TRPAID": "060170304022020",
+          "w_tract_lat": 38.89735244,
+          "w_tract_long": -120.0073303
+        },
+        {
+          "S000": 18,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.88710633,
+          "h_tract_long": -119.7330119,
+          "w_tract_TRPAID": "060170302012020",
+          "w_tract_lat": 38.93466886,
+          "w_tract_long": -119.9671171
+        },
+        {
+          "S000": 22,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.88710633,
+          "h_tract_long": -119.7330119,
+          "w_tract_TRPAID": "060170316012020",
+          "w_tract_lat": 38.95410289,
+          "w_tract_long": -119.9505621
+        },
+        {
+          "S000": 79,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.88710633,
+          "h_tract_long": -119.7330119,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 59,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.88710633,
+          "h_tract_long": -119.7330119,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 23,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.18856341,
+          "h_tract_long": -119.7310179,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 25,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.90831774,
+          "h_tract_long": -119.7305143,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 30,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.90831774,
+          "h_tract_long": -119.7305143,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.17306037,
+          "h_tract_long": -119.7296193,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 26,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.17306037,
+          "h_tract_long": -119.7296193,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 19,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.17306037,
+          "h_tract_long": -119.7296193,
+          "w_tract_TRPAID": "320310033072020",
+          "w_tract_lat": 39.23962492,
+          "w_tract_long": -119.9394025
+        },
+        {
+          "S000": 15,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.02666963,
+          "h_tract_long": -119.7263635,
+          "w_tract_TRPAID": "060170304022020",
+          "w_tract_lat": 38.89735244,
+          "w_tract_long": -120.0073303
+        },
+        {
+          "S000": 30,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.02666963,
+          "h_tract_long": -119.7263635,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        },
+        {
+          "S000": 23,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.02666963,
+          "h_tract_long": -119.7263635,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 15,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.02666963,
+          "h_tract_long": -119.7263635,
+          "w_tract_TRPAID": "320310033062020",
+          "w_tract_lat": 39.24566855,
+          "w_tract_long": -119.9590178
+        },
+        {
+          "S000": 17,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 39.13995052,
+          "h_tract_long": -119.6406173,
+          "w_tract_TRPAID": "320050017002020",
+          "w_tract_lat": 38.99099141,
+          "w_tract_long": -119.9255999
+        },
+        {
+          "S000": 16,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.98640858,
+          "h_tract_long": -119.5269906,
+          "w_tract_TRPAID": "060170304022020",
+          "w_tract_lat": 38.89735244,
+          "w_tract_long": -120.0073303
+        },
+        {
+          "S000": 23,
+          "Year": 2021,
+          "category": "Live elsewhere, work in Tahoe",
+          "h_tract_TRPAID": "Outside Basin",
+          "h_tract_lat": 38.98640858,
+          "h_tract_long": -119.5269906,
+          "w_tract_TRPAID": "320050018002020",
+          "w_tract_lat": 38.96397229,
+          "w_tract_long": -119.9039439
+        }
+      ],
+      "getSourceColor": [
+        0,
+        255,
+        0,
+        200
+      ],
+      "getSourcePosition": "@@=[h_tract_long, h_tract_lat]",
+      "getTargetColor": [
+        240,
+        100,
+        0,
+        200
+      ],
+      "getTargetPosition": "@@=[w_tract_long, w_tract_lat]",
+      "getTilt": 15,
+      "getWidth": "@@=S000 / 10",
+      "id": "98a6e6a4-44e9-4317-886d-4dac2f9885e8",
+      "pickable": true
+    }
+  ],
+  "mapProvider": "carto",
+  "mapStyle": "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+  "views": [
+    {
+      "@@type": "MapView",
+      "controller": true
+    }
+  ]
+};
+    const tooltip = {'html': '{S000} jobs <br /> Home of commuter in green; work location in red'};
+    const customLibraries = null;
+    const configuration = null;
+
+    const deckInstance = createDeck({
+                  container,
+      jsonInput,
+      tooltip,
+      customLibraries,
+      configuration
+    });
+
+  </script>
+</html>

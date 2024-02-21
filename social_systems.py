@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-
+import plotly.express as px
+import pydeck
 from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline
 
 
@@ -380,3 +381,102 @@ def plot_median_home_price(df):
         hovertemplate="%{y:,.0f}",
         markers=True,
     )
+
+def get_data_commute_patterns():
+    data = get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/141')
+    grouped_df = data.groupby(["Year", "category"], as_index=False).agg(
+        {"S000": "sum"}
+    )
+    processed_df = grouped_df.pivot(index="Year", columns="category", values="S000").reset_index()
+    processed_df["commuter_percentage"] = processed_df["Live elsewhere, work in Tahoe"] / (
+        processed_df["Live elsewhere, work in Tahoe"] + processed_df["Live in Tahoe, work in Tahoe"]
+    )*100   
+    return processed_df
+
+def plot_commute_patterns(df):
+    #This needs a bunch of formatting work to make it look nice
+
+    path_html="html/4.1(d)_commuter_percentage.html"
+    div_id="4.1.d_commuter_percentage"
+    x="Year"
+    y="commuter_percentage"
+    color=None
+    color_sequence=None
+    x_title="Year"
+    y_title="Commuter Percentage"
+    y_min=0 
+    y_max=100
+    df = df.sort_values(by=x)
+    config = {"displayModeBar": False}
+    fig = px.line(
+        df,
+        x=x,
+        y=y,
+        color=color,
+        color_discrete_sequence=color_sequence,
+    )
+    fig.update_layout(
+        yaxis=dict(title=y_title),
+        xaxis=dict(title=x_title),
+        hovermode="x",
+        template="plotly_white",
+        dragmode=False,
+        yaxis_range=[y_min, y_max],
+    )
+    fig.update_traces(hovertemplate="%{y:,.0f}")
+    fig.update_yaxes(tickformat=",.0f")
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
+
+def get_data_commute_origin():
+    #We can rethink thresholds later
+    data = get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/141')
+    grouped_df = data.groupby(["Year", "h_tract_long", "h_tract_lat", "w_tract_lat", "w_tract_long", "category", "w_tract_TRPAID", "h_tract_TRPAID"], as_index=False).agg(
+        {"S000": "sum"}
+    )
+    all_data_work = grouped_df.query('w_tract_TRPAID!="Outside Basin"')
+    #top_commutes = all_data_work.query('S000 >= 15')
+    top_commutes_outside_basin = all_data_work.query('S000 >= 15 & h_tract_TRPAID=="Outside Basin"')
+    top_commutes_outside_basin_2021 = top_commutes_outside_basin.loc[top_commutes_outside_basin['Year']==2021]
+  
+    return top_commutes_outside_basin_2021
+
+def plot_commute_origin(df):
+    #Still needs some formatting work
+    GREEN_RGB = [0, 255, 0, 200]
+    RED_RGB = [240, 100, 0, 200]
+
+    arc_layer = pydeck.Layer(
+    "ArcLayer",
+    data=df,
+    get_width="S000 / 10",
+    get_source_position=["h_tract_long", "h_tract_lat"],
+    get_target_position=["w_tract_long", "w_tract_lat"],
+    get_tilt=15,
+    get_source_color=GREEN_RGB,
+    get_target_color=RED_RGB,
+    pickable=True,
+    auto_highlight=True
+    )
+
+    view_state = pydeck.ViewState(
+    latitude=38.8973752961, 
+    longitude=-120.007333471,  
+    bearing=45, 
+    pitch=50, 
+    zoom=8
+    )
+
+    tooltip = {"html": "{S000} jobs <br /> Home of commuter in green; work location in red"}
+    r = pydeck.Deck(
+    arc_layer, 
+    initial_view_state=view_state, 
+    tooltip=tooltip, 
+    map_style = "road"
+    )
+
+    r.to_html("html/4.1(d)_commuter_patterns.html")

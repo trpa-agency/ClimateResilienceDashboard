@@ -64,12 +64,12 @@
 * Total transit ridership by transit systems
   * [Transit Ridership - Chart](3.3(a)_Transit_Ridership.html)
 * Daily per capita Vehicles Miles Traveled (VMT) and progress towards VMT target
-  * VMT - Chart Coming soon
+  * [Mode Share - Chart](3.)
 * Coverage of electric bus routes and alternative fuel, such as EV charging for vehicles and bicycles
   * [Alternative Fuel Stations - Map](Maps/AlternateFuelStations.html) 
   * [Electric Transportation Infrastructure - Map](Maps/ElectricTransportationInfrastructure.html)
 * Baseline mode share and weekday or seasonal variation
-  * Mode Share - Chart Coming soon
+  * [Mode-Share by Source](3.3(d)_mode_share.html) 
 * Transportation access in priority communities
   * [Increased lane miles of low-stress bicycle facilities - Chart](3.3(f)_Low_Stress_Bicycle.html)
 
@@ -85,7 +85,9 @@
   * [Tenure by Race - Chart](4.1(c)_TenureByRace.html)
   * [Tenure by Age - Chart](4.1(c)_TenureByAge.html)
 * Percent of workers who commute into the basin, origin demographics, distance traveled
-  * Commute - Maps Coming Soon
+  * [Commute Percentage - Chart](4.1(d)_commuter_percentage.html)
+  * [Commute Patterns - Map](4.1(d)_commuter_patterns.html)
+
 * Transient Occupancy Tax revenue and changes over time
   * TOT - Chart coming soon
 * Consistent employment and median wages by sector and overall
@@ -99,4 +101,4 @@
   * [Ethnicity - Chart Option 1](4.4(a)_RaceEthnicity_v1.html)
   * [Ethnicity - Chart Option 2](4.4(a)_RaceEthnicity_v2.html)
 * Number/share of households with access and functional needs (These can be referred to as vulnerable populations including populations such as persons with disabilities, older adults, children, limited English proficiency, and transportation disadvantages)
-  * Chart Coming Soon
+  * [Access Needs - Map](Maps/At_Risk_communities.html)
