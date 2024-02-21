@@ -67,6 +67,11 @@ def trendline(
     format,
     hovertemplate,
     markers,
+    hover_data,
+    tickvals,
+    ticktext,
+    tickangle,
+    hovermode,
 ):
     df = df.sort_values(by=sort)
     config = {"displayModeBar": False}
@@ -78,16 +83,22 @@ def trendline(
         color_discrete_sequence=color_sequence,
         category_orders=orders,
         markers=markers,
+        hover_data=hover_data,
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
         xaxis=dict(title=x_title, showgrid=False),
-        hovermode="x unified",
+        hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
     )
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
+    fig.update_xaxes(
+        tickvals=tickvals,
+        ticktext=ticktext,
+        tickangle=tickangle,
+    )
     fig.write_html(
         config=config,
         file=path_html,
@@ -129,7 +140,7 @@ def stackedbar(
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
         yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
-        xaxis=dict(title=x_title, tickformat=format),
+        xaxis=dict(title=x_title),
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,

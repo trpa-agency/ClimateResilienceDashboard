@@ -15,7 +15,7 @@ from utils import get_fs_data, read_file, scatterplot, stackedbar, trendline
 
 def get_data_greenhouse_gas():
     return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/125"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/126"
     )
 
 
@@ -35,12 +35,17 @@ def plot_greenhouse_gas(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
 def get_data_secchi_depth():
     return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/126"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/127"
     )
 
 
@@ -230,6 +235,11 @@ def plot_purple_air(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=False,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
@@ -274,6 +284,11 @@ def plot_lake_level(df):
         hovertemplate="%{y:,.0f}",
         format=",.0f",
         markers=False,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
@@ -301,6 +316,11 @@ def plot_lake_temp(df):
         format=".1f",
         hovertemplate="%{y:.2f}",
         markers=False,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 

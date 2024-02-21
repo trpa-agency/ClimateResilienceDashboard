@@ -75,7 +75,7 @@ def plot_affordable_units(df):
 
 def get_data_home_heating():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     data["Geography"] = data["Geography"].replace({"Basin": "Lake Tahoe Region"})
     mask = (data["Category"] == "Home Heating Method") & (
@@ -194,8 +194,8 @@ def get_data_deed_restricted():
 def plot_data_deed_restricted(df):
     trendline(
         df,
-        path_html="html/3.1(c)_Deed_Restricted_Units.html",
-        div_id="3.1.c_Deed_Restricted_Units",
+        path_html="html/3.1(c)_Deed_Restricted_Units_v1.html",
+        div_id="3.1.c_Deed_Restricted_Units_v1",
         x="Year",
         y="Cumulative Count",
         color="Type",
@@ -207,6 +207,26 @@ def plot_data_deed_restricted(df):
         format=".0f",
         hovertemplate="%{y:.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
+    )
+    stacked_area(
+        df,
+        path_html="html/3.1(c)_Deed_Restricted_Units_v2.html",
+        div_id="3.1.c_Deed_Restricted_Units_v2",
+        x="Year",
+        y="Cumulative Count",
+        color="Type",
+        line_group=None,
+        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
+        x_title="Year",
+        y_title="Cumuluative Count of Deed Restricted Parcels",
+        hovermode="x unified",
+        format=".0f",
+        hovertemplate="%{y:.0f}",
     )
 
 
@@ -268,7 +288,6 @@ def get_data_low_stress_bicycle():
     # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
     df["Total Miles"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
     df["Year"] = df["Year"].astype(str)
-
     return df
 
 

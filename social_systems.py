@@ -8,7 +8,7 @@ from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendl
 
 def get_data_tenure_by_age():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2021)
     val = (
@@ -98,7 +98,7 @@ def plot_tenure_by_age(df):
 
 def get_data_tenure_by_race():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
@@ -166,7 +166,7 @@ def plot_tenure_by_race(df):
 
 def get_data_race_ethnicity():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
     mask2 = (
@@ -263,7 +263,7 @@ def plot_race_ethnicity(df):
 
 def get_data_household_income():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
     )
     df = data[data["Category"] == "Household Income"]
     df["Geography"] = df["Geography"].replace({"Basin": "Lake Tahoe Region"})
@@ -303,11 +303,24 @@ def plot_household_income(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
 def get_data_rent_prices():
-    return read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
+    df = read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
+    df["Year"] = df["Period"].str[:4]
+    df["Quarter"] = df["Period"].str[6:7]
+
+    # df["Year"] = df["Period"].apply(lambda x: x.split()[0])
+    # df['Period'] = df['Period'].str.replace(' ', '')
+    # df = df[df["Period"]!="2024Q1QTD"]
+    # df['date'] = pd.PeriodIndex(df['Period'], freq='Q').strftime('%Y%Q')
+    return df
 
 
 def plot_rent_prices(df):
@@ -324,8 +337,13 @@ def plot_rent_prices(df):
         x_title="Year",
         y_title="Rent Prices ($)",
         format=",.0f",
-        hovertemplate="%{y:,.0f}",
+        hovertemplate="<b>%{customdata[0]} Q%{customdata[1]}</b>: %{y}",
         markers=True,
+        hover_data={"Year": True, "Quarter": True},
+        tickvals=df["Period"][::4],
+        ticktext=df["Year"][::4],
+        tickangle=-45,
+        hovermode=None,
     )
 
 
@@ -381,6 +399,11 @@ def plot_median_home_price(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 

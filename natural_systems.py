@@ -131,7 +131,7 @@ def get_probability_of_high_severity_fire():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/129"
     )
     df = highseverity.groupby(["Name", "gridcode"])["Acres"].sum().reset_index()
-    df["Probability"] = np.where(df["gridcode"] == 1, ">60% chance of fire", "<60% chance of fire")
+    df["Probability"] = np.where(df["gridcode"] == 1, "High Risk of Fire", "Low Risk of Fire")
     total = df.groupby("Name")["Acres"].sum().reset_index()
     df = df.merge(total, on="Name")
     df["Share"] = df["Acres_x"] / df["Acres_y"]
@@ -146,7 +146,7 @@ def get_probability_of_low_severity_fire():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/130"
     )
     df = lowseverity.groupby(["Name", "gridcode"])["Acres"].sum().reset_index()
-    df["Probability"] = np.where(df["gridcode"] == 1, ">60% chance of fire", "<60% chance of fire")
+    df["Probability"] = np.where(df["gridcode"] == 1, "High Risk of Fire", "Low Risk of Fire")
     total = df.groupby("Name")["Acres"].sum().reset_index()
     df = df.merge(total, on="Name")
     df["Share"] = df["Acres_x"] / df["Acres_y"]
@@ -226,6 +226,11 @@ def plot_aquatic_species(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
@@ -259,6 +264,11 @@ def plot_restored_wetlands_meadows(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
