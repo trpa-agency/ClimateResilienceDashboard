@@ -99,6 +99,6 @@
   * [Wildfire - Map](Maps/Firewise_IncidentsRxBurn_EmergencyServices.html)
 * Population disaggregated by race and ethnicity, age groups 
   * [Ethnicity - Chart Option 1](4.4(a)_RaceEthnicity_v1.html)
-  * [Ethnicity - Chart Option 2](4.4(a)_RaceEthnicity_v2.html))
+  * [Ethnicity - Chart Option 2](4.4(a)_RaceEthnicity_v2.html)
 * Number/share of households with access and functional needs (These can be referred to as vulnerable populations including populations such as persons with disabilities, older adults, children, limited English proficiency, and transportation disadvantages)
   * [Access Needs - Map](Maps/At_Risk_communities.html)
