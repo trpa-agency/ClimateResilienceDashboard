@@ -480,3 +480,38 @@ def plot_commute_origin(df):
     )
 
     r.to_html("html/4.1(d)_commuter_patterns.html")
+
+def get_data_tot_collected():
+    df= get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/137')
+    df_grouped = df.groupby(['Fiscal_Year','Jurisdiction'],as_index=False)['TOT_Collected'].sum()
+    df_grouped['FY_Formatted']=df_grouped['Fiscal_Year'].str.replace('-','/')
+    drop_year=['2006/07','2007/08','2008/09','2009/10','2010/11','2011/12','2012/13','2013/14','2014/15',
+            '2015/16','2016/17','2017/18','2018/19']
+    df_grouped = df_grouped[~df_grouped['FY_Formatted'].isin(drop_year)]
+    return df_grouped
+
+def plot_tot_collected(df):
+    stackedbar(
+        df,
+        path_html="html/4.2.a_TOT_Collected.html",
+        div_id="4.2.a_TOT_Collected",
+        x="FY_Formatted",
+        y="TOT_Collected",
+        facet=None,
+        color="Jurisdiction",
+        color_sequence=[
+            "#208385",
+            "#FC9A62",
+            "#F9C63E",
+            "#632E5A",
+            "#A48352",
+            
+        ],
+        orders=None,
+        y_title="Total TOT Collected",
+        x_title="Fiscal Year",
+        hovertemplate="Total TOT Collected: %{y:,.f}",
+        hovermode="x unified",
+        orientation="v",
+        format=",",
+    )

@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Climate Resilience Dashboard - SEZ Restored</title>
+    <title>Climate Resilience Dashboard - Tree Mortality</title>
 
     <style>
       html,
@@ -99,37 +99,22 @@
         });
         view.ui.add(fullscreen, "top-left");
 
-        // Create a popupTemplate
-        const sezTemplate = {
-          title: "Stream Environment Zone: {}",
-          content:[
-              {
-          type: "fields",
-          fieldInfos: [
-                { 
-                  fieldName: "",
-                  label: "Assessment Grade "
-                }
-                ]
-              }
-              ]            
-        };
-        
-        //SEZ Assessment Layer
-
-        //SEZ Restored WFS Layer
-        var sezRestoredLayer = new WFSLayer({
-          url: "https://maps.trpa.org/server/rest/services/SEZ/FeatureServer/0",
-          title: "SEZ Restored",
-          popupTemplate: sezTemplate
+        // Tree Mortality feature layer
+        var treeLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/124",
+          title: "2023 Tree Mortality",
+          // renderer: treeRenderer,
+          blendMode: "multiply",
+          opacity: 0.7,
+          definitionExpression: "FID_TreeMortality_AerialDetecti <> -1"
         });
-        
+        map.add(treeLayer);
+
         // boundary feature layer
         var trpaLayer = new FeatureLayer({
           url: "https://maps.trpa.org/server/rest/services/Boundaries/FeatureServer/4",
           title: "TRPA Boundary"
         });
-          
         map.add(trpaLayer);
 
         // create legend card
@@ -137,17 +122,12 @@
         view: view,
         layerInfos: [
           {
-            layer: "",
-            title: ""
-
-          },
-          {
-            layer: "",
-            title: ""
-
+            layer: treeLayer,
+            title: "2023 Tree Mortality"
           }
         ]
         });
+        
         // Add widget to the top right corner of the view
         view.ui.add(legend, "top-right");
         
@@ -156,8 +136,8 @@
             expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
             expandTooltip: "Legend",
             view: view,
-//            expanded: true,
-            autoCollapse: true,
+            expanded: true,
+            // autoCollapse: true,
             content: legend.domNode,
             group: "top-right"
             });
