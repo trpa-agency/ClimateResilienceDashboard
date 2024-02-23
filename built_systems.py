@@ -492,3 +492,27 @@ def plot_mode_share(df):
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
+def get_data_vehicles_miles_traveled():
+    vmt_data=get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133')
+    vmt_data[['CA', 'NV', 'Total']] = vmt_data[['CA', 'NV', 'Total']].apply(lambda x: x.str.replace(',', '').dropna().astype(int))
+    vmt_data_graph = vmt_data.melt(id_vars='year',value_vars=['CA','NV','Total'],var_name='State',value_name='VMT')
+    vmt_data_graph = vmt_data_graph.query("year > 2015 & State=='Total'")
+    return vmt_data_graph
+
+def plot_vehicles_miles_traveled(df):
+    trendline(df,
+               path_html="html/3.3.b_Vehicle_Miles_Traveled.html",
+               div_id="3.3.b_Vehicle_Miles_Traveled",
+               x="year",
+                y="VMT",
+                color=None,
+                color_sequence=["#208385"],
+                orders=None,
+                sort="year",
+                y_title="Total VMT",
+                x_title="Year",
+                hovertemplate="%{y}",
+                format=".%",
+                markers=True,
+                )

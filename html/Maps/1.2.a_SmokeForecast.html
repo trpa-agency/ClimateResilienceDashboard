@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>Precipitation Forecast</title>
+    <title>Climate Resilience Dashboard - Smoke Forecast</title>
     <script type="module" src="https://js.arcgis.com/calcite-components/1.9.2/calcite.esm.js"></script>
     <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/1.9.2/calcite.css"/>
     <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css" />
@@ -48,12 +48,11 @@
         FeatureLayer,
         TimeSlider,
         Expand,
-        Legend,
-        TimeZoneLabel
+        Legend
       ) => {
       const layer = new FeatureLayer({
         url:
-          "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/NDFD_Precipitation_v1/FeatureServer/0",
+          "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/NDGD_SmokeForecast_v1/FeatureServer/0",
         // blendMode: "multiply",
         opacity: 0.8,
       });
@@ -90,23 +89,6 @@
         };
       });
 
-
-
-      // calcite input time zone component allows users to pick from one of the IANA
-      // time zones without having to add the time zones manually to a drop down
-      const timezonePicker = document.getElementById("timezone-picker");
-      view.ui.add("timezone-picker", "top-right");
-
-      // Change the map view's time zone when user picks a time zone from the component
-      timezonePicker.addEventListener("calciteInputTimeZoneChange", () => {
-        view.timeZone = timezonePicker.value;
-      });
-
-
-       // TimeZoneLabel lets users know what the time zone of the view is.
-       // This provides an important context to users how the date and times are displayed
-      view.ui.add(new TimeZoneLabel({ view: view }), "top-left");
-
       const legend = new Legend({
         view: view
       });
@@ -115,7 +97,7 @@
         expandTooltip: "Legend",
         view: view,
         content: legend,
-        expanded: false
+        expanded: true
       });
       view.ui.add(legendExpand, "top-left");
     });
@@ -126,7 +108,7 @@
     <div id="viewDiv"></div>
     <div id="timeSlider"></div>
     <div id="titleDiv" class="esri-widget">
-      <div id="titleText">Precipitation forecast for next 72 hours </div>
+      <div id="titleText">Smoke forecast for next 72 hours </div>
     </div>
     <calcite-input-time-zone mode="name" id="timezone-picker"></calcite-input-time-zone>
   </body>
