@@ -4,13 +4,13 @@ import plotly.graph_objects as go
 from utils import get_fs_data, get_fs_data_spatial, get_fs_data_spatial_query, read_file, stackedbar, trendline
 
 def get_data_affordable_units():
-    # parcel development history layer 
+    # parcel development history layer
     parcelURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17"
     # deed restricted housing layer
     deedURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/20"
 
     parcelUnits = get_fs_data_spatial_query(parcelURL, "Year = 2022")
-    deedUnits   = get_fs_data_spatial_query(deedURL, "DeedRestrictionType = 'Affordable Housing'")  
+    deedUnits   = get_fs_data_spatial_query(deedURL, "DeedRestrictionType = 'Affordable Housing'")
 
     # merge the two dataframes on the parcel id
     df = pd.merge(parcelUnits, deedUnits, on="APN", how="left")
@@ -26,7 +26,7 @@ def get_data_affordable_units():
 
     # rename column OBJECTID_y to Total Deed Restricted Housing
     df = df.rename(columns={'LOCATION_TO_TOWNCENTER':'Location to Town Center',
-                                'OBJECTID_y':'Total Deed Restricted Housing', 
+                                'OBJECTID_y':'Total Deed Restricted Housing',
                                 'Residential_Units':'Total Residential Units'})
 
     # cast Total Deed Restricted Housing to int and Residential Units to int
@@ -282,7 +282,7 @@ def get_data_transit():
     # drop MONTH
     data = data.drop(columns=['MONTH'])
     # make the values in Month the real names of the months
-    data['Month'] = data['Month'].replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], 
+    data['Month'] = data['Month'].replace(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                                         ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
     # create a Date type field of Month and Year
     data['Date'] = data['Month'] + ' ' + data['Year']
@@ -341,22 +341,22 @@ def get_data_mode_share():
     modeshare_data_grouped['Category'] = modeshare_data_grouped.apply(lambda row: modeshare_category(row), axis=1)
     modeshare_data_grouped['Season']= pd.Categorical(modeshare_data_grouped['Season'], categories=['Winter', 'Spring', 'Summer', 'Fall','Year'], ordered=True)
     mode_sort = ['Car_Truck_Van', 'Bicycle', 'Drive Alone', 'Others', 'Public Transit', 'Walk']
-    modeshare_data_grouped['Mode'] = pd.Categorical(modeshare_data_grouped['Mode'], 
+    modeshare_data_grouped['Mode'] = pd.Categorical(modeshare_data_grouped['Mode'],
                                                 categories=mode_sort, ordered=True)
     return modeshare_data_grouped
 def plot_mode_share(df):
     path_html="html/3.3(d)_mode_share.html"
     div_id="3.3_d_mode_share"
     mode_sort = ['Car_Truck_Van', 'Bicycle', 'Drive Alone', 'Others', 'Public Transit', 'Walk']
-    Mode_Colors = {'Bicycle': "#208385", 
-                'Car_Truck_Van': "#FC9A62", 
-                'Walk': "#F9C63E", 
-                'Public Transit': "#632E5A", 
+    Mode_Colors = {'Bicycle': "#208385",
+                'Car_Truck_Van': "#FC9A62",
+                'Walk': "#F9C63E",
+                'Public Transit': "#632E5A",
                 'Others': "#A48352"}
     df['Mode Color'] = df['Mode'].map(
         Mode_Colors)
-    
-    df['Mode'] = pd.Categorical(df['Mode'], 
+
+    df['Mode'] = pd.Categorical(df['Mode'],
                                                     categories=mode_sort, ordered=True)
     #Add a line for custom sorting by category
     df = df.sort_values(by=['Mode', 'Category']).reset_index(drop=True)
@@ -378,7 +378,7 @@ def plot_mode_share(df):
         marker=dict(
                 color=modeshare_data_locus['Mode Color'],
             )))
-    fig.add_trace(go.Bar(  
+    fig.add_trace(go.Bar(
         x=modeshare_data_replica['Category'],
         y=modeshare_data_replica['Percentage'],
         name='Replica',
@@ -388,8 +388,8 @@ def plot_mode_share(df):
         visible=False,
         marker=dict(
                 color=modeshare_data_replica['Mode Color'],
-            ))) 
-    fig.add_trace(go.Bar(  
+            )))
+    fig.add_trace(go.Bar(
         x=modeshare_data_survey['Category'],
         y=modeshare_data_survey['Percentage'],
         name='Survey',
@@ -468,7 +468,7 @@ def plot_mode_share(df):
                 buttons=list([
                     dict(label="Source: LOCUS",
                         method="update",
-                        args=[{"visible": [True, False, False,True, True,True, True,True]}, 
+                        args=[{"visible": [True, False, False,True, True,True, True,True]},
                             {'shapes[0].visible': True, 'shapes[1].visible': False,
                             'shapes[2].visible': False}]),
                     dict(label="Source: Replica",
@@ -480,7 +480,7 @@ def plot_mode_share(df):
                         method="update",
                         args=[{"visible": [False, False, True,True, True,True, True,True]},{
                                 'shapes[0].visible': False, 'shapes[1].visible': False,
-                            'shapes[2].visible': True}]),  
+                            'shapes[2].visible': True}]),
                 ]),
             ),
         ])
