@@ -47,6 +47,7 @@
   * [Acres Treated - Chart](2.2(a)_Aquatic_Species.html)
 * Acres of restored high-quality wetlands and meadows helping to store flood waters
   * [Acres Restored - Chart](2.3(a)_Restored_Wetlands_Meadows.html)
+  * [SEZ Assessment - Map](Maps/2.3.a_SEZ_Restored.html)
 * Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements 
   * [BMPs Installed - Chart](2.3(b)_BMP.html) 
   * [BMP - Map](Maps/BMPStormwater.html)
