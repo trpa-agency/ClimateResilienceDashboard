@@ -28,7 +28,7 @@
 ## Goal 2: Promote Resilient Natural Systems
 
 * Forest Fuels treatments
-  * [Fuel Treatments - Chart](2.1(a)_ForestFuel.html), 
+  * [Fuel Treatments - Chart](2.1(a)_ForestFuel.html)
   * [Fuel Treatments - Map](Maps/2.1.a_ForestFuelTreatment.html)
 * Old Growth Forest and Tree Species 
   * [Seral Stage - Chart](2.1(b)_OldGrowthForest_SeralStage.html) 
