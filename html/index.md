@@ -30,29 +30,29 @@
 * Forest Fuels treatments
   * [Fuel Treatments - Chart](2.1(a)_ForestFuel.html)
   * [Fuel Treatments - Map](Maps/2.1.a_ForestFuelTreatment.html)
-* Old Growth Forest and Tree Species 
-  * [Seral Stage - Chart](2.1(b)_OldGrowthForest_SeralStage.html) 
-  * [Tree Species - Chart](2.1(b)_OldGrowthForest_Species.html) 
+* Old Growth Forest and Tree Species
+  * [Seral Stage - Chart](2.1(b)_OldGrowthForest_SeralStage.html)
+  * [Tree Species - Chart](2.1(b)_OldGrowthForest_Species.html)
   * [Forest Structure - Chart](2.1(b)_OldGrowthForest_Structure.html)
   * Trees Per Acre - Chart Coming soon
   * Trees Per Acre - Map Coming soon
   * [Seral Stage - Map](Maps/2.1.b_SearalStage.html)
   * [Tree Mortality - Map](Maps/2.1.b_TreeMortality.html)
   * [Horizontal Heterogeneity - Map](Maps/2.1.b_HorizontalHeterogeneity.html)
-* Probability of Fire 
-  * [Low Severity - Chart](2.1(c)_Probability_of_Low_Severity_Fire.html) 
-  * [High Severity - Chart](2.1(c)_Probability_of_High_Severity_Fire.html) 
+* Probability of Fire
+  * [Low Severity - Chart](2.1(c)_Probability_of_Low_Severity_Fire.html)
+  * [High Severity - Chart](2.1(c)_Probability_of_High_Severity_Fire.html)
   * [High Severity - Map](Maps/2.1.b_HighSeverityFireProbable.html)
 * Acres treated for aquatic invasive species
   * [Acres Treated - Chart](2.2(a)_Aquatic_Species.html)
 * Acres of restored high-quality wetlands and meadows helping to store flood waters
   * [Acres Restored - Chart](2.3(a)_Restored_Wetlands_Meadows.html)
   * [SEZ Assessment - Map](Maps/2.3.a_SEZ_Restored.html)
-* Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements 
-  * [BMPs Installed - Chart](2.3(b)_BMP.html) 
+* Increased number of parcels with Stormwater Best Management Practices (BMPs) improvements
+  * [BMPs Installed - Chart](2.3(b)_BMP.html)
   * [BMP - Map](Maps/BMPStormwater.html)
-* Increase in square feet of urban development treated by areawide stormwater infrastructure within key watersheds 
-  * [Areawide Acres - Chart](2.4.(c)_Areawide_Covering_Impervious.html) 
+* Increase in square feet of urban development treated by areawide stormwater infrastructure within key watersheds
+  * [Areawide Acres - Chart](2.4.(c)_Areawide_Covering_Impervious.html)
   * [Areawide - Map](Maps/2.4.c_AreawideStormwater.html)
 
 ## Goal 3: Support Resilient Built Systems
@@ -72,20 +72,20 @@
 * Daily per capita Vehicles Miles Traveled (VMT) and progress towards VMT target
   * [VMT - Chart](3.3.b_Vehicle_Miles_Traveled.html)
 * Coverage of electric bus routes and alternative fuel, such as EV charging for vehicles and bicycles
-  * [Alternative Fuel Stations - Map](Maps/3.1.a_AlternateFuelStations.html) 
+  * [Alternative Fuel Stations - Map](Maps/3.1.a_AlternateFuelStations.html)
   * [Electric Transportation Infrastructure - Map](Maps/3.3.c_ElectricTransportationInfrastructure.html)
 * Baseline mode share and weekday or seasonal variation
-  * [Mode-Share by Source](3.3(d)_Mode_Share.html) 
+  * [Mode-Share by Source](3.3(d)_Mode_Share.html)
 * Transportation access in priority communities
   * [Increased lane miles of low-stress bicycle facilities - Chart](3.3(f)_Low_Stress_Bicycle.html)
 
 ## Goal 4: Support Resilient Social Systems
 
-* Median Household Income 
+* Median Household Income
   * [Household Income Option 1 - Chart](4.1(a)_Household_Income_v1.html)
   * [Household Income Option 2 - Chart](4.1(a)_Household_Income_v2.html)
 * Housing costs (median home sales price and rental rates, by jurisdiction); include cost per unit and cost per square foot
-  * [Rent Prices - Chart](4.1(b)_Rent_Prices.html), 
+  * [Rent Prices - Chart](4.1(b)_Rent_Prices.html),
   * [Median Sale Price - Chart](4.1(b)_Median_Sale_Prices.html)
 * Housing tenure (rented full-time, owner-occupied, second home), disaggregated by race, ethnicity, and age
   * [Tenure by Race - Chart](4.1(c)_TenureByRace.html)
@@ -97,12 +97,12 @@
   * [TOT - Chart](4.2.a_TOT_Collected.html)
 * Consistent employment and median wages by sector and overall
   * Employment - Chart coming soon
-* Access to recreation sites, fresh food, and healthcare for zero-vehicle households 
+* Access to recreation sites, fresh food, and healthcare for zero-vehicle households
   * [Equity - Map](Maps/4.2.c_Equity.html)
 * Placeholder to add Sustainable Recreation indicator(s) when information is collected from the recreational stewardship project
 * Wildfire Incidents
   * [Wildfire - Map](Maps/4.3.a_Firewise_IncidentsRxBurn_EmergencyServices.html)
-* Population disaggregated by race and ethnicity, age groups 
+* Population disaggregated by race and ethnicity, age groups
   * [Ethnicity - Chart Option 1](4.4(a)_RaceEthnicity_v1.html)
   * [Ethnicity - Chart Option 2](4.4(a)_RaceEthnicity_v2.html)
 * Number/share of households with access and functional needs (These can be referred to as vulnerable populations including populations such as persons with disabilities, older adults, children, limited English proficiency, and transportation disadvantages)

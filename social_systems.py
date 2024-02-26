@@ -390,7 +390,7 @@ def get_data_commute_patterns():
     processed_df = grouped_df.pivot(index="Year", columns="category", values="S000").reset_index()
     processed_df["commuter_percentage"] = processed_df["Live elsewhere, work in Tahoe"] / (
         processed_df["Live elsewhere, work in Tahoe"] + processed_df["Live in Tahoe, work in Tahoe"]
-    )*100   
+    )*100
     return processed_df
 
 def plot_commute_patterns(df):
@@ -404,7 +404,7 @@ def plot_commute_patterns(df):
     color_sequence=None
     x_title="Year"
     y_title="Commuter Percentage"
-    y_min=0 
+    y_min=0
     y_max=100
     df = df.sort_values(by=x)
     config = {"displayModeBar": False}
@@ -442,7 +442,7 @@ def get_data_commute_origin():
     #top_commutes = all_data_work.query('S000 >= 15')
     top_commutes_outside_basin = all_data_work.query('S000 >= 15 & h_tract_TRPAID=="Outside Basin"')
     top_commutes_outside_basin_2021 = top_commutes_outside_basin.loc[top_commutes_outside_basin['Year']==2021]
-  
+
     return top_commutes_outside_basin_2021
 
 def plot_commute_origin(df):
@@ -464,18 +464,18 @@ def plot_commute_origin(df):
     )
 
     view_state = pydeck.ViewState(
-    latitude=38.8973752961, 
-    longitude=-120.007333471,  
-    bearing=45, 
-    pitch=50, 
+    latitude=38.8973752961,
+    longitude=-120.007333471,
+    bearing=45,
+    pitch=50,
     zoom=8
     )
 
     tooltip = {"html": "{S000} jobs <br /> Home of commuter in green; work location in red"}
     r = pydeck.Deck(
-    arc_layer, 
-    initial_view_state=view_state, 
-    tooltip=tooltip, 
+    arc_layer,
+    initial_view_state=view_state,
+    tooltip=tooltip,
     map_style = "road"
     )
 
@@ -505,7 +505,7 @@ def plot_tot_collected(df):
             "#F9C63E",
             "#632E5A",
             "#A48352",
-            
+
         ],
         orders=None,
         y_title="Total TOT Collected",
