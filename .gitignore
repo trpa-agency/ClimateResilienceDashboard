@@ -7,3 +7,6 @@ __pycache__/
 
 # Ruff
 .ruff_cache
+
+# Purple Air
+data/PurpleAir/all_sensors*

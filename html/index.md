@@ -64,7 +64,8 @@
 * Change in share of homes with electric or solar energy fuel compared to oil/gas over time
   * [Home Heating - Chart](3.1(b)_HomeHeatingFuels.html)
 * Number of deed-restricted affordable, moderate, and achievable units
-  * [Deed Restrictions - Chart](3.1(c)_Deed_Restricted_Units.html)
+  * [Deed Restrictions Option 1 - Chart](3.1(c)_Deed_Restricted_Units_v1.html)
+  * [Deed Restrictions Option 2 - Chart](3.1(c)_Deed_Restricted_Units_v2.html)
 * Percent of renewable energy as a share of total energy used
   * [Energy Mix - Chart](3.2(a)_EnergyMix.html)
 * Total transit ridership by transit systems

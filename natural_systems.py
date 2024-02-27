@@ -131,7 +131,7 @@ def get_probability_of_high_severity_fire():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/129"
     )
     df = highseverity.groupby(["Name", "gridcode"])["Acres"].sum().reset_index()
-    df["Probability"] = np.where(df["gridcode"] == 1, ">60% chance of fire", "<60% chance of fire")
+    df["Probability"] = np.where(df["gridcode"] == 1, "High Risk of Fire", "Low Risk of Fire")
     total = df.groupby("Name")["Acres"].sum().reset_index()
     df = df.merge(total, on="Name")
     df["Share"] = df["Acres_x"] / df["Acres_y"]
@@ -146,7 +146,7 @@ def get_probability_of_low_severity_fire():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/130"
     )
     df = lowseverity.groupby(["Name", "gridcode"])["Acres"].sum().reset_index()
-    df["Probability"] = np.where(df["gridcode"] == 1, ">60% chance of fire", "<60% chance of fire")
+    df["Probability"] = np.where(df["gridcode"] == 1, "High Risk of Fire", "Low Risk of Fire")
     total = df.groupby("Name")["Acres"].sum().reset_index()
     df = df.merge(total, on="Name")
     df["Share"] = df["Acres_x"] / df["Acres_y"]
@@ -226,7 +226,13 @@ def plot_aquatic_species(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
+
 
 def get_data_restored_wetlands_meadows():
     eipSEZRestored = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/9"
@@ -258,7 +264,13 @@ def plot_restored_wetlands_meadows(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
+
 
 def get_data_bmp():
     # BMP map service from BMP database
@@ -266,24 +278,29 @@ def get_data_bmp():
     # get data from map service
     data = get_fs_data(bmpsLayer)
     # select rows where BMPs CertificateIssued = 1 (True)
-    data.loc[data['CertificateIssued'] == 1]
+    data.loc[data["CertificateIssued"] == 1]
     # create Year column
-    data['Year'] = pd.DatetimeIndex(data['CertDate']).year
+    data["Year"] = pd.DatetimeIndex(data["CertDate"]).year
     # total bmps certified by year
-    bmpsCertByYear = data.groupby('Year')['OBJECTID'].count().reset_index()
+    bmpsCertByYear = data.groupby("Year")["OBJECTID"].count().reset_index()
     # total developed parcel rows
-    parcelsDeveloped = data.loc[~data['EXISTING_LANDUSE'].isin(['Vacant', 'Open Space'])]
+    parcelsDeveloped = data.loc[~data["EXISTING_LANDUSE"].isin(["Vacant", "Open Space"])]
     # set total developed parcels field
-    bmpsCertByYear['Developed Parcels'] = parcelsDeveloped['OBJECTID'].count()
+    bmpsCertByYear["Developed Parcels"] = parcelsDeveloped["OBJECTID"].count()
     # cumulative sum of BMPs installed per year
-    bmpsCertByYear['Total BMPs Installed'] = bmpsCertByYear['OBJECTID'].cumsum()
+    bmpsCertByYear["Total BMPs Installed"] = bmpsCertByYear["OBJECTID"].cumsum()
     # BMPs installed per year compared to total developed parcels per year
-    bmpsCertByYear['BMPs per Developed Parcel'] = (bmpsCertByYear['Total BMPs Installed'] / bmpsCertByYear['Developed Parcels']).round(2)
+    bmpsCertByYear["BMPs per Developed Parcel"] = (
+        bmpsCertByYear["Total BMPs Installed"] / bmpsCertByYear["Developed Parcels"]
+    ).round(2)
     # BMPs installed per year compared to total developed parcels per year but subtracting the BMPs installed from the total developed parcels
-    bmpsCertByYear['Developed Parcels without a BMP'] = bmpsCertByYear['Developed Parcels'] - bmpsCertByYear['Total BMPs Installed']
+    bmpsCertByYear["Developed Parcels without a BMP"] = (
+        bmpsCertByYear["Developed Parcels"] - bmpsCertByYear["Total BMPs Installed"]
+    )
     # drop objectid
-    df = bmpsCertByYear.drop(columns=['OBJECTID'])
+    df = bmpsCertByYear.drop(columns=["OBJECTID"])
     return df
+
 
 def plot_bmp(df):
     stackedbar(
@@ -291,10 +308,10 @@ def plot_bmp(df):
         path_html="html/2.3(b)_BMP.html",
         div_id="2.3.b_BMP",
         x="Year",
-        y=['Total BMPs Installed', 'Developed Parcels without a BMP'],
+        y=["Total BMPs Installed", "Developed Parcels without a BMP"],
         facet=None,
         color=None,
-        color_sequence=["#208385","#808080"],
+        color_sequence=["#208385", "#808080"],
         orders=None,
         y_title="Cumulative BMPs Installed",
         x_title="Year",
@@ -304,40 +321,50 @@ def plot_bmp(df):
         format=",.0f",
     )
 
+
 def get_areawide_data():
     # areawide overlay URL
     areawideOverlay = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/140"
     # get data from map service
     data = get_fs_data(areawideOverlay)
     # summarize total area of Surface = Hard Surface
-    df = data.loc[data['Surface'] == 'Hard']
+    df = data.loc[data["Surface"] == "Hard"]
     # calculate total acres
-    total_acres = df['Acres'].sum()
+    total_acres = df["Acres"].sum()
     # summarize the area of hard surface covered by status = completed or active
-    sdf_impervious_hard_summary = df.groupby(['Status', 'Year_Completed'])['Acres'].sum().reset_index()
+    sdf_impervious_hard_summary = (
+        df.groupby(["Status", "Year_Completed"])["Acres"].sum().reset_index()
+    )
     # sort years
-    sdf_impervious_hard_summary = sdf_impervious_hard_summary.sort_values(by='Year_Completed')
+    sdf_impervious_hard_summary = sdf_impervious_hard_summary.sort_values(by="Year_Completed")
     # filter out Status is not ''
-    sdf_impervious_hard_summary = sdf_impervious_hard_summary[sdf_impervious_hard_summary['Status'] != '']
+    sdf_impervious_hard_summary = sdf_impervious_hard_summary[
+        sdf_impervious_hard_summary["Status"] != ""
+    ]
     # group status active and constructed to completed
-    sdf_impervious_hard_summary['Status'] = sdf_impervious_hard_summary['Status'].replace(['Active', 'Constructed'], 'Completed')
+    sdf_impervious_hard_summary["Status"] = sdf_impervious_hard_summary["Status"].replace(
+        ["Active", "Constructed"], "Completed"
+    )
     # create cumulative sum of acres of status - completed
-    sdf_impervious_hard_summary['Acres Covered'] = sdf_impervious_hard_summary['Acres'].cumsum()
+    sdf_impervious_hard_summary["Acres Covered"] = sdf_impervious_hard_summary["Acres"].cumsum()
     # subtract area covereed by cumulatve sum from total acres
-    sdf_impervious_hard_summary['Acres Remaining'] = total_acres - sdf_impervious_hard_summary['Acres Covered']
+    sdf_impervious_hard_summary["Acres Remaining"] = (
+        total_acres - sdf_impervious_hard_summary["Acres Covered"]
+    )
     df = sdf_impervious_hard_summary
     return df
+
 
 def plot_areawide(df):
     stackedbar(
         df,
-        path_html="html/1.4.(a)_Areawide_Covering_Impervious.html",
-        div_id="1.4.a_Areawide",
+        path_html="html/2.4.(c)_Areawide_Covering_Impervious.html",
+        div_id="2.4.c_Areawide",
         x="Year_Completed",
-        y=['Acres Covered', 'Acres Remaining'],
+        y=["Acres Covered", "Acres Remaining"],
         facet=None,
         color=None,
-        color_sequence=["#208385","#808080"],
+        color_sequence=["#208385", "#808080"],
         orders=None,
         y_title="Impervious Surface Covered by Stormwater Areawide Treatment",
         x_title="Year",

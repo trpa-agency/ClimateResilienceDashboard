@@ -2,12 +2,13 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import pydeck
+
 from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline
 
 
 def get_data_tenure_by_age():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
     mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2021)
     val = (
@@ -97,7 +98,7 @@ def plot_tenure_by_age(df):
 
 def get_data_tenure_by_race():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
     mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
@@ -165,7 +166,7 @@ def plot_tenure_by_race(df):
 
 def get_data_race_ethnicity():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
     mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
     mask2 = (
@@ -262,7 +263,7 @@ def plot_race_ethnicity(df):
 
 def get_data_household_income():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/134"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
     df = data[data["Category"] == "Household Income"]
     df["Geography"] = df["Geography"].replace({"Basin": "Lake Tahoe Region"})
@@ -302,11 +303,24 @@ def plot_household_income(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
 def get_data_rent_prices():
-    return read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
+    df = read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
+    df["Year"] = df["Period"].str[:4]
+    df["Quarter"] = df["Period"].str[6:7]
+
+    # df["Year"] = df["Period"].apply(lambda x: x.split()[0])
+    # df['Period'] = df['Period'].str.replace(' ', '')
+    # df = df[df["Period"]!="2024Q1QTD"]
+    # df['date'] = pd.PeriodIndex(df['Period'], freq='Q').strftime('%Y%Q')
+    return df
 
 
 def plot_rent_prices(df):
@@ -323,8 +337,13 @@ def plot_rent_prices(df):
         x_title="Year",
         y_title="Rent Prices ($)",
         format=",.0f",
-        hovertemplate="%{y:,.0f}",
+        hovertemplate="<b>%{customdata[0]} Q%{customdata[1]}</b>: %{y}",
         markers=True,
+        hover_data={"Year": True, "Quarter": True},
+        tickvals=df["Period"][::4],
+        ticktext=df["Year"][::4],
+        tickangle=-45,
+        hovermode=None,
     )
 
 
@@ -380,32 +399,44 @@ def plot_median_home_price(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
+
 
 def get_data_commute_patterns():
-    data = get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/141')
-    grouped_df = data.groupby(["Year", "category"], as_index=False).agg(
-        {"S000": "sum"}
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/141"
     )
+    grouped_df = data.groupby(["Year", "category"], as_index=False).agg({"S000": "sum"})
     processed_df = grouped_df.pivot(index="Year", columns="category", values="S000").reset_index()
-    processed_df["commuter_percentage"] = processed_df["Live elsewhere, work in Tahoe"] / (
-        processed_df["Live elsewhere, work in Tahoe"] + processed_df["Live in Tahoe, work in Tahoe"]
-    )*100
+    processed_df["commuter_percentage"] = (
+        processed_df["Live elsewhere, work in Tahoe"]
+        / (
+            processed_df["Live elsewhere, work in Tahoe"]
+            + processed_df["Live in Tahoe, work in Tahoe"]
+        )
+        * 100
+    )
     return processed_df
 
-def plot_commute_patterns(df):
-    #This needs a bunch of formatting work to make it look nice
 
-    path_html="html/4.1(d)_commuter_percentage.html"
-    div_id="4.1.d_commuter_percentage"
-    x="Year"
-    y="commuter_percentage"
-    color=None
-    color_sequence=None
-    x_title="Year"
-    y_title="Commuter Percentage"
-    y_min=0
-    y_max=100
+def plot_commute_patterns(df):
+    # This needs a bunch of formatting work to make it look nice
+
+    path_html = "html/4.1(d)_commuter_percentage.html"
+    div_id = "4.1.d_commuter_percentage"
+    x = "Year"
+    y = "commuter_percentage"
+    color = None
+    color_sequence = None
+    x_title = "Year"
+    y_title = "Commuter Percentage"
+    y_min = 0
+    y_max = 100
     df = df.sort_values(by=x)
     config = {"displayModeBar": False}
     fig = px.line(
@@ -432,63 +463,87 @@ def plot_commute_patterns(df):
         div_id=div_id,
     )
 
+
 def get_data_commute_origin():
-    #We can rethink thresholds later
-    data = get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/141')
-    grouped_df = data.groupby(["Year", "h_tract_long", "h_tract_lat", "w_tract_lat", "w_tract_long", "category", "w_tract_TRPAID", "h_tract_TRPAID"], as_index=False).agg(
-        {"S000": "sum"}
+    # We can rethink thresholds later
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/141"
     )
+    grouped_df = data.groupby(
+        [
+            "Year",
+            "h_tract_long",
+            "h_tract_lat",
+            "w_tract_lat",
+            "w_tract_long",
+            "category",
+            "w_tract_TRPAID",
+            "h_tract_TRPAID",
+        ],
+        as_index=False,
+    ).agg({"S000": "sum"})
     all_data_work = grouped_df.query('w_tract_TRPAID!="Outside Basin"')
-    #top_commutes = all_data_work.query('S000 >= 15')
+    # top_commutes = all_data_work.query('S000 >= 15')
     top_commutes_outside_basin = all_data_work.query('S000 >= 15 & h_tract_TRPAID=="Outside Basin"')
-    top_commutes_outside_basin_2021 = top_commutes_outside_basin.loc[top_commutes_outside_basin['Year']==2021]
+    top_commutes_outside_basin_2021 = top_commutes_outside_basin.loc[
+        top_commutes_outside_basin["Year"] == 2021
+    ]
 
     return top_commutes_outside_basin_2021
 
+
 def plot_commute_origin(df):
-    #Still needs some formatting work
+    # Still needs some formatting work
     GREEN_RGB = [0, 255, 0, 200]
     RED_RGB = [240, 100, 0, 200]
 
     arc_layer = pydeck.Layer(
-    "ArcLayer",
-    data=df,
-    get_width="S000 / 10",
-    get_source_position=["h_tract_long", "h_tract_lat"],
-    get_target_position=["w_tract_long", "w_tract_lat"],
-    get_tilt=15,
-    get_source_color=GREEN_RGB,
-    get_target_color=RED_RGB,
-    pickable=True,
-    auto_highlight=True
+        "ArcLayer",
+        data=df,
+        get_width="S000 / 10",
+        get_source_position=["h_tract_long", "h_tract_lat"],
+        get_target_position=["w_tract_long", "w_tract_lat"],
+        get_tilt=15,
+        get_source_color=GREEN_RGB,
+        get_target_color=RED_RGB,
+        pickable=True,
+        auto_highlight=True,
     )
 
     view_state = pydeck.ViewState(
-    latitude=38.8973752961,
-    longitude=-120.007333471,
-    bearing=45,
-    pitch=50,
-    zoom=8
+        latitude=38.8973752961, longitude=-120.007333471, bearing=45, pitch=50, zoom=8
     )
 
     tooltip = {"html": "{S000} jobs <br /> Home of commuter in green; work location in red"}
-    r = pydeck.Deck(
-    arc_layer,
-    initial_view_state=view_state,
-    tooltip=tooltip,
-    map_style = "road"
-    )
+    r = pydeck.Deck(arc_layer, initial_view_state=view_state, tooltip=tooltip, map_style="road")
 
     r.to_html("html/4.1(d)_commuter_patterns.html")
 
+
 def get_data_tot_collected():
-    df= get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/137')
-    df_grouped = df.groupby(['Fiscal_Year','Jurisdiction'],as_index=False)['TOT_Collected'].sum()
-    df_grouped['FY_Formatted']=df_grouped['Fiscal_Year'].str.replace('-','/')
-    drop_year=['2006/07','2007/08','2008/09','2009/10','2010/11','2011/12','2012/13','2013/14','2014/15',
-            '2015/16','2016/17','2017/18','2018/19']
-    df_grouped = df_grouped[~df_grouped['FY_Formatted'].isin(drop_year)]
+    df = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/137"
+    )
+    df_grouped = df.groupby(["Fiscal_Year", "Jurisdiction"], as_index=False)["TOT_Collected"].sum()
+    df_grouped["FY_Formatted"] = df_grouped["Fiscal_Year"].str.replace("-", "/")
+    drop_year = [
+        "2006/07",
+        "2007/08",
+        "2008/09",
+        "2009/10",
+        "2010/11",
+        "2011/12",
+        "2012/13",
+        "2013/14",
+        "2014/15",
+        "2015/16",
+        "2016/17",
+        "2017/18",
+        "2018/19",
+    ]
+    df_grouped = df_grouped[~df_grouped["FY_Formatted"].isin(drop_year)]
     return df_grouped
+
 
 def plot_tot_collected(df):
     stackedbar(
@@ -505,7 +560,6 @@ def plot_tot_collected(df):
             "#F9C63E",
             "#632E5A",
             "#A48352",
-
         ],
         orders=None,
         y_title="Total TOT Collected",
