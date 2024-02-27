@@ -45,7 +45,7 @@ def plot_greenhouse_gas(df):
 
 def get_data_secchi_depth():
     return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/127"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
 
 

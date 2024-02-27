@@ -75,7 +75,7 @@ def plot_affordable_units(df):
 
 def get_data_home_heating():
     data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/132"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
     data["Geography"] = data["Geography"].replace({"Basin": "Lake Tahoe Region"})
     mask = (data["Category"] == "Home Heating Method") & (
