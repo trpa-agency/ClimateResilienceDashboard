@@ -358,8 +358,8 @@ def get_areawide_data():
 def plot_areawide(df):
     stackedbar(
         df,
-        path_html="html/1.4.(a)_Areawide_Covering_Impervious.html",
-        div_id="1.4.a_Areawide",
+        path_html="html/2.4.(c)_Areawide_Covering_Impervious.html",
+        div_id="2.4.c_Areawide",
         x="Year_Completed",
         y=["Acres Covered", "Acres Remaining"],
         facet=None,
