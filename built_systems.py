@@ -373,6 +373,11 @@ def plot_transit(df):
         format=",.0f",
         hovertemplate="%{y:,.0f}",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x unified",
     )
 
 
@@ -654,4 +659,9 @@ def plot_vehicles_miles_traveled(df):
         hovertemplate="%{y}",
         format=".%",
         markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x unified",
     )
