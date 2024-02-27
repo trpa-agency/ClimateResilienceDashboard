@@ -56,7 +56,7 @@ def get_data_tenure_by_age():
 def plot_tenure_by_age(df):
     stackedbar(
         df,
-        path_html="html/4.1(c)_TenureByAge.html",
+        path_html="html/4.1.c_TenureByAge.html",
         div_id="4.1.c_TenureByAge",
         x="Age",
         y="share",
@@ -144,7 +144,7 @@ def get_data_tenure_by_race():
 def plot_tenure_by_race(df):
     stackedbar(
         df,
-        path_html="html/4.1(c)_TenureByRace.html",
+        path_html="html/4.1.c_TenureByRace.html",
         div_id="4.1.c_TenureByRace",
         x="Race",
         y="share",
@@ -210,7 +210,7 @@ def get_data_race_ethnicity():
 def plot_race_ethnicity(df):
     stackedbar(
         df,
-        path_html="html/4.4(a)_RaceEthnicity_v1.html",
+        path_html="html/4.4.a_RaceEthnicity_v1.html",
         div_id="4.4.a_RaceEthnicity_v1",
         x="Year",
         y="share",
@@ -236,7 +236,7 @@ def plot_race_ethnicity(df):
     )
     groupedbar_percent(
         df,
-        path_html="html/4.4(a)_RaceEthnicity_v2.html",
+        path_html="html/4.4.a_RaceEthnicity_v2.html",
         div_id="4.4.a_RaceEthnicity_v2",
         x="Year",
         y="share",
@@ -274,7 +274,7 @@ def get_data_household_income():
 def plot_household_income(df):
     groupedbar_percent(
         df,
-        path_html="html/4.1(a)_Household_Income_v1.html",
+        path_html="html/4.1.a_Household_Income_v1.html",
         div_id="4.1.a_Household_Income_v1",
         x="Year",
         y="value",
@@ -290,7 +290,7 @@ def plot_household_income(df):
     )
     trendline(
         df,
-        path_html="html/4.1(a)_Household_Income_v2.html",
+        path_html="html/4.1.a_Household_Income_v2.html",
         div_id="4.1.a_Household_Income_v2",
         x="Year",
         y="value",
@@ -326,7 +326,7 @@ def get_data_rent_prices():
 def plot_rent_prices(df):
     trendline(
         df,
-        path_html="html/4.1(b)_Rent_Prices.html",
+        path_html="html/4.1.b_Rent_Prices.html",
         div_id="4.1.b_Rent_Prices",
         x="Period",
         y="Effective Rent Per Unit",
@@ -386,7 +386,7 @@ def get_data_median_home_price():
 def plot_median_home_price(df):
     trendline(
         df,
-        path_html="html/4.1(b)_Median_Sale_Prices.html",
+        path_html="html/4.1.b_Median_Sale_Prices.html",
         div_id="4.1.b_Median_Sale_Prices",
         x="Month",
         y="Purchase Amt",
@@ -427,7 +427,7 @@ def get_data_commute_patterns():
 def plot_commute_patterns(df):
     # This needs a bunch of formatting work to make it look nice
 
-    path_html = "html/4.1(d)_commuter_percentage.html"
+    path_html = "html/4.1.d_commuter_percentage.html"
     div_id = "4.1.d_commuter_percentage"
     x = "Year"
     y = "commuter_percentage"
@@ -517,7 +517,7 @@ def plot_commute_origin(df):
     tooltip = {"html": "{S000} jobs <br /> Home of commuter in green; work location in red"}
     r = pydeck.Deck(arc_layer, initial_view_state=view_state, tooltip=tooltip, map_style="road")
 
-    r.to_html("html/4.1(d)_commuter_patterns.html")
+    r.to_html("html/4.1.d_commuter_patterns.html")
 
 
 def get_data_tot_collected():
