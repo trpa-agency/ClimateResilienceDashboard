@@ -17,7 +17,9 @@ repos:
     hooks:
       - id: check-merge-conflict
       - id: trailing-whitespace
+        exclude_types: [html]
       - id: end-of-file-fixer
+        exclude_types: [html]
       - id: check-yaml
       - id: mixed-line-ending
 
