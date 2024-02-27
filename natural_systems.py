@@ -23,7 +23,7 @@ def get_data_forest_fuel():
 def plot_forest_fuel(df):
     stackedbar(
         df,
-        path_html="html/2.1(a)_ForestFuel.html",
+        path_html="html/2.1.a_ForestFuel.html",
         div_id="2.1.a_ForestFuel",
         x="Year",
         y="Acres",
@@ -73,7 +73,7 @@ def plot_old_growth_forest(df):
     seral = df.groupby("SeralStage").agg({"Acres": "sum"}).reset_index()
     stackedbar(
         seral,
-        path_html="html/2.1(b)_OldGrowthForest_SeralStage.html",
+        path_html="html/2.1.b_OldGrowthForest_SeralStage.html",
         div_id="2.1.b_OldGrowthForest_SeralStage",
         x="SeralStage",
         y="Acres",
@@ -91,7 +91,7 @@ def plot_old_growth_forest(df):
     structure = df.groupby("SpatialVar").agg({"Acres": "sum"}).reset_index()
     stackedbar(
         structure,
-        path_html="html/2.1(b)_OldGrowthForest_Structure.html",
+        path_html="html/2.1.b_OldGrowthForest_Structure.html",
         div_id="2.1.b_OldGrowthForest_Structure",
         x="SpatialVar",
         y="Acres",
@@ -109,7 +109,7 @@ def plot_old_growth_forest(df):
     species = df.groupby("TRPA_VegType").agg({"Acres": "sum"}).reset_index()
     stackedbar(
         species,
-        path_html="html/2.1(b)_OldGrowthForest_Species.html",
+        path_html="html/2.1.b_OldGrowthForest_Species.html",
         div_id="2.1.b_OldGrowthForest_Species",
         x="TRPA_VegType",
         y="Acres",
@@ -159,7 +159,7 @@ def get_probability_of_low_severity_fire():
 def plot_probability_of_high_severity_fire(df):
     stackedbar(
         df,
-        path_html="html/2.1(c)_Probability_of_High_Severity_Fire.html",
+        path_html="html/2.1.c_Probability_of_High_Severity_Fire.html",
         div_id="2.1.c_Probability_of_High_Severity_Fire",
         x="Forest Management Zone",
         y="Share",
@@ -179,7 +179,7 @@ def plot_probability_of_high_severity_fire(df):
 def plot_probability_of_low_severity_fire(df):
     stackedbar(
         df,
-        path_html="html/2.1(c)_Probability_of_Low_Severity_Fire.html",
+        path_html="html/2.1.c_Probability_of_Low_Severity_Fire.html",
         div_id="2.1.c_Probability_of_Low_Severity_Fire",
         x="Forest Management Zone",
         y="Share",
@@ -213,7 +213,7 @@ def get_data_aquatic_species():
 def plot_aquatic_species(df):
     trendline(
         df,
-        path_html="html/2.2(a)_Aquatic_Species.html",
+        path_html="html/2.2.a_Aquatic_Species.html",
         div_id="2.2.a_Aquatic_Species",
         x="Year",
         y="Acres",
@@ -251,7 +251,7 @@ def get_data_restored_wetlands_meadows():
 def plot_restored_wetlands_meadows(df):
     trendline(
         df,
-        path_html="html/2.3(a)_Restored_Wetlands_Meadows.html",
+        path_html="html/2.3.a_Restored_Wetlands_Meadows.html",
         div_id="2.3.a_Restored_Wetlands_Meadows",
         x="Year",
         y="Acres",
@@ -305,7 +305,7 @@ def get_data_bmp():
 def plot_bmp(df):
     stackedbar(
         df,
-        path_html="html/2.3(b)_BMP.html",
+        path_html="html/2.3.b_BMP.html",
         div_id="2.3.b_BMP",
         x="Year",
         y=["Total BMPs Installed", "Developed Parcels without a BMP"],
@@ -358,7 +358,7 @@ def get_areawide_data():
 def plot_areawide(df):
     stackedbar(
         df,
-        path_html="html/2.4.(c)_Areawide_Covering_Impervious.html",
+        path_html="html/2.4.c_Areawide_Covering_Impervious.html",
         div_id="2.4.c_Areawide",
         x="Year_Completed",
         y=["Acres Covered", "Acres Remaining"],

@@ -56,7 +56,7 @@ def get_data_affordable_units():
 def plot_affordable_units(df):
     stackedbar(
         df,
-        path_html="html/3.1(a)_Affordable_Units.html",
+        path_html="html/3.1.a_Affordable_Units.html",
         div_id="3.1.a_Affordable_Units",
         x="Location to Town Center",
         y=["Total Deed Restricted Housing", "Total Residential Units"],
@@ -103,7 +103,7 @@ def get_data_home_heating():
 def plot_home_heating(df):
     stackedbar(
         df,
-        path_html="html/3.1(b)_HomeHeatingFuels.html",
+        path_html="html/3.1.b_HomeHeatingFuels.html",
         div_id="3.1.b_HomeHeatingFuels",
         x="Year",
         y="share",
@@ -137,7 +137,7 @@ def get_data_energy_mix():
 def plot_energy_mix(df):
     stackedbar(
         df,
-        path_html="html/3.2(a)_EnergyMix.html",
+        path_html="html/3.2.a_EnergyMix.html",
         div_id="3.2.a_EnergyMix",
         x="Year",
         y="Share",
@@ -194,7 +194,7 @@ def get_data_deed_restricted():
 def plot_data_deed_restricted(df):
     trendline(
         df,
-        path_html="html/3.1(c)_Deed_Restricted_Units_v1.html",
+        path_html="html/3.1.c_Deed_Restricted_Units_v1.html",
         div_id="3.1.c_Deed_Restricted_Units_v1",
         x="Year",
         y="Cumulative Count",
@@ -215,7 +215,7 @@ def plot_data_deed_restricted(df):
     )
     stacked_area(
         df,
-        path_html="html/3.1(c)_Deed_Restricted_Units_v2.html",
+        path_html="html/3.1.c_Deed_Restricted_Units_v2.html",
         div_id="3.1.c_Deed_Restricted_Units_v2",
         x="Year",
         y="Cumulative Count",
@@ -294,7 +294,7 @@ def get_data_low_stress_bicycle():
 def plot_low_stress_bicycle(df):
     stacked_area(
         df,
-        path_html="html/3.3(f)_Low_Stress_Bicycle.html",
+        path_html="html/3.3.f_Low_Stress_Bicycle.html",
         div_id="3.3.f_Low_Stress_Bicycle",
         x="Year",
         y="Total Miles",
@@ -360,7 +360,7 @@ def get_data_transit():
 def plot_transit(df):
     trendline(
         df,
-        path_html="html/3.3(a)_Transit_Ridership.html",
+        path_html="html/3.3.a_Transit_Ridership.html",
         div_id="3.3.a_Transit_Ridership",
         x="Date",
         y="Ridership",
@@ -432,7 +432,7 @@ def get_data_mode_share():
 
 
 def plot_mode_share(df):
-    path_html = "html/3.3(d)_mode_share.html"
+    path_html = "html/3.3.d_mode_share.html"
     div_id = "3.3_d_mode_share"
     mode_sort = ["Car_Truck_Van", "Bicycle", "Drive Alone", "Others", "Public Transit", "Walk"]
     Mode_Colors = {

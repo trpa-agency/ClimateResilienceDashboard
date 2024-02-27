@@ -22,7 +22,7 @@ def get_data_greenhouse_gas():
 def plot_greenhouse_gas(df):
     trendline(
         df,
-        path_html="html/1.1(a)_Greenhouse_Gas.html",
+        path_html="html/1.1.a_Greenhouse_Gas.html",
         div_id="1.1.a_greenhouse_gas",
         x="Year",
         y="MT_CO2",
@@ -76,7 +76,7 @@ def plot_secchi_depth(df):
     fig.update_traces(hovertemplate="%{y:.2f}")
     fig.write_html(
         config=config,
-        file="html/1.3(c)_Secchi_Depth.html",
+        file="html/1.3.c_Secchi_Depth.html",
         include_plotlyjs="directory",
         div_id="1.3.c_Secchi_Depth",
     )
@@ -93,7 +93,7 @@ def plot_air_quality(df):
     co = df[df["Pollutant"] == "CO"]
     scatterplot(
         df=co,
-        path_html="html/1.2(a)_Air_Quality_CO.html",
+        path_html="html/1.2.a_Air_Quality_CO.html",
         div_id="1.2.a_Air_Quality_CO",
         x="Year",
         y="Value",
@@ -111,7 +111,7 @@ def plot_air_quality(df):
     o3 = df[df["Pollutant"] == "O3"]
     scatterplot(
         df=o3,
-        path_html="html/1.2(a)_Air_Quality_O3.html",
+        path_html="html/1.2.a_Air_Quality_O3.html",
         div_id="1.2.a_Air_Quality_O3",
         x="Year",
         y="Value",
@@ -139,7 +139,7 @@ def plot_air_quality(df):
     pm10 = df[(df["Pollutant"] == "PM10") & (df["Statistic"] == "HIGH 24 HR")]
     scatterplot(
         df=pm10,
-        path_html="html/1.2(a)_Air_Quality_PM10.html",
+        path_html="html/1.2.a_Air_Quality_PM10.html",
         div_id="1.2.a_Air_Quality_PM10",
         x="Year",
         y="Value",
@@ -157,7 +157,7 @@ def plot_air_quality(df):
     pm25 = df[df["Pollutant"] == "PM2.5"]
     scatterplot(
         df=pm25,
-        path_html="html/1.2(a)_Air_Quality_PM2.5.html",
+        path_html="html/1.2.a_Air_Quality_PM2.5.html",
         div_id="1.2.a_Air_Quality_PM2.5",
         x="Year",
         y="Value",
@@ -222,7 +222,7 @@ def get_data_purple_air():
 def plot_purple_air(df):
     trendline(
         df,
-        path_html="html/1.2(a)_Purple_Air.html",
+        path_html="html/1.2.a_Purple_Air.html",
         div_id="1.2.a_Purple_Air",
         x="time_stamp",
         y="moving_avg",
@@ -271,7 +271,7 @@ def get_data_lake_level(days):
 def plot_lake_level(df):
     trendline(
         df,
-        path_html="html/1.3(a)_Lake_Level.html",
+        path_html="html/1.3.a_Lake_Level.html",
         div_id="1.3.a_Lake_Level",
         x="dateTime",
         y="value",
@@ -303,7 +303,7 @@ def get_data_lake_temp():
 def plot_lake_temp(df):
     trendline(
         df,
-        path_html="html/1.3(b)_Lake_Temp.html",
+        path_html="html/1.3.b_Lake_Temp.html",
         div_id="1.3.b_Lake_Temp",
         x="TmStamp",
         y="LS_Temp_Avg",
@@ -366,7 +366,7 @@ def get_data_precip():
 def plot_precip(df):
     stackedbar(
         df,
-        path_html="html/1.3(d)_Precip.html",
+        path_html="html/1.3.d_Precip.html",
         div_id="1.3.d_Precip",
         x="Year",
         y=["% Snow", "% Rain"],
@@ -423,7 +423,7 @@ def plot_temp(df):
         yaxis_title="Temperature (F)",
         legend_title="Temperature",
     )
-    path_html = "html/1.2(a)_TahoeTemp.html"
+    path_html = "html/1.2.a_TahoeTemp.html"
     div_id = "1.3.d_Precip"
     fig.write_html(
         file=path_html,
@@ -447,7 +447,7 @@ def plot_extremeheat(df):
         title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
     )
     fig.update_layout(xaxis_title="Year", yaxis_title="Number of Days", legend_title="Temperature")
-    path_html = "html/1.2(a)_ExtremeHeatDays.html"
+    path_html = "html/1.2.a_ExtremeHeatDays.html"
     div_id = "1.3.d_Precip"
     fig.write_html(
         file=path_html,
