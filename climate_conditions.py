@@ -423,8 +423,8 @@ def plot_temp(df):
         yaxis_title="Temperature (F)",
         legend_title="Temperature",
     )
-    path_html = ("html/1.2(a)_TahoeTemp.html",)
-    div_id = ("1.3.d_Precip",)
+    path_html = "html/1.2(a)_TahoeTemp.html"
+    div_id = "1.3.d_Precip"
     fig.write_html(
         file=path_html,
         include_plotlyjs="directory",
@@ -447,8 +447,8 @@ def plot_extremeheat(df):
         title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
     )
     fig.update_layout(xaxis_title="Year", yaxis_title="Number of Days", legend_title="Temperature")
-    path_html = ("html/1.2(a)_ExtremeHeatDays.html",)
-    div_id = ("1.3.d_Precip",)
+    path_html = "html/1.2(a)_ExtremeHeatDays.html"
+    div_id = "1.3.d_Precip"
     fig.write_html(
         file=path_html,
         include_plotlyjs="directory",
