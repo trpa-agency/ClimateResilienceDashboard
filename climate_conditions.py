@@ -13,34 +13,38 @@ from utils import get_fs_data, read_file, scatterplot, stackedbar, trendline
 # import statsmodel
 
 
-def get_data_greenhouse_gas():
-    return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/126"
-    )
+class GreenHouseGas:
+    filepath = "html/1.1(a)_Greenhouse_Gas.html"
 
+    @classmethod
+    def get_data(cls):
+        return get_fs_data(
+            "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/127"
+        )
 
-def plot_greenhouse_gas(df):
-    trendline(
-        df,
-        path_html="html/1.1(a)_Greenhouse_Gas.html",
-        div_id="1.1.a_greenhouse_gas",
-        x="Year",
-        y="MT_CO2",
-        color="Category",
-        color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
-        sort="Year",
-        orders=None,
-        x_title="Year",
-        y_title="Amount of CO2 (MT CO2e)",
-        format=",.0f",
-        hovertemplate="%{y:,.0f}",
-        markers=True,
-        hover_data=None,
-        tickvals=None,
-        ticktext=None,
-        tickangle=None,
-        hovermode="x",
-    )
+    @classmethod
+    def plot(cls, df):
+        trendline(
+            df,
+            path_html=cls.filepath,
+            div_id="1.1.a_greenhouse_gas",
+            x="Year",
+            y="MT_CO2",
+            color="Category",
+            color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+            sort="Year",
+            orders=None,
+            x_title="Year",
+            y_title="Amount of CO2 (MT CO2e)",
+            format=",.0f",
+            hovertemplate="%{y:,.0f}",
+            markers=True,
+            hover_data=None,
+            tickvals=None,
+            ticktext=None,
+            tickangle=None,
+            hovermode="x",
+        )
 
 
 def get_data_secchi_depth():
