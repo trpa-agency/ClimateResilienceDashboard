@@ -1,37 +1,21 @@
-import subprocess
-
 import climate_conditions
 
-daily_visualizations = [
+daily_updates = [
     climate_conditions.GreenHouseGas,
 ]
 
-weekly_visualizations = []
+weekly_updates = []
 
-monthly_visualizations = []
+monthly_updates = []
 
-yearly_visualizations = []
-
-
-def call_prettier(filepath):
-    """Calls prettier to format the HTML file.
-
-    This may only work on Unix-like systems.
-    """
-    result = subprocess.run(["npx", "--yes", "prettier", "--write", filepath], capture_output=True)
-    if result.stdout:
-        print(result.stdout.decode())
-    if result.stderr:
-        print(result.stderr.decode())
+yearly_updates = []
 
 
-def update_html(viz_class):
-    df = viz_class.get_data()
-    viz_class.plot(df)
-    # potentially wrap in try/except here
-    call_prettier(viz_class.filepath)
-    # Alternative would be to use something like pre-commit.ci to run prettier on all PRs
+def run_updates(update_list):
+    for viz_class in update_list:
+        df = viz_class.get_data()
+        viz_class.plot(df)
+        # HTML files will be formatted in Github by pre-commit.ci
 
 
-for viz in daily_visualizations:
-    update_html(viz)
+run_updates(daily_updates)
