@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import requests
-from meteostat import Point, Daily
+from meteostat import Daily, Point
 
-from utils import get_fs_data, read_file, scatterplot, trendline, stackedbar
+from utils import get_fs_data, read_file, scatterplot, stackedbar, trendline
 
 # from pathlib import Path
 # from arcgis import GIS
@@ -303,33 +303,45 @@ def plot_lake_temp(df):
         markers=False,
     )
 
+
 def get_data_precip():
     # snowlab precip data
     url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/145"
     data = get_fs_data(url)
 
     # cast to float
-    data['Pct_of_Precip_as_Snow'] = data['Pct_of_Precip_as_Snow'].astype(float)
-    data['Pct_of_Precip_as_Rain'] = data['Pct_of_Precip_as_Rain'].astype(float)
+    data["Pct_of_Precip_as_Snow"] = data["Pct_of_Precip_as_Snow"].astype(float)
+    data["Pct_of_Precip_as_Rain"] = data["Pct_of_Precip_as_Rain"].astype(float)
 
     # new fields for total snow and rain from pct fields
-    data['Daily_Precip_Rain_mm'] = data.Full_Day_Total_Precip_mm * (data.Pct_of_Precip_as_Rain/100)
-    data['Daily_Precip_Snow_mm'] = data.Full_Day_Total_Precip_mm * (data.Pct_of_Precip_as_Snow/100)
+    data["Daily_Precip_Rain_mm"] = data.Full_Day_Total_Precip_mm * (
+        data.Pct_of_Precip_as_Rain / 100
+    )
+    data["Daily_Precip_Snow_mm"] = data.Full_Day_Total_Precip_mm * (
+        data.Pct_of_Precip_as_Snow / 100
+    )
 
     # drop rows for summer months?
     # data = data[~data.Month_Year.str.endswith(('05', '06', '07', '08', '09'))]
 
     # group by year and sum the daily precip fields
-    dfYearly = data.groupby('Year').agg({'Daily_Precip_Rain_mm': 'sum', 'Daily_Precip_Snow_mm': 'sum'}).reset_index()
-    dfYearly['Total_Precip_mm'] = dfYearly['Daily_Precip_Rain_mm'] + dfYearly['Daily_Precip_Snow_mm']
+    dfYearly = (
+        data.groupby("Year")
+        .agg({"Daily_Precip_Rain_mm": "sum", "Daily_Precip_Snow_mm": "sum"})
+        .reset_index()
+    )
+    dfYearly["Total_Precip_mm"] = (
+        dfYearly["Daily_Precip_Rain_mm"] + dfYearly["Daily_Precip_Snow_mm"]
+    )
 
     # create percent fields
-    dfYearly['% Rain'] = (dfYearly['Daily_Precip_Rain_mm'] / dfYearly['Total_Precip_mm']) * 100
-    dfYearly['% Snow'] = (dfYearly['Daily_Precip_Snow_mm'] / dfYearly['Total_Precip_mm']) * 100
+    dfYearly["% Rain"] = (dfYearly["Daily_Precip_Rain_mm"] / dfYearly["Total_Precip_mm"]) * 100
+    dfYearly["% Snow"] = (dfYearly["Daily_Precip_Snow_mm"] / dfYearly["Total_Precip_mm"]) * 100
 
     # drop all years before 1987 (no data)
-    df = dfYearly[dfYearly['Year'] >= 1987]
+    df = dfYearly[dfYearly["Year"] >= 1987]
     return df
+
 
 def plot_precip(df):
     stackedbar(
@@ -347,8 +359,9 @@ def plot_precip(df):
         hovertemplate="%{y:,.0f}",
         hovermode="x unified",
         orientation=None,
-        format=",.0f"
+        format=",.0f",
     )
+
 
 def get_data_temp():
     # meteostat data
@@ -361,54 +374,61 @@ def get_data_temp():
 
     # adjust attributes fro tahoe
     tahoe.radius = 2000000
-    tahoe.method = 'weighted'
+    tahoe.method = "weighted"
 
     # Get daily data for 2018
     df = Daily(tahoe, start, end)
     df = df.fetch()
 
     # convert all fields to farhenheit
-    df = df.assign(MaxTemp = lambda x: (9/5)*x['tmax']+32)
-    df = df.assign(MinTemp = lambda x: (9/5)*x['tmin']+32)
-    df = df.assign(AvgTemp = lambda x: (9/5)*x['tavg']+32)
+    df = df.assign(MaxTemp=lambda x: (9 / 5) * x["tmax"] + 32)
+    df = df.assign(MinTemp=lambda x: (9 / 5) * x["tmin"] + 32)
+    df = df.assign(AvgTemp=lambda x: (9 / 5) * x["tavg"] + 32)
     return df
+
 
 def plot_temp(df):
     # Plot daily temperature data
-    fig = px.scatter(df, x=df.index, y=['AvgTemp', 'MinTemp', 'MaxTemp'], title='Daily Temperature in Tahoe')
+    fig = px.scatter(
+        df, x=df.index, y=["AvgTemp", "MinTemp", "MaxTemp"], title="Daily Temperature in Tahoe"
+    )
     # add trendline
-    fig.update_traces(mode='lines+markers')
-    fig.add_scatter(x=df.index, y=df['AvgTemp'].rolling(window=30).mean(), mode='lines', name='30 Day Avg')
+    fig.update_traces(mode="lines+markers")
+    fig.add_scatter(
+        x=df.index, y=df["AvgTemp"].rolling(window=30).mean(), mode="lines", name="30 Day Avg"
+    )
     fig.update_layout(
         title="Daily Temperature in Tahoe",
         xaxis_title="Date",
         yaxis_title="Temperature (F)",
-        legend_title="Temperature"
+        legend_title="Temperature",
     )
-    path_html="html/1.2(a)_TahoeTemp.html",
-    div_id="1.3.d_Precip",
+    path_html = ("html/1.2(a)_TahoeTemp.html",)
+    div_id = ("1.3.d_Precip",)
     fig.write_html(
         file=path_html,
         include_plotlyjs="directory",
         div_id=div_id,
     )
 
+
 def plot_extremeheat(df):
     # create a dataframe with the number of extreme heat days
-    extremeHeatDaysDF = df[df['MaxTemp'] > 85]
-    extremeHeatDaysDF = extremeHeatDaysDF.assign(Count = 1)
-    extremeHeatDaysDF = extremeHeatDaysDF.resample('Y').sum()
-    extremeHeatDaysDF = extremeHeatDaysDF.assign(Year = extremeHeatDaysDF.index.year)
+    extremeHeatDaysDF = df[df["MaxTemp"] > 85]
+    extremeHeatDaysDF = extremeHeatDaysDF.assign(Count=1)
+    extremeHeatDaysDF = extremeHeatDaysDF.resample("Y").sum()
+    extremeHeatDaysDF = extremeHeatDaysDF.assign(Year=extremeHeatDaysDF.index.year)
 
     # plot the number of extreme heat days
-    fig = px.bar(extremeHeatDaysDF, x='Year', y='Count', title='Number of Extreme Heat Days in Tahoe (over 85 degrees F)')
-    fig.update_layout(
-        xaxis_title="Year",
-        yaxis_title="Number of Days",
-        legend_title="Temperature"
+    fig = px.bar(
+        extremeHeatDaysDF,
+        x="Year",
+        y="Count",
+        title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
     )
-    path_html="html/1.2(a)_ExtremeHeatDays.html",
-    div_id="1.3.d_Precip",
+    fig.update_layout(xaxis_title="Year", yaxis_title="Number of Days", legend_title="Temperature")
+    path_html = ("html/1.2(a)_ExtremeHeatDays.html",)
+    div_id = ("1.3.d_Precip",)
     fig.write_html(
         file=path_html,
         include_plotlyjs="directory",

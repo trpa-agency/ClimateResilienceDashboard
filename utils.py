@@ -12,6 +12,7 @@ def read_file(path_file):
     data = pd.read_csv(p)
     return data
 
+
 # Gets data with query from the TRPA server
 def get_fs_data_query(service_url, query_params):
     feature_layer = FeatureLayer(service_url)
@@ -22,6 +23,7 @@ def get_fs_data_query(service_url, query_params):
     all_data = pd.DataFrame([feature.attributes for feature in feature_list])
     # return data frame
     return all_data
+
 
 # Gets data from the TRPA server
 def get_fs_data(service_url):
@@ -34,17 +36,20 @@ def get_fs_data(service_url):
     # return data frame
     return all_data
 
+
 # Gets spatially enabled dataframe from TRPA server
 def get_fs_data_spatial(service_url):
     feature_layer = FeatureLayer(service_url)
     query_result = feature_layer.query().sdf
     return query_result
 
+
 # Gets spatially enabled dataframe with query
 def get_fs_data_spatial_query(service_url, query_params):
     feature_layer = FeatureLayer(service_url)
     query_result = feature_layer.query(query_params).sdf
     return query_result
+
 
 # Trendline
 def trendline(
@@ -128,7 +133,7 @@ def stackedbar(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None
+        legend_title=None,
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_xaxes(tickformat=".0f")
@@ -177,7 +182,7 @@ def groupedbar_percent(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None
+        legend_title=None,
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_traces(hovertemplate=hovertemplate)
