@@ -392,209 +392,69 @@ def get_data_mode_share():
 
     modeshare_data_grouped['Season'] = pd.Categorical(modeshare_data_grouped['Season'], ['Winter', 'Spring', 'All', 'Summer', 'Fall'])
     modeshare_data_grouped = modeshare_data_grouped.sort_values(by=['Year', 'Season'])
-    #Now use that sort order to make the year season ordered
+    #Order year season so that it graphs correctly
     modeshare_data_grouped['Year_Season'] = pd.Categorical(modeshare_data_grouped['Year_Season'], modeshare_data_grouped['Year_Season'].unique())
 
     return modeshare_data_grouped
 
 
 def plot_mode_share(df):
-    path_html = "html/3.3.d_mode_share.html"
-    div_id = "3.3_d_mode_share"
-    mode_sort = ["Car_Truck_Van", "Bicycle", "Drive Alone", "Others", "Public Transit", "Walk"]
-    Mode_Colors = {
-        "Bicycle": "#208385",
-        "Car_Truck_Van": "#FC9A62",
-        "Walk": "#F9C63E",
-        "Public Transit": "#632E5A",
-        "Others": "#A48352",
-    }
-    df["Mode Color"] = df["Mode"].map(Mode_Colors)
-
-    df["Mode"] = pd.Categorical(df["Mode"], categories=mode_sort, ordered=True)
-    # Add a line for custom sorting by category
-    df = df.sort_values(by=["Mode", "Category"]).reset_index(drop=True)
-    modeshare_data_locus = df.query('Source=="LOCUS"')
-    modeshare_data_replica = df.query('Source=="Replica"')
-    modeshare_data_survey = df.query('Source=="Survey"')
-
-    hovertemplate_text = "%{customdata[0]} was %{customdata[1]:.1%} of Modeshare <extra></extra>"
-
-    fig = go.Figure()
-
-    fig.add_trace(
-        go.Bar(
-            x=modeshare_data_locus["Category"],
-            y=modeshare_data_locus["Percentage"],
-            name="LOCUS",
-            showlegend=False,
-            customdata=np.stack(
-                (modeshare_data_locus["Mode"], modeshare_data_locus["Percentage"] / 100), axis=-1
-            ),
-            hovertemplate=hovertemplate_text,
-            marker=dict(
-                color=modeshare_data_locus["Mode Color"],
-            ),
-        )
+    #Make a list of seasons for custom sorting
+    x_order = df.sort_values('Year_Season')['Year_Season'].unique()
+    x_sort = dict(xaxis=dict(categoryorder='array', categoryarray=x_order))
+    #Facet option
+    stackedbar(
+    df= df,
+    path_html="html/3_3_d_ModeShare_1.html",
+    div_id="3_3_d_ModeShare_1",
+    x ="Year_Season",
+    y="Percentage",
+    facet=None,
+    color="Mode",
+    color_sequence=[
+            "#208385",
+            "#FC9A62",
+            "#F9C63E",
+            "#632E5A",
+            "#A48352",
+        ],
+    orders={"Mode":
+     ['Car_Truck_Van', 'Bicycle', 'Others', 'Public Transit', 'Walk']},
+    y_title="Modeshare Percentage",
+    x_title="Year",
+    hovertemplate="%{y:.0f}%",
+    hovermode="x unified",
+    orientation="v",
+    format=",.0f",
+    additional_formatting=x_sort,
+    facet_row="Source"
     )
-    fig.add_trace(
-        go.Bar(
-            x=modeshare_data_replica["Category"],
-            y=modeshare_data_replica["Percentage"],
-            name="Replica",
-            showlegend=False,
-            customdata=np.stack(
-                (modeshare_data_replica["Mode"], modeshare_data_replica["Percentage"] / 100),
-                axis=-1,
-            ),
-            hovertemplate=hovertemplate_text,
-            visible=False,
-            marker=dict(
-                color=modeshare_data_replica["Mode Color"],
-            ),
-        )
+    #Just automobile mode share
+    modeshare_data__auto = df.query('Mode=="Car_Truck_Van"')
+    stackedbar(
+    df=modeshare_data__auto,
+    path_html="html/3_3_d_ModeShare_2.html",
+    div_id='3_3_d_ModeShare_2',
+    x="Year_Season",
+    y="Percentage",
+    facet=None,
+    color="Source",
+    color_sequence=[
+            "#208385",
+            "#FC9A62",
+            "#F9C63E",
+            "#632E5A",
+            "#A48352",
+        ],
+    orders=None,
+    y_title="Percentage of Auto Trips",
+    x_title="Year and Season",
+    format=",.0f",
+    hovermode="x unified",
+    orientation="v",
+    hovertemplate="%{y:.0f}%",
+    additional_formatting=x_sort
     )
-    fig.add_trace(
-        go.Bar(
-            x=modeshare_data_survey["Category"],
-            y=modeshare_data_survey["Percentage"],
-            name="Survey",
-            showlegend=False,
-            customdata=np.stack(
-                (modeshare_data_survey["Mode"], modeshare_data_survey["Percentage"] / 100), axis=-1
-            ),
-            hovertemplate=hovertemplate_text,
-            visible=False,
-            marker=dict(
-                color=modeshare_data_survey["Mode Color"],
-            ),
-        )
-    )
-
-    def custom_sort(tuple_item):
-        return mode_sort.index(tuple_item[0])
-
-    unique_modes = list(set(zip(df["Mode"], df["Mode Color"])))
-    sorted_modes = sorted(unique_modes, key=custom_sort)
-    for mode, color in sorted_modes:
-        fig.add_trace(
-            go.Scatter(
-                x=[None],
-                y=[None],
-                mode="markers",
-                name=mode,
-                marker=dict(size=7, color=color, symbol="square"),
-            )
-        )
-
-    # Change this so it spans the entire x axis
-    # get the number of unique categories for modeshare data lodes
-    num_categories_locus = len(modeshare_data_locus["Category"].unique())
-    num_categories_replica = len(modeshare_data_replica["Category"].unique())
-    num_categories_survey = len(modeshare_data_survey["Category"].unique())
-
-    fig.add_shape(
-        type="line",
-        x0=-1,
-        y0=75,
-        x1=num_categories_locus,
-        y1=75,
-        name="Target",
-        line=dict(
-            color="RoyalBlue",
-            width=2,
-            dash="dot",
-        ),
-        visible=True,
-    )
-
-    fig.add_shape(
-        type="line",
-        x0=-1,
-        y0=75,
-        x1=num_categories_replica,
-        y1=75,
-        name="Target",
-        line=dict(
-            color="RoyalBlue",
-            width=2,
-            dash="dot",
-        ),
-        visible=False,
-    )
-    fig.add_shape(
-        type="line",
-        x0=-1,
-        y0=75,
-        x1=num_categories_survey,
-        y1=75,
-        name="Target",
-        line=dict(
-            color="RoyalBlue",
-            width=2,
-            dash="dot",
-        ),
-        visible=False,
-    )
-
-    # Need to deal with visibility of the traces
-    #
-    fig.update_layout(
-        updatemenus=[
-            dict(
-                active=0,
-                buttons=list(
-                    [
-                        dict(
-                            label="Source: LOCUS",
-                            method="update",
-                            args=[
-                                {"visible": [True, False, False, True, True, True, True, True]},
-                                {
-                                    "shapes[0].visible": True,
-                                    "shapes[1].visible": False,
-                                    "shapes[2].visible": False,
-                                },
-                            ],
-                        ),
-                        dict(
-                            label="Source: Replica",
-                            method="update",
-                            args=[
-                                {"visible": [False, True, False, True, True, True, True, True]},
-                                {
-                                    "shapes[0].visible": False,
-                                    "shapes[1].visible": True,
-                                    "shapes[2].visible": False,
-                                },
-                            ],
-                        ),
-                        dict(
-                            label="Source: TRPA Survey",
-                            method="update",
-                            args=[
-                                {"visible": [False, False, True, True, True, True, True, True]},
-                                {
-                                    "shapes[0].visible": False,
-                                    "shapes[1].visible": False,
-                                    "shapes[2].visible": True,
-                                },
-                            ],
-                        ),
-                    ]
-                ),
-            ),
-        ]
-    )
-
-    fig.update_layout(title_text="Modeshare by Source")
-
-    fig.write_html(
-        file=path_html,
-        include_plotlyjs="directory",
-        div_id=div_id,
-    )
-
 
 def get_data_vehicles_miles_traveled():
     vmt_data = get_fs_data(

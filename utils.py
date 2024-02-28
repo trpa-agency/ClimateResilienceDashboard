@@ -124,6 +124,8 @@ def stackedbar(
     hovermode,
     orientation,
     format,
+    additional_formatting = None,
+    facet_row = None
 ):
     config = {"displayModeBar": False}
     fig = px.bar(
@@ -133,6 +135,7 @@ def stackedbar(
         color=color,
         barmode="stack",
         facet_col=facet,
+        facet_row=facet_row,
         color_discrete_sequence=color_sequence,
         category_orders=orders,
         orientation=orientation,
@@ -149,6 +152,7 @@ def stackedbar(
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_xaxes(tickformat=".0f")
     fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_layout(additional_formatting)
 
     fig.write_html(
         config=config,
