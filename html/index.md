@@ -12,6 +12,7 @@
   * [PM2.5 - Chart](1.2.a_Air_Quality_PM2.5.html)
   * [PM10 - Chart](1.2.a_Air_Quality_PM10.html)
   * [Purple Air 2018-present - Chart](1.2.a_Purple_Air.html)
+  * [Purple Air 2018-present w/fire starts- Chart ](1.2.a_Purple_Air_v2.html)
   * [Tahoe Temperature - Chart](1.2.a_TahoeTemp.html)
   * [Extreme Heat Days - Chart](1.2.a_ExtremeHeatDays.html)
   * [Smoke Forecast - Map](Maps/1.2.a_SmokeForecast.html)
@@ -76,7 +77,7 @@
   * [Alternative Fuel Stations - Map](Maps/3.1.a_AlternateFuelStations.html)
   * [Electric Transportation Infrastructure - Map](Maps/3.3.c_ElectricTransportationInfrastructure.html)
 * Baseline mode share and weekday or seasonal variation
-  * [Mode-Share by Source](3.3.d_Mode_Share.html)
+  * [Mode-Share by Source](3.3.d_mode_share.html)
 * Transportation access in priority communities
   * [Increased lane miles of low-stress bicycle facilities - Chart](3.3.f_Low_Stress_Bicycle.html)
 
