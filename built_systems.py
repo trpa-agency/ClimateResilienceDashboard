@@ -382,52 +382,19 @@ def plot_transit(df):
 
 
 def get_data_mode_share():
-    modeshare_data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136"
-    )
+    modeshare_data = get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136')
+    modeshare_data_grouped = modeshare_data.groupby(['Year','Season', 'Mode', 'Source']).agg({'Number': 'mean'}).reset_index()
+    modeshare_data_grouped['Year_Season'] = modeshare_data_grouped['Year'].astype(str) + ' ' + modeshare_data_grouped['Season']
 
-    # replace saturday and sunday values in the day column with weekend
-    modeshare_data["Day"] = modeshare_data["Day"].replace(["Saturday", "Sunday"], "Weekend")
-    # replace thursday with weekday
-    modeshare_data["Day"] = modeshare_data["Day"].replace("Thursday", "Weekday")
-    # replace NA in day with No Data
-    modeshare_data["Day"] = modeshare_data["Day"].fillna("NA")
-    modeshare_data_grouped = (
-        modeshare_data.groupby(["Year", "Season", "Day", "Mode", "Source"])
-        .agg({"Number": "mean"})
-        .reset_index()
-    )
-    modeshare_data_grouped["Total"] = modeshare_data_grouped.groupby(
-        ["Year", "Season", "Day", "Source"]
-    )["Number"].transform("sum")
-    # Calculate percentage
-    modeshare_data_grouped["Percentage"] = (
-        modeshare_data_grouped["Number"] / modeshare_data_grouped["Total"]
-    ) * 100
-    # Sort the values by year and then season with seasons being sorted as Winter, spring, summer, fall
-    # modeshare_data_grouped['Season'] = pd.Categorical(modeshare_data_grouped['Season'], categories=['Winter', 'Spring', 'Summer', 'Fall', 'Year'], ordered=True)
-    modeshare_data_grouped = modeshare_data_grouped.sort_values(["Year", "Season"])
+    modeshare_data_grouped['Total'] = modeshare_data_grouped.groupby(['Year','Season','Source'])['Number'].transform('sum')
+    #Calculate percentage
+    modeshare_data_grouped['Percentage'] = (modeshare_data_grouped['Number'] / modeshare_data_grouped['Total']) * 100
 
-    def modeshare_category(row):
-        if row["Source"] == "LOCUS":
-            return str(row["Year"]) + " " + row["Day"]
-        elif row["Source"] == "Replica":
-            return str(row["Year"]) + " " + row["Season"] + " " + row["Day"]
-        else:
-            return str(row["Year"]) + " " + row["Season"]
+    modeshare_data_grouped['Season'] = pd.Categorical(modeshare_data_grouped['Season'], ['Winter', 'Spring', 'All', 'Summer', 'Fall'])
+    modeshare_data_grouped = modeshare_data_grouped.sort_values(by=['Year', 'Season'])
+    #Now use that sort order to make the year season ordered
+    modeshare_data_grouped['Year_Season'] = pd.Categorical(modeshare_data_grouped['Year_Season'], modeshare_data_grouped['Year_Season'].unique())
 
-    modeshare_data_grouped["Category"] = modeshare_data_grouped.apply(
-        lambda row: modeshare_category(row), axis=1
-    )
-    modeshare_data_grouped["Season"] = pd.Categorical(
-        modeshare_data_grouped["Season"],
-        categories=["Winter", "Spring", "Summer", "Fall", "Year"],
-        ordered=True,
-    )
-    mode_sort = ["Car_Truck_Van", "Bicycle", "Drive Alone", "Others", "Public Transit", "Walk"]
-    modeshare_data_grouped["Mode"] = pd.Categorical(
-        modeshare_data_grouped["Mode"], categories=mode_sort, ordered=True
-    )
     return modeshare_data_grouped
 
 
