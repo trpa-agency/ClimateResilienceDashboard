@@ -76,7 +76,8 @@
   * [Alternative Fuel Stations - Map](Maps/3.1.a_AlternateFuelStations.html)
   * [Electric Transportation Infrastructure - Map](Maps/3.3.c_ElectricTransportationInfrastructure.html)
 * Baseline mode share and weekday or seasonal variation
-  * [Mode-Share by Source](3.3.d_Mode_Share.html)
+  * [Mode-Share by Source Option 1](3.3.d_Mode_Share_1.html)
+  * [Mode-Share by Source Option 2](3.3.d_Mode_Share_2.html)
 * Transportation access in priority communities
   * [Increased lane miles of low-stress bicycle facilities - Chart](3.3.f_Low_Stress_Bicycle.html)
 

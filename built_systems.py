@@ -405,8 +405,8 @@ def plot_mode_share(df):
     #Facet option
     stackedbar(
     df= df,
-    path_html="html/3_3_d_ModeShare_1.html",
-    div_id="3_3_d_ModeShare_1",
+    path_html="html/3.3.d_Mode_Share_1.html",
+    div_id="3.3.d_Mode_Share_1",
     x ="Year_Season",
     y="Percentage",
     facet=None,
@@ -433,8 +433,8 @@ def plot_mode_share(df):
     modeshare_data__auto = df.query('Mode=="Car_Truck_Van"')
     stackedbar(
     df=modeshare_data__auto,
-    path_html="html/3_3_d_ModeShare_2.html",
-    div_id='3_3_d_ModeShare_2',
+    path_html="html/3.3.d_Mode_Share_2.html",
+    div_id='3.3.d_Mode_Share_2',
     x="Year_Season",
     y="Percentage",
     facet=None,
