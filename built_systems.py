@@ -519,9 +519,9 @@ def plot_mode_share(df):
         visible=False,
         customdata = np.stack((modeshare_data_non_car['Mode'], modeshare_data_non_car['Percentage']/100), axis=-1),
         hovertemplate=hovertemplate_text,
-        marker=dict(   
+        marker=dict(
             color=modeshare_data_non_car['Source Color'],
-        ))) 
+        )))
     fig.update_layout(title_text="Modeshare by Source")
     source_sort = ['LOCUS', 'Replica', 'Survey']
     def custom_sort(tuple_item):
@@ -543,7 +543,7 @@ def plot_mode_share(df):
                 buttons=list([
                     dict(label="Mode: Automobile",
                         method="update",
-                        args=[{"visible": [True, False, False, False, False, False, True, True,True, True,True]} 
+                        args=[{"visible": [True, False, False, False, False, False, True, True,True, True,True]}
                             ]),
                     dict(label="Mode: Bicycle",
                         method="update",
@@ -551,7 +551,7 @@ def plot_mode_share(df):
                     dict(label="Mode: Walk",
                         method="update",
                         args=[{"visible": [False, False, True, False, False, False, True, True,True, True,True]}]),
-                    dict(label="Mode: Public Transit",  
+                    dict(label="Mode: Public Transit",
                             method="update",
                             args=[{"visible": [False, False, False, True, False, False, True, True,True, True,True]}]),
                     dict(label="Mode: Other",
@@ -559,7 +559,7 @@ def plot_mode_share(df):
                             args=[{"visible": [False, False, False, False, True, False, True, True,True, True,True]}]),
                     dict(label="Mode: Non-Auto",
                             method="update",
-                            args=[{"visible": [False, False, False, False, False, True, True, True,True, True,True]}]),  
+                            args=[{"visible": [False, False, False, False, False, True, True, True,True, True,True]}]),
                 ]),
             ),
         ])
