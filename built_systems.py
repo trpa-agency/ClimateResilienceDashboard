@@ -445,6 +445,12 @@ def plot_mode_share(df):
     modeshare_data_walk = df.query('Mode=="Walk"')
     modeshare_data_transit = df.query('Mode=="Public Transit"')
     modeshare_data_other = df.query('Mode=="Others"')
+    modeshare_data_non_car_list = ['Bicycle', 'Walk', 'Public Transit']
+    df["Mode"] = df["Mode"].replace(modeshare_data_non_car_list, "Non-Auto")
+    modeshare_data_non_car = df.query('Mode=="Non-Auto"')
+    #Group by year_season, source, source color and mode and sum percentage
+    modeshare_data_non_car= modeshare_data_non_car.groupby(['Year_Season','Source','Source Color', 'Mode']).agg({'Percentage': 'sum'}).reset_index()
+
 
     hovertemplate_text = '%{customdata[0]} was %{customdata[1]:.1%} of Modeshare <extra></extra>'
 
@@ -505,6 +511,17 @@ def plot_mode_share(df):
         marker=dict(
             color=modeshare_data_other['Source Color'],
         )))
+    fig.add_trace(go.Bar(
+        x=modeshare_data_non_car['Year_Season'],
+        y=modeshare_data_non_car['Percentage'],
+        name='Non-Auto',
+        showlegend=False,
+        visible=False,
+        customdata = np.stack((modeshare_data_non_car['Mode'], modeshare_data_non_car['Percentage']/100), axis=-1),
+        hovertemplate=hovertemplate_text,
+        marker=dict(   
+            color=modeshare_data_non_car['Source Color'],
+        ))) 
     fig.update_layout(title_text="Modeshare by Source")
     source_sort = ['LOCUS', 'Replica', 'Survey']
     def custom_sort(tuple_item):
@@ -526,20 +543,23 @@ def plot_mode_share(df):
                 buttons=list([
                     dict(label="Mode: Automobile",
                         method="update",
-                        args=[{"visible": [True, False, False, False, False, True, True,True, True,True]} 
+                        args=[{"visible": [True, False, False, False, False, False, True, True,True, True,True]} 
                             ]),
                     dict(label="Mode: Bicycle",
                         method="update",
-                        args=[{"visible": [False, True,False, False, False, True, True,True, True,True]}]),
+                        args=[{"visible": [False, True,False, False, False, False, True, True,True, True,True]}]),
                     dict(label="Mode: Walk",
                         method="update",
-                        args=[{"visible": [False, False, True, False, False, True, True,True, True,True]}]),
+                        args=[{"visible": [False, False, True, False, False, False, True, True,True, True,True]}]),
                     dict(label="Mode: Public Transit",  
                             method="update",
-                            args=[{"visible": [False, False, False, True, False, True, True,True, True,True]}]),
+                            args=[{"visible": [False, False, False, True, False, False, True, True,True, True,True]}]),
                     dict(label="Mode: Other",
                             method="update",
-                            args=[{"visible": [False, False, False, False, True, True, True,True, True,True]}]),  
+                            args=[{"visible": [False, False, False, False, True, False, True, True,True, True,True]}]),
+                    dict(label="Mode: Non-Auto",
+                            method="update",
+                            args=[{"visible": [False, False, False, False, False, True, True, True,True, True,True]}]),  
                 ]),
             ),
         ])
