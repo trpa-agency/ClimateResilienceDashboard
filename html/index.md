@@ -12,6 +12,7 @@
   * [PM2.5 - Chart](1.2.a_Air_Quality_PM2.5.html)
   * [PM10 - Chart](1.2.a_Air_Quality_PM10.html)
   * [Purple Air 2018-present - Chart](1.2.a_Purple_Air.html)
+  * [Purple Air 2018-present w/fire starts- Chart ](1.2.a_Purple_Air_v2.html)
   * [Tahoe Temperature - Chart](1.2.a_TahoeTemp.html)
   * [Extreme Heat Days - Chart](1.2.a_ExtremeHeatDays.html)
   * [Smoke Forecast - Map](Maps/1.2.a_SmokeForecast.html)
