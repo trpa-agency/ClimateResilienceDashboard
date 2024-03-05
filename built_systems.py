@@ -526,7 +526,7 @@ def plot_mode_share(df):
                 buttons=list([
                     dict(label="Mode: Automobile",
                         method="update",
-                        args=[{"visible": [True, False, False, False, False, True, True,True, True,True]} 
+                        args=[{"visible": [True, False, False, False, False, True, True,True, True,True]}
                             ]),
                     dict(label="Mode: Bicycle",
                         method="update",
@@ -534,12 +534,12 @@ def plot_mode_share(df):
                     dict(label="Mode: Walk",
                         method="update",
                         args=[{"visible": [False, False, True, False, False, True, True,True, True,True]}]),
-                    dict(label="Mode: Public Transit",  
+                    dict(label="Mode: Public Transit",
                             method="update",
                             args=[{"visible": [False, False, False, True, False, True, True,True, True,True]}]),
                     dict(label="Mode: Other",
                             method="update",
-                            args=[{"visible": [False, False, False, False, True, True, True,True, True,True]}]),  
+                            args=[{"visible": [False, False, False, False, True, True, True,True, True,True]}]),
                 ]),
             ),
         ])
