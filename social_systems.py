@@ -346,10 +346,10 @@ def plot_rent_prices(df):
         hovertemplate="<b>%{customdata[0]} Q%{customdata[1]}</b>: %{y}",
         markers=True,
         hover_data={"Year": True, "Quarter": True},
-        tickvals=df["Period"][::4],
-        ticktext=df["Year"][::4],
+        tickvals=df[df["Geography"] == "Lake Tahoe"]["Period"][::4],
+        ticktext=df[df["Geography"] == "Lake Tahoe"]["Year"][::4],
         tickangle=-45,
-        hovermode=None,
+        hovermode="x",
     )
 
 
