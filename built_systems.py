@@ -390,7 +390,7 @@ def get_data_mode_share():
     #Calculate percentage
     modeshare_data_grouped['Percentage'] = (modeshare_data_grouped['Number'] / modeshare_data_grouped['Total']) * 100
 
-    modeshare_data_grouped['Season'] = pd.Categorical(modeshare_data_grouped['Season'], 
+    modeshare_data_grouped['Season'] = pd.Categorical(modeshare_data_grouped['Season'],
                                                       ['Winter', 'Q1', 'Spring', 'Q3', 'Summer', 'Fall'])
     modeshare_data_grouped = modeshare_data_grouped.sort_values(by=['Year', 'Season'])
     #Order year season so that it graphs correctly
