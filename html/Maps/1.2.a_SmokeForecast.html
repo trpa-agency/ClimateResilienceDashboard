@@ -1,0 +1,116 @@
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Climate Resilience Dashboard - Smoke Forecast</title>
+    <script type="module" src="https://js.arcgis.com/calcite-components/1.9.2/calcite.esm.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/1.9.2/calcite.css"/>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.28/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #timeSlider {
+        position: absolute;
+        left: 5%;
+        right: 5%;
+        bottom: 20px;
+      }
+
+      #titleDiv {
+        padding: 10px;
+        font-weight: 36;
+        text-align: center;
+      }
+    </style>
+    <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/TimeSlider",
+      "esri/widgets/Expand",
+      "esri/widgets/Legend",
+      "esri/widgets/TimeZoneLabel"
+    ], (
+        Map,
+        MapView,
+        FeatureLayer,
+        TimeSlider,
+        Expand,
+        Legend
+      ) => {
+      const layer = new FeatureLayer({
+        url:
+          "https://services9.arcgis.com/RHVPKKiFTONKtxq3/arcgis/rest/services/NDGD_SmokeForecast_v1/FeatureServer/0",
+        // blendMode: "multiply",
+        opacity: 0.8,
+      });
+
+      const map = new Map({
+        basemap: "hybrid",
+        layers: [layer]
+      });
+
+      const view = new MapView({
+        map: map,
+        container: "viewDiv",
+        zoom: 8,
+        center: [-120.01, 39.01]
+      });
+
+      // time slider widget initialization
+      const timeSlider = new TimeSlider({
+        container: "timeSlider",
+        view: view,
+        timeVisible: true, // show the time stamps on the timeslider
+        loop: true
+      });
+
+      // add the UI for a title
+      view.ui.add("titleDiv", "top-right");
+
+
+      view.whenLayerView(layer).then((lv) => {
+        // around up the full time extent to full hour
+        timeSlider.fullTimeExtent = layer.timeInfo.fullTimeExtent.expandTo("hours");
+        timeSlider.stops = {
+          interval: layer.timeInfo.interval
+        };
+      });
+
+      const legend = new Legend({
+        view: view
+      });
+      const legendExpand = new Expand({
+        expandIcon: "legend",
+        expandTooltip: "Legend",
+        view: view,
+        content: legend,
+        expanded: true
+      });
+      view.ui.add(legendExpand, "top-left");
+    });
+  </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div id="timeSlider"></div>
+    <div id="titleDiv" class="esri-widget">
+      <div id="titleText">Smoke forecast for next 72 hours </div>
+    </div>
+    <calcite-input-time-zone mode="name" id="timezone-picker"></calcite-input-time-zone>
+  </body>
+
+</html>

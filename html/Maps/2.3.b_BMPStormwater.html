@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Climate Resilience Dashboard - BMP Stormwater Treatment</title>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+
+      #infoDiv {
+        position: absolute;
+        top: 15px;
+        left: 60px;
+      }
+      #infoDiv input {
+        border: none;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+      }
+
+      .esri-widget--button.active,
+      .esri-widget--button.active:hover,
+      .esri-widget--button.active:focus {
+        cursor: default;
+        background-color: #999696;
+      }
+      .esri-widget--button.active path,
+      .esri-widget--button.active:hover path,
+      .esri-widget--button.active:focus path {
+        fill: #e4e4e4;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.28/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.28/"></script>
+
+    <script>
+      require([
+        "esri/config",
+        "esri/views/MapView",
+        "esri/WebMap",
+        "esri/layers/FeatureLayer",
+        "esri/layers/MapImageLayer",
+        "esri/layers/TileLayer",
+        "esri/widgets/Expand",
+        "esri/widgets/Home",
+        "esri/widgets/LayerList",
+        "esri/widgets/Legend",
+        "esri/widgets/Fullscreen"
+      ], function(
+        esriConfig,
+        MapView,
+        WebMap,
+        FeatureLayer,
+        MapImageLayer,
+        TileLayer,
+        Expand,
+        Home,
+        LayerList,
+        Legend,
+        Fullscreen
+      ) {
+          {
+        esriConfig.portalUrl = "https://maps.trpa.org/portal/";
+            };
+        
+        var map = new WebMap({
+              portalItem: { // autocasts as new PortalItem()
+                // basemap webmap to use
+                id: "e1043a721b3943a6bba5f87ea468ecbb"
+              }
+            });
+
+        var view = new MapView({
+              map: map,  // The WebMap instance created above
+              container: "viewDiv",
+              center: [-120.01,39.01],
+              zoom: 10.5
+            });
+          
+        // move zoom buttons to top left
+        view.ui.move("zoom", "top-left");
+        
+        var fullscreen = new Fullscreen({
+          view: view
+        });
+        view.ui.add(fullscreen, "top-left");
+
+        // Create a popupTemplate
+        const bmpTemplate = {
+          title: "Stormwater BMP: {APN}",
+          content:[
+              {
+          type: "fields",
+          fieldInfos: [
+                { 
+                  fieldName: "CertDate",
+                  label: "Certification Date"
+                },
+                { 
+                  fieldName: "LandUse",
+                  label: "Existing Land Use"
+                },
+                { 
+                  fieldName: "OWNERSHIP_TYPE",
+                  label: "Ownership Type"
+                }
+                ]
+              }
+              ]            
+        };
+
+        // Set a basic symbol on a layer to visualize all features the same way
+        var polyRenderer = {
+          type: "simple",  // autocasts as new SimpleRenderer()
+          symbol: {
+            type: "simple-fill",  // autocasts as new SimpleMarkerSymbol()
+            size: 6,
+            color: "#279bdc",
+            outline: {  // autocasts as new SimpleLineSymbol()
+              width: 0.5,
+              color: "white"
+            }
+          }
+        };
+        // impervious surface layer
+        var imperviousLayer = new MapImageLayer({
+          url: "https://maps.trpa.org/server/rest/services/Impervious_Surface_2019/MapServer",
+          title: "Impervious Surface",
+          opacity: 0.6
+        });
+
+        map.add(imperviousLayer);
+
+        // area wide stormwater treatment feature layer
+        var bmpLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/121",
+          title: "Stormwater BMP",
+          popupTemplate: bmpTemplate,
+          renderer: polyRenderer,
+          effect: "drop-shadow(1px, 1px, 1px, black)",
+          blendMode: "multiply",
+          opacity: 0.7,
+          definitionExpression: "CertificateIssued = 1"
+
+        });
+
+        map.add(bmpLayer);
+
+        // boundary feature layer
+        var trpaLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/Boundaries/FeatureServer/4",
+          title: "TRPA Boundary"
+        });
+          
+        map.add(trpaLayer);
+
+        // create legend card
+        var legend = new Legend({
+        view: view,
+        layerInfos: [
+          {
+            layer: bmpLayer,
+            title: "Stormwater BMP"
+
+          },
+          {
+            layer: imperviousLayer,
+            title: "Impervious Surface"
+
+          }
+        ]
+        });
+        // Add widget to the top right corner of the view
+        view.ui.add(legend, "top-right");
+        
+        // Create collapasable button for legend
+        var legendExpand = new Expand({
+            expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+            expandTooltip: "Legend",
+            view: view,
+//            expanded: true,
+            autoCollapse: true,
+            content: legend.domNode,
+            group: "top-right"
+            });
+
+        // add layer list button to the top right corner of the view
+        view.ui.add(legendExpand, "top-right");
+
+        // Createa Home Button
+        var homeWidget = new Home({
+            view: view
+        });
+        // add a ValuePick
+
+
+      });
+    
+
+	</script>
+  </head>
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>

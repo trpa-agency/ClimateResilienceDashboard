@@ -1,0 +1,132 @@
+<link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.28/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #seasons-filter {
+        height: 160px;
+        width: 200%;
+        visibility: visible;
+      }
+
+      .season-item {
+        width: 100%;
+        padding: 12px;
+        text-align: left;
+        vertical-align: baseline;
+        cursor: pointer;
+        height: 40px;
+      }
+
+      .season-item:focus {
+        background-color: dimgrey;
+      }
+
+      .season-item:hover {
+        background-color: dimgrey;
+      }
+
+      #titleDiv {
+        padding: 10px;
+      }
+
+      #titleText {
+        font-size: 20pt;
+        font-weight: 60;
+        padding-bottom: 10px;
+      }
+    </style>
+    <script>
+      require([
+        "esri/views/MapView",
+        "esri/Map",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Expand",
+        "esri/core/reactiveUtils"
+      ], (MapView, Map, FeatureLayer, Expand, reactiveUtils) => {
+        let floodLayerView;
+
+        // flash flood warnings layer
+        const layer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/125",
+          outFields: ["variable_name"]
+        });
+
+        const map = new Map({
+          basemap: "gray-vector",
+          layers: [layer]
+        });
+
+        const view = new MapView({
+          map: map,
+          container: "viewDiv",
+          center: [-120.01,39.01],
+          zoom: 10.5
+        });
+
+        const seasonsNodes = document.querySelectorAll(`.season-item`);
+        const seasonsElement = document.getElementById("seasons-filter");
+
+        // click event handler for seasons choices
+        seasonsElement.addEventListener("click", filterBySeason);
+
+        // User clicked on Winter, Spring, Summer or Fall
+        // set an attribute filter on flood warnings layer view
+        // to display the warnings issued in that season
+        function filterBySeason(event) {
+          const selectedSeason = event.target.getAttribute("data-season");
+          floodLayerView.filter = {
+            where: "variable_name = '" + selectedSeason + "' and year_sample = 2022"
+          };
+        }
+
+        view.whenLayerView(layer).then((layerView) => {
+          // flash flood warnings layer loaded
+          // get a reference to the flood warnings layerview
+          floodLayerView = layerView;
+
+          // set up UI items
+          seasonsElement.style.visibility = "visible";
+          const seasonsExpand = new Expand({
+            view: view,
+            content: seasonsElement,
+            expandIcon: "filter",
+            expanded:true,
+            group: "top-left"
+          });
+          //clear the filters when user closes the expand widget
+          reactiveUtils.when(
+            () => !seasonsExpand.expanded,
+            () => {
+              floodLayerView.filter = null;
+            }
+          );
+          view.ui.add(seasonsExpand, "top-left");
+          view.ui.add("titleDiv", "top-right");
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="seasons-filter" class="esri-widget">
+      <div class="season-item visible-season" data-season="Age_65_and_Over">Age 65+</div>
+      <div class="season-item visible-season" data-season="Age_Under_18">Under 18</div>
+      <div class="season-item visible-season" data-season="Vehicle_Available_0">Zero Vehicle Households</div>
+      <div class="season-item visible-season" data-season="Speak_English_Not_Well_Not_at_All">Limited English Proficiency</div>
+    </div>
+    <div id="viewDiv"></div>
+    <div id="titleDiv" class="esri-widget">
+      <div id="titleText">People with Functional Needs</div>
+      <div>ACS Survey 2022</div>
+    </div>
+  </body>
+</html>

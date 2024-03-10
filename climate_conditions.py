@@ -1,6 +1,12 @@
-import plotly.express as px
+from datetime import datetime, timedelta
 
-from utils import get_fs_data, scatterplot, trendline
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import requests
+from meteostat import Daily, Point
+
+from utils import get_fs_data, read_file, scatterplot, stackedbar, trendline
 
 # from pathlib import Path
 # from arcgis import GIS
@@ -9,27 +15,37 @@ from utils import get_fs_data, scatterplot, trendline
 
 def get_data_greenhouse_gas():
     return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/125"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/126"
     )
 
 
 def plot_greenhouse_gas(df):
     trendline(
         df,
-        path_html="html/1.1(a)_Greenhouse_Gas.html",
+        path_html="html/1.1.a_Greenhouse_Gas.html",
         div_id="1.1.a_greenhouse_gas",
         x="Year",
         y="MT_CO2",
         color="Category",
         color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        sort="Year",
+        orders=None,
         x_title="Year",
         y_title="Amount of CO2 (MT CO2e)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
+        markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
     )
 
 
 def get_data_secchi_depth():
     return get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/126"
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/128"
     )
 
 
@@ -42,7 +58,7 @@ def plot_secchi_depth(df):
     fig.update_traces(marker=dict(size=10))
     fig.update_layout(
         yaxis=dict(title="Secchi Depth (meters)"),
-        xaxis=dict(title="Year"),
+        xaxis=dict(title="Year", showgrid=False),
         template="plotly_white",
         hovermode="x unified",
         dragmode=False,
@@ -60,7 +76,7 @@ def plot_secchi_depth(df):
     fig.update_traces(hovertemplate="%{y:.2f}")
     fig.write_html(
         config=config,
-        file="html/1.3(c)_Secchi_Depth.html",
+        file="html/1.3.c_Secchi_Depth.html",
         include_plotlyjs="directory",
         div_id="1.3.c_Secchi_Depth",
     )
@@ -77,7 +93,7 @@ def plot_air_quality(df):
     co = df[df["Pollutant"] == "CO"]
     scatterplot(
         df=co,
-        path_html="html/1.2(a)_Air_Quality_CO.html",
+        path_html="html/1.2.a_Air_Quality_CO.html",
         div_id="1.2.a_Air_Quality_CO",
         x="Year",
         y="Value",
@@ -95,7 +111,7 @@ def plot_air_quality(df):
     o3 = df[df["Pollutant"] == "O3"]
     scatterplot(
         df=o3,
-        path_html="html/1.2(a)_Air_Quality_O3.html",
+        path_html="html/1.2.a_Air_Quality_O3.html",
         div_id="1.2.a_Air_Quality_O3",
         x="Year",
         y="Value",
@@ -123,7 +139,7 @@ def plot_air_quality(df):
     pm10 = df[(df["Pollutant"] == "PM10") & (df["Statistic"] == "HIGH 24 HR")]
     scatterplot(
         df=pm10,
-        path_html="html/1.2(a)_Air_Quality_PM10.html",
+        path_html="html/1.2.a_Air_Quality_PM10.html",
         div_id="1.2.a_Air_Quality_PM10",
         x="Year",
         y="Value",
@@ -141,7 +157,7 @@ def plot_air_quality(df):
     pm25 = df[df["Pollutant"] == "PM2.5"]
     scatterplot(
         df=pm25,
-        path_html="html/1.2(a)_Air_Quality_PM2.5.html",
+        path_html="html/1.2.a_Air_Quality_PM2.5.html",
         div_id="1.2.a_Air_Quality_PM2.5",
         x="Year",
         y="Value",
@@ -154,4 +170,287 @@ def plot_air_quality(df):
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+    )
+
+
+def calcAQI(Cp, Ih, Il, BPh, BPl):
+    a = Ih - Il
+    b = BPh - BPl
+    c = Cp - BPl
+    val = round((a / b) * c + Il)
+    return val
+
+
+def get_data_purple_air():
+    df = read_file("data/daily_averaged_values.csv")
+    df["AQI"] = np.where(
+        df["daily_mean_25pm"] > 350.5,
+        calcAQI(df["daily_mean_25pm"], 500, 401, 500.4, 350.5),
+        np.where(
+            df["daily_mean_25pm"] > 250.5,
+            calcAQI(df["daily_mean_25pm"], 400, 301, 350.4, 250.5),
+            np.where(
+                df["daily_mean_25pm"] > 150.5,
+                calcAQI(df["daily_mean_25pm"], 300, 201, 250.4, 150.5),
+                np.where(
+                    df["daily_mean_25pm"] > 55.5,
+                    calcAQI(df["daily_mean_25pm"], 200, 151, 150.4, 55.5),
+                    np.where(
+                        df["daily_mean_25pm"] > 35.5,
+                        calcAQI(df["daily_mean_25pm"], 150, 101, 55.4, 35.5),
+                        np.where(
+                            df["daily_mean_25pm"] > 12.1,
+                            calcAQI(df["daily_mean_25pm"], 100, 51, 35.4, 12.1),
+                            np.where(
+                                df["daily_mean_25pm"] >= 0,
+                                calcAQI(df["daily_mean_25pm"], 50, 0, 12, 0),
+                                9999999,
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    df["moving_avg"] = df["AQI"].rolling(window=7).mean()
+    # df["time_stamp"] = pd.to_datetime(df["time_stamp"])
+    # df.set_index('time_stamp', inplace=True)
+    # weekly_avg = df.resample('W').mean().reset_index()
+    return df
+
+
+def plot_purple_air(df):
+    trendline(
+        df,
+        path_html="html/1.2.a_Purple_Air.html",
+        div_id="1.2.a_Purple_Air",
+        x="time_stamp",
+        y="moving_avg",
+        color=None,
+        color_sequence=["#023f64", "#7ebfb5", "#a48352", "#fc9a61", "#A48794", "#b83f5d"],
+        sort="time_stamp",
+        orders=None,
+        x_title="Time",
+        y_title="AQI (rolling average)",
+        format=",.0f",
+        hovertemplate="%{y:,.0f}",
+        markers=False,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
+    )
+
+
+def get_data_lake_level(days):
+    site_number = 10337000
+
+    # Calculate the start and end dates based on the selected time range
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+
+    start_date_str = start_date.strftime("%Y-%m-%d")
+    end_date_str = end_date.strftime("%Y-%m-%d")
+
+    url = f"https://waterservices.usgs.gov/nwis/iv/?format=json&sites={site_number}&parameterCd=00065&startDT={start_date_str}&endDT={end_date_str}"
+
+    response = requests.get(url)
+    data = response.json()
+
+    time_series_data = data["value"]["timeSeries"][0]["values"][0]["value"]
+
+    df = pd.DataFrame(time_series_data)
+    df["dateTime"] = pd.to_datetime(df["dateTime"], utc=True)
+    df["value"] = pd.to_numeric(df["value"])
+    df["value"] = df["value"] + 6220
+    weekly = df.groupby(pd.Grouper(key="dateTime", freq="W"))["value"].mean().reset_index()
+    return weekly
+
+
+def plot_lake_level(df):
+    trendline(
+        df,
+        path_html="html/1.3.a_Lake_Level.html",
+        div_id="1.3.a_Lake_Level",
+        x="dateTime",
+        y="value",
+        color=None,
+        color_sequence=["#023f64"],
+        sort="dateTime",
+        orders=None,
+        x_title="Time",
+        y_title="Water Level (ft)",
+        hovertemplate="%{y:,.0f}",
+        format=",.0f",
+        markers=False,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
+    )
+
+
+def get_data_lake_temp():
+    lakeTempURL = "https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate=20240130&rptend=20240202&id=4"
+    response = requests.get(lakeTempURL)
+    df = pd.DataFrame(response.json())
+    df["LS_Temp_Avg"] = df["LS_Temp_Avg"].astype(float)
+    return df
+
+
+def plot_lake_temp(df):
+    trendline(
+        df,
+        path_html="html/1.3.b_Lake_Temp.html",
+        div_id="1.3.b_Lake_Temp",
+        x="TmStamp",
+        y="LS_Temp_Avg",
+        color=None,
+        color_sequence=["#023f64"],
+        sort="TmStamp",
+        orders=None,
+        x_title="Time",
+        y_title="Average Lake Surface Temperature ",
+        format=".1f",
+        hovertemplate="%{y:.2f}",
+        markers=False,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x",
+    )
+
+
+def get_data_precip():
+    # snowlab precip data
+    url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/145"
+    data = get_fs_data(url)
+
+    # cast to float
+    data["Pct_of_Precip_as_Snow"] = data["Pct_of_Precip_as_Snow"].astype(float)
+    data["Pct_of_Precip_as_Rain"] = data["Pct_of_Precip_as_Rain"].astype(float)
+
+    # new fields for total snow and rain from pct fields
+    data["Daily_Precip_Rain_mm"] = data.Full_Day_Total_Precip_mm * (
+        data.Pct_of_Precip_as_Rain / 100
+    )
+    data["Daily_Precip_Snow_mm"] = data.Full_Day_Total_Precip_mm * (
+        data.Pct_of_Precip_as_Snow / 100
+    )
+
+    # drop rows for summer months?
+    # data = data[~data.Month_Year.str.endswith(('05', '06', '07', '08', '09'))]
+
+    # group by year and sum the daily precip fields
+    dfYearly = (
+        data.groupby("Year")
+        .agg({"Daily_Precip_Rain_mm": "sum", "Daily_Precip_Snow_mm": "sum"})
+        .reset_index()
+    )
+    dfYearly["Total_Precip_mm"] = (
+        dfYearly["Daily_Precip_Rain_mm"] + dfYearly["Daily_Precip_Snow_mm"]
+    )
+
+    # create percent fields
+    dfYearly["% Rain"] = (dfYearly["Daily_Precip_Rain_mm"] / dfYearly["Total_Precip_mm"]) * 100
+    dfYearly["% Snow"] = (dfYearly["Daily_Precip_Snow_mm"] / dfYearly["Total_Precip_mm"]) * 100
+
+    # drop all years before 1987 (no data)
+    df = dfYearly[dfYearly["Year"] >= 1987]
+    return df
+
+
+def plot_precip(df):
+    stackedbar(
+        df,
+        path_html="html/1.3.d_Precip.html",
+        div_id="1.3.d_Precip",
+        x="Year",
+        y=["% Snow", "% Rain"],
+        facet=None,
+        color=None,
+        color_sequence=["#BFD7ED", "#60A3D9"],
+        orders=None,
+        x_title="Year",
+        y_title="% of Precipitation",
+        hovertemplate="%{y:,.0f}",
+        hovermode="x unified",
+        orientation=None,
+        format=",.0f",
+    )
+
+
+def get_data_temp():
+    # meteostat data
+    # Set time period
+    start = datetime(2003, 1, 1)
+    end = datetime(2023, 12, 31)
+
+    # Create Point for Lake Tahoe
+    tahoe = Point(39.0001, -120.0001, 70)
+
+    # adjust attributes fro tahoe
+    tahoe.radius = 2000000
+    tahoe.method = "weighted"
+
+    # Get daily data for 2018
+    df = Daily(tahoe, start, end)
+    df = df.fetch()
+
+    # convert all fields to farhenheit
+    df = df.assign(MaxTemp=lambda x: (9 / 5) * x["tmax"] + 32)
+    df = df.assign(MinTemp=lambda x: (9 / 5) * x["tmin"] + 32)
+    df = df.assign(AvgTemp=lambda x: (9 / 5) * x["tavg"] + 32)
+    return df
+
+
+def plot_temp(df):
+    # Plot daily temperature data
+    fig = px.scatter(
+        df, x=df.index, y=["AvgTemp", "MinTemp", "MaxTemp"], title="Daily Temperature in Tahoe"
+    )
+    # add trendline
+    fig.update_traces(mode="lines+markers")
+    fig.add_scatter(
+        x=df.index, y=df["AvgTemp"].rolling(window=30).mean(), mode="lines", name="30 Day Avg"
+    )
+    fig.update_layout(
+        title="Daily Temperature in Tahoe",
+        xaxis_title="Date",
+        yaxis_title="Temperature (F)",
+        legend_title="Temperature",
+    )
+    path_html = "html/1.2.a_TahoeTemp.html"
+    div_id = "1.3.d_Precip"
+    fig.write_html(
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
+
+
+def plot_extremeheat(df):
+    # create a dataframe with the number of extreme heat days
+    extremeHeatDaysDF = df[df["MaxTemp"] > 85]
+    extremeHeatDaysDF = extremeHeatDaysDF.assign(Count=1)
+    extremeHeatDaysDF = extremeHeatDaysDF.resample("Y").sum()
+    extremeHeatDaysDF = extremeHeatDaysDF.assign(Year=extremeHeatDaysDF.index.year)
+
+    # plot the number of extreme heat days
+    fig = px.bar(
+        extremeHeatDaysDF,
+        x="Year",
+        y="Count",
+        title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
+    )
+    fig.update_layout(xaxis_title="Year", yaxis_title="Number of Days", legend_title="Temperature")
+    path_html = "html/1.2.a_ExtremeHeatDays.html"
+    div_id = "1.3.d_Precip"
+    fig.write_html(
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
     )

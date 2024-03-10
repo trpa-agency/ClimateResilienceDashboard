@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Climate Resilience Dashboard - Forest Health Treatments</title>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+
+      #infoDiv {
+        position: absolute;
+        top: 15px;
+        left: 60px;
+      }
+      #infoDiv input {
+        border: none;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+      }
+
+      .esri-widget--button.active,
+      .esri-widget--button.active:hover,
+      .esri-widget--button.active:focus {
+        cursor: default;
+        background-color: #999696;
+      }
+      .esri-widget--button.active path,
+      .esri-widget--button.active:hover path,
+      .esri-widget--button.active:focus path {
+        fill: #e4e4e4;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.28/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.28/"></script>
+
+    <script>
+      require([
+        "esri/config",
+        "esri/views/MapView",
+        "esri/WebMap",
+        "esri/layers/FeatureLayer",
+        "esri/layers/TileLayer",
+        "esri/widgets/Expand",
+        "esri/widgets/Home",
+        "esri/widgets/LayerList",
+        "esri/widgets/Legend",
+        "esri/widgets/Fullscreen"
+      ], function(
+        esriConfig,
+        MapView,
+        WebMap,
+        FeatureLayer,
+        TileLayer,
+        Expand,
+        Home,
+        LayerList,
+        Legend,
+        Fullscreen
+      ) {
+          {
+        esriConfig.portalUrl = "https://maps.trpa.org/portal/";
+            };
+        
+        var map = new WebMap({
+              portalItem: { // autocasts as new PortalItem()
+                id: "e1043a721b3943a6bba5f87ea468ecbb"
+              }
+            });
+
+        var view = new MapView({
+              map: map,  // The WebMap instance created above
+              container: "viewDiv",
+              center: [-120.01,39.01],
+              zoom: 10.5
+            });
+          
+        // move zoom buttons to top left
+        view.ui.move("zoom", "top-left");
+        
+        var fullscreen = new Fullscreen({
+          view: view
+        });
+        view.ui.add(fullscreen, "top-left");
+          
+        // setup renderer
+        var renderer = {
+          type: "unique-value",  // autocasts as new UniqueValueRenderer()
+          field: "NAME",
+//          defaultSymbol: { type: "simple-fill" },  // autocasts as new SimpleFillSymbol()
+          uniqueValueInfos: [{
+            // All features with value of "
+            value: "Threat",
+            symbol: {
+              type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+              color:[ 51,51, 204,0.3],
+            outline: {  // autocasts as new SimpleLineSymbol()
+                  width: 0.4,
+                  color: "grey"
+                }
+            }
+          }, {
+            // All features with value of "
+            value: "Defense",
+            symbol: {
+              type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+              color:[ 232,190, 255, 0.4 ],
+            outline: {  // autocasts as new SimpleLineSymbol()
+                  width: 0.3,
+                  color: "grey"
+                }
+            }
+          }
+        ]};
+          
+        // Create a popupTemplate
+        const template = {
+          title: "Treatment Type: {ACT}",
+          content:[
+              {
+          type: "fields",
+          fieldInfos: [
+                { 
+                  fieldName: "YEAR",
+                  label: "Year"
+                }, 
+                { 
+                  fieldName: "ACRES",
+                  label: "Acres",
+                format: {
+                        digitSeparator: true, // Uses a comma separator in numbers >999
+                        places: 2 // Sets the number of decimal places to 0 and rounds up
+                      }
+                },
+                {
+                  fieldName: "OWN_FULL",
+                  label: "Owner"
+                },
+//                { 
+//                  fieldName: "CATEGORY",
+//                  label: "Category"
+//                },
+
+                { 
+                  fieldName: "PROJ",
+                  label: "Project"
+                }
+                ]
+              }
+              ]            
+        };
+//         // canopy layer
+//        var canopyLayer = new TileLayer({
+//          url: "https://maps.trpa.org/server/rest/services/Tahoe_Canopy_Hillshade_Cached/MapServer",
+//          title: "Canopy Hillshade",
+//          opacity: 0.35
+//        });
+//          
+//        map.add(canopyLayer);         
+
+        // veg feature layer
+        // var wuiLayer = new FeatureLayer({
+        //   url: "https://maps.trpa.org/server/rest/services/",
+        //   title: "Wild Land Urban Interface",
+        //   renderer: renderer
+        // });
+          
+        // map.add(wuiLayer);
+          
+        // veg feature layer
+        var txLayer = new FeatureLayer({
+          url: "https://services6.arcgis.com/1KtlSd2mklZMBKaz/ArcGIS/rest/services/Tahoe_Forest_Fuels_Tx_OFFICIAL_Public_View/FeatureServer/0",
+          title: "Fuels Treatment",
+          popupTemplate: template,
+          blendMode: "multiply"
+        });
+          
+        map.add(txLayer);
+          
+        // boundary feature layer
+        var trpaLayer = new FeatureLayer({
+          url: "https://maps.trpa.org/server/rest/services/Boundaries/FeatureServer/4",
+          title: "TRPA Boundary"
+        });
+          
+        map.add(trpaLayer);
+          
+        // create legend card
+        var legend = new Legend({
+        view: view,
+        layerInfos: [
+          {
+            layer: txLayer,
+            title: "Forest Health Treatments"
+
+          },
+        //   {
+        //     layer: wuiLayer,
+        //     title: "Wildland Urban Interface"
+
+        //   }
+        ]
+        });
+
+        // Add widget to the top right corner of the view
+        view.ui.add(legend, "top-right");
+        
+        // Create collapasable button for legend
+        var legendExpand = new Expand({
+            expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+            expandTooltip: "Legend",
+            view: view,
+//            expanded: true,
+            autoCollapse: true,
+            content: legend.domNode,
+            group: "top-right"
+            });
+
+        // add layer list button to the top right corner of the view
+        view.ui.add(legendExpand, "top-right");
+
+        // Createa Home Button
+        var homeWidget = new Home({
+            view: view
+        });
+
+        // adds the home widget to the top left corner of the MapView
+        view.ui.add(homeWidget, "top-left");            
+     
+    });   
+	</script>
+  </head>
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
