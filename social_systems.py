@@ -312,8 +312,14 @@ def plot_household_income(df):
 
 
 def get_data_rent_prices():
-    df = read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
-    df["Year"] = df["Period"].str[:4]
+    df_tahoe = read_file("data/CoStar/LakeTahoe_MF_AllBeds.csv")
+    df_tahoe["Geography"] = "Lake Tahoe"
+    df_CA = read_file("data/CoStar/California_MF_AllBeds.csv")
+    df_CA["Geography"] = "California"
+    df_NV = read_file("data/CoStar/Nevada_MF_AllBeds.csv")
+    df_NV["Geography"] = "Nevada"
+    df = pd.concat([df_tahoe, df_CA, df_NV], ignore_index=True)
+    df["Year"] = df["Period"].str[:4].astype(int)
     df["Quarter"] = df["Period"].str[6:7]
 
     # df["Year"] = df["Period"].apply(lambda x: x.split()[0])
@@ -330,8 +336,8 @@ def plot_rent_prices(df):
         div_id="4.1.b_Rent_Prices",
         x="Period",
         y="Effective Rent Per Unit",
-        color=None,
-        color_sequence=["#208385"],
+        color="Geography",
+        color_sequence=["#208385", "#FC9A62", "#632E5A"],
         sort="Period",
         orders=None,
         x_title="Year",
@@ -340,14 +346,20 @@ def plot_rent_prices(df):
         hovertemplate="<b>%{customdata[0]} Q%{customdata[1]}</b>: %{y}",
         markers=True,
         hover_data={"Year": True, "Quarter": True},
-        tickvals=df["Period"][::4],
-        ticktext=df["Year"][::4],
+        tickvals=df[df["Geography"] == "Lake Tahoe"]["Period"][::4],
+        ticktext=df[df["Geography"] == "Lake Tahoe"]["Year"][::4],
         tickangle=-45,
-        hovermode=None,
+        hovermode="x",
     )
 
 
 def get_data_median_home_price():
+    price17 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2017.csv"
+    )
+    price18 = read_file(
+        "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2018.csv"
+    )
     price19 = read_file(
         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2019.csv"
     )
@@ -363,7 +375,9 @@ def get_data_median_home_price():
     price23_24 = read_file(
         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2023to2024.csv"
     )
-    data = pd.concat([price19, price20, price21, price22, price23_24], ignore_index=True)
+    data = pd.concat(
+        [price17, price18, price19, price20, price21, price22, price23_24], ignore_index=True
+    )
     data = data[
         (data["City"] != "Truckee")
         & (
@@ -373,7 +387,7 @@ def get_data_median_home_price():
     ]
     data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
     data.drop_duplicates(inplace=True)
-    data = data[data["Purchase Date"].dt.year >= 2019]
+    data = data[data["Purchase Date"].dt.year >= 2017]
     data["year"] = data["Purchase Date"].dt.year
     data["month"] = data["Purchase Date"].dt.month
     df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
