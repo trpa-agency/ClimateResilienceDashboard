@@ -41,14 +41,18 @@
       "esri/widgets/TimeSlider",
       "esri/widgets/Expand",
       "esri/widgets/Legend",
-      "esri/widgets/TimeZoneLabel"
+      // "esri/widgets/TimeZoneLabel",
+      "esri/widgets/Home",
+      "esri/widgets/Fullscreen"
     ], (
         Map,
         MapView,
         FeatureLayer,
         TimeSlider,
         Expand,
-        Legend
+        Legend,
+        Home,
+        Fullscreen
       ) => {
       const layer = new FeatureLayer({
         url:
@@ -77,10 +81,6 @@
         loop: true
       });
 
-      // add the UI for a title
-      view.ui.add("titleDiv", "top-right");
-
-
       view.whenLayerView(layer).then((lv) => {
         // around up the full time extent to full hour
         timeSlider.fullTimeExtent = layer.timeInfo.fullTimeExtent.expandTo("hours");
@@ -89,17 +89,72 @@
         };
       });
 
-      const legend = new Legend({
-        view: view
-      });
-      const legendExpand = new Expand({
-        expandIcon: "legend",
-        expandTooltip: "Legend",
+      //SIMPLE Legend
+      // const legend = new Legend({
+      //   view: view
+      // });
+      // const legendExpand = new Expand({
+      //   expandIcon: "legend",
+      //   expandTooltip: "Legend",
+      //   view: view,
+      //   content: legend,
+      //   expanded: false
+      // });
+      // view.ui.add(legendExpand, "top-left");
+
+      //NEW Legend
+       // create legend card
+       var legend = new Legend({
         view: view,
-        content: legend,
-        expanded: true
+        layerInfos: [
+          {
+            layer: layer,
+            title: "Smoke Forecast for next 72 hours"
+          }
+        ]
+        });
+        // Add widget to the top right corner of the view
+        view.ui.add(legend, "top-right");
+        
+        // Create collapasable button for legend
+        var legendExpand = new Expand({
+            expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+            expandTooltip: "Legend",
+            view: view,
+//            expanded: true,
+            autoCollapse: true,
+            content: legend.domNode,
+            group: "top-right"
+            });
+
+        // add layer list button to the top right corner of the view
+        view.ui.add(legendExpand, "top-right");
+
+      // // add the UI for a title
+      // view.ui.add("titleDiv", "top-right");
+
+        // move zoom buttons to top left
+        view.ui.move("zoom", "top-left");
+        
+        // Add Full Screen widget
+        var fullscreen = new Fullscreen({
+          view: view
+        });
+        view.ui.add(fullscreen, "top-left")
+        ;
+        
+        // Createa Home Button
+        var homeWidget = new Home({
+            view: view
+        });
+        view.ui.add(homeWidget, "top-left");
+
+        //disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {
+        // disable mouse wheel scroll zooming on the view
+        evt.stopPropagation();
       });
-      view.ui.add(legendExpand, "top-left");
+
     });
   </script>
   </head>
@@ -107,10 +162,8 @@
   <body>
     <div id="viewDiv"></div>
     <div id="timeSlider"></div>
-    <div id="titleDiv" class="esri-widget">
-      <div id="titleText">Smoke forecast for next 72 hours </div>
-    </div>
-    <calcite-input-time-zone mode="name" id="timezone-picker"></calcite-input-time-zone>
+    <!-- <div id="titleDiv" class="esri-widget">
+      <div id="titleText">Smoke forecast for next 72 hours </div> -->
   </body>
 
 </html>

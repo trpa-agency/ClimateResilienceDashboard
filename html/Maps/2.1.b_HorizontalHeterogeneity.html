@@ -91,14 +91,6 @@
               zoom: 10.5
             });
           
-        // move zoom buttons to top left
-        view.ui.move("zoom", "top-left");
-        
-        var fullscreen = new Fullscreen({
-          view: view
-        });
-        view.ui.add(fullscreen, "top-left");
-
         // Seral Stage feature layer
         var heterogeneityLayer = new MapImageLayer({
           url: "https://maps.trpa.org/server/rest/services/Vegetation_Horizontal_Heterogeneity/MapServer",
@@ -127,7 +119,6 @@
           }
         ]
         });
-        
         // Add widget to the top right corner of the view
         view.ui.add(legend, "top-right");
         
@@ -145,12 +136,26 @@
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
 
+        // move zoom buttons to top left
+        view.ui.move("zoom", "top-left");
+        
+        // Add Full Screen widget
+        var fullscreen = new Fullscreen({
+          view: view
+        });
+        view.ui.add(fullscreen, "top-left")
+        ;
+        
         // Createa Home Button
         var homeWidget = new Home({
             view: view
         });
-        // add a ValuePick
 
+        //disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {
+        // disable mouse wheel scroll zooming on the view
+        evt.stopPropagation();
+      });
 
       });
     

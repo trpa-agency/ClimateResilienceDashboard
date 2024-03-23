@@ -1,0 +1,136 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Wind Forecast for next 72 hours</title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+      #timeSlider {
+        position: absolute;
+        left: 5%;
+        right: 5%;
+        bottom: 20px;
+      }
+
+    </style>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/ImageryLayer",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/widgets/TimeSlider",
+        "esri/widgets/Home",
+        "esri/widgets/Fullscreen"
+      ], (  Map, 
+            MapView, 
+            ImageryLayer, 
+            Legend, 
+            Expand, 
+            TimeSlider,
+            Home,
+            Fullscreen) => {
+
+        // image service contains wind speed and direction variables which can be visualized
+        // with VectorFieldRenderer. VectorFieldRenderer has size visual variables set for magnitude
+        // and rotation visual variables set for directions
+        const layer = new ImageryLayer({
+          url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/ScientificData/NDFD_wind/ImageServer",
+          renderer: {
+            type: "vector-field",
+            style: "beaufort-kn", // Beaufort point symbol (knots)
+            flowRepresentation: "flow-from", // show flow to angle for wind direction
+            symbolTileSize: 20,
+            visualVariables: [
+              {
+                type: "size",
+                field: "Magnitude", // values read from the first band
+                maxDataValue: 32,
+                maxSize: "100px",
+                minDataValue: 0.04,
+                minSize: "8px"
+              }
+            ]
+          }
+        });
+
+        const map = new Map({
+          basemap: "gray",
+          layers: [layer]
+        });
+
+        const view = new MapView({
+          map: map,
+          container: "viewDiv",
+          center: [-120.01, 39.01],
+          zoom: 8
+        });
+
+        const legendExpand = new Expand({
+          view: view,
+          content: new Legend({
+            view: view
+          })
+        });
+
+        view.ui.add(legendExpand, "top-right");
+
+        // time slider widget initialization
+        const timeSlider = new TimeSlider({
+          container: "timeSlider",
+          mode: "instant",
+          view: view,
+          timeVisible: true
+        });
+
+        view.whenLayerView(layer).then((lv) => {
+          const fullTimeExtent = layer.timeInfo.fullTimeExtent;
+          // set up time slider properties
+          timeSlider.fullTimeExtent = fullTimeExtent;
+          timeSlider.stops = {
+            interval: layer.timeInfo.interval
+          };
+        });
+        // move zoom buttons to top left
+        view.ui.move("zoom", "top-left");
+        
+        // Add Full Screen widget
+        var fullscreen = new Fullscreen({
+          view: view
+        });
+        view.ui.add(fullscreen, "top-left")
+        ;
+        
+        // Createa Home Button
+        var homeWidget = new Home({
+            view: view
+        });
+        view.ui.add(homeWidget, "top-left");
+
+        //disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {
+        // disable mouse wheel scroll zooming on the view
+        evt.stopPropagation();
+      });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div id="timeSlider"></div>
+  </body>
+</html>
