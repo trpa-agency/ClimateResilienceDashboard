@@ -124,8 +124,8 @@ def stackedbar(
     hovermode,
     orientation,
     format,
-    additional_formatting = None,
-    facet_row = None
+    additional_formatting=None,
+    facet_row=None,
 ):
     config = {"displayModeBar": False}
     fig = px.bar(

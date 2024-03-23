@@ -382,197 +382,358 @@ def plot_transit(df):
 
 
 def get_data_mode_share():
-    modeshare_data = get_fs_data('https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136')
-    modeshare_data_grouped = modeshare_data.groupby(['Year','Season', 'Mode', 'Source']).agg({'Number': 'mean'}).reset_index()
-    modeshare_data_grouped['Year_Season'] = modeshare_data_grouped['Year'].astype(str) + ' ' + modeshare_data_grouped['Season']
+    modeshare_data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136"
+    )
+    modeshare_data_grouped = (
+        modeshare_data.groupby(["Year", "Season", "Mode", "Source"])
+        .agg({"Number": "mean"})
+        .reset_index()
+    )
+    modeshare_data_grouped["Year_Season"] = (
+        modeshare_data_grouped["Year"].astype(str) + " " + modeshare_data_grouped["Season"]
+    )
 
-    modeshare_data_grouped['Total'] = modeshare_data_grouped.groupby(['Year','Season','Source'])['Number'].transform('sum')
-    #Calculate percentage
-    modeshare_data_grouped['Percentage'] = (modeshare_data_grouped['Number'] / modeshare_data_grouped['Total']) * 100
+    modeshare_data_grouped["Total"] = modeshare_data_grouped.groupby(["Year", "Season", "Source"])[
+        "Number"
+    ].transform("sum")
+    # Calculate percentage
+    modeshare_data_grouped["Percentage"] = (
+        modeshare_data_grouped["Number"] / modeshare_data_grouped["Total"]
+    ) * 100
 
-    modeshare_data_grouped['Season'] = pd.Categorical(modeshare_data_grouped['Season'],
-                                                      ['Winter', 'Q1', 'Spring', 'Q3', 'Summer', 'Fall'])
-    modeshare_data_grouped = modeshare_data_grouped.sort_values(by=['Year', 'Season'])
-    #Order year season so that it graphs correctly
-    modeshare_data_grouped['Year_Season'] = pd.Categorical(modeshare_data_grouped['Year_Season'], modeshare_data_grouped['Year_Season'].unique())
+    modeshare_data_grouped["Season"] = pd.Categorical(
+        modeshare_data_grouped["Season"], ["Winter", "Q1", "Spring", "Q3", "Summer", "Fall"]
+    )
+    modeshare_data_grouped = modeshare_data_grouped.sort_values(by=["Year", "Season"])
+    # Order year season so that it graphs correctly
+    modeshare_data_grouped["Year_Season"] = pd.Categorical(
+        modeshare_data_grouped["Year_Season"], modeshare_data_grouped["Year_Season"].unique()
+    )
 
     return modeshare_data_grouped
 
 
 def plot_mode_share(df):
-    #Make a list of seasons for custom sorting
-    x_order = df.sort_values('Year_Season')['Year_Season'].unique()
-    x_sort = dict(xaxis=dict(categoryorder='array', categoryarray=x_order))
-    #Facet option
+    # Make a list of seasons for custom sorting
+    x_order = df.sort_values("Year_Season")["Year_Season"].unique()
+    x_sort = dict(xaxis=dict(categoryorder="array", categoryarray=x_order))
+    # Facet option
     stackedbar(
-    df= df,
-    path_html="html/3.3.d_Mode_Share_1.html",
-    div_id="3.3.d_Mode_Share_1",
-    x ="Year_Season",
-    y="Percentage",
-    facet=None,
-    color="Mode",
-    color_sequence=[
+        df=df,
+        path_html="html/3.3.d_Mode_Share_1.html",
+        div_id="3.3.d_Mode_Share_1",
+        x="Year_Season",
+        y="Percentage",
+        facet=None,
+        color="Mode",
+        color_sequence=[
             "#208385",
             "#FC9A62",
             "#F9C63E",
             "#632E5A",
             "#A48352",
         ],
-    orders={"Mode":
-     ['Car_Truck_Van', 'Bicycle', 'Others', 'Public Transit', 'Walk']},
-    y_title="Modeshare Percentage",
-    x_title="Year",
-    hovertemplate="%{y:.0f}%",
-    hovermode="x unified",
-    orientation="v",
-    format=",.0f",
-    additional_formatting=x_sort,
-    facet_row="Source"
+        orders={"Mode": ["Car_Truck_Van", "Bicycle", "Others", "Public Transit", "Walk"]},
+        y_title="Modeshare Percentage",
+        x_title="Year",
+        hovertemplate="%{y:.0f}%",
+        hovermode="x unified",
+        orientation="v",
+        format=",.0f",
+        additional_formatting=x_sort,
+        facet_row="Source",
     )
-    #Drop down by modeshare
-    path_html="html/3.3.d_Mode_Share_2.html"
-    div_id='3.3.d_Mode_Share_2'
+    # Drop down by modeshare
+    path_html = "html/3.3.d_Mode_Share_2.html"
+    div_id = "3.3.d_Mode_Share_2"
     config = {"displayModeBar": False}
-    x_order = df.sort_values('Year_Season')['Year_Season'].unique()
-    Source_Colors = {'LOCUS': "#208385",
-                        'Replica': "#FC9A62",
-                        'Survey': "#F9C63E"}
-    df['Source Color'] = df['Source'].map(
-        Source_Colors)
+    x_order = df.sort_values("Year_Season")["Year_Season"].unique()
+    Source_Colors = {"LOCUS": "#208385", "Replica": "#FC9A62", "Survey": "#F9C63E"}
+    df["Source Color"] = df["Source"].map(Source_Colors)
     modeshare_data_car = df.query('Mode=="Car_Truck_Van"')
     modeshare_data_bike = df.query('Mode=="Bicycle"')
     modeshare_data_walk = df.query('Mode=="Walk"')
     modeshare_data_transit = df.query('Mode=="Public Transit"')
     modeshare_data_other = df.query('Mode=="Others"')
-    modeshare_data_non_car_list = ['Bicycle', 'Walk', 'Public Transit']
+    modeshare_data_non_car_list = ["Bicycle", "Walk", "Public Transit"]
     df["Mode"] = df["Mode"].replace(modeshare_data_non_car_list, "Non-Auto")
     modeshare_data_non_car = df.query('Mode=="Non-Auto"')
-    #Group by year_season, source, source color and mode and sum percentage
-    modeshare_data_non_car= modeshare_data_non_car.groupby(['Year_Season','Source','Source Color', 'Mode']).agg({'Percentage': 'sum'}).reset_index()
+    # Group by year_season, source, source color and mode and sum percentage
+    modeshare_data_non_car = (
+        modeshare_data_non_car.groupby(["Year_Season", "Source", "Source Color", "Mode"])
+        .agg({"Percentage": "sum"})
+        .reset_index()
+    )
 
-
-    hovertemplate_text = '%{customdata[0]} was %{customdata[1]:.1%} of Modeshare <extra></extra>'
+    hovertemplate_text = "%{customdata[0]} was %{customdata[1]:.1%} of Modeshare <extra></extra>"
 
     fig = go.Figure()
 
-    fig.add_trace(go.Bar(
-        x=modeshare_data_car['Year_Season'],
-        y=modeshare_data_car['Percentage'],
-        name='Automobile',
-        showlegend=False,
-        customdata = np.stack((modeshare_data_car['Mode'],modeshare_data_car['Percentage']/100), axis=-1),
-        hovertemplate=hovertemplate_text,
-
-        marker=dict(
-                color=modeshare_data_car['Source Color'],
-            )))
-    fig.add_trace(go.Bar(
-        x=modeshare_data_bike['Year_Season'],
-        y=modeshare_data_bike['Percentage'],
-        name='Bicycle',
-        showlegend=False,
-        visible=False,
-        customdata = np.stack((modeshare_data_bike['Mode'],modeshare_data_bike['Percentage']/100), axis=-1),
-        hovertemplate=hovertemplate_text,
-        marker=dict(
-                color=modeshare_data_bike['Source Color'],
-            )))
-    fig.add_trace(go.Bar(
-        x=modeshare_data_walk['Year_Season'],
-        y=modeshare_data_walk['Percentage'],
-        name='Walk',
-        showlegend=False,
-        visible=False,
-        customdata = np.stack((modeshare_data_walk['Mode'],modeshare_data_walk['Percentage']/100), axis=-1),
-        hovertemplate=hovertemplate_text,
-        marker=dict(
-                color=modeshare_data_walk['Source Color'],
-            )))
-    fig.add_trace(go.Bar(
-        x=modeshare_data_transit['Year_Season'],
-        y=modeshare_data_transit['Percentage'],
-        name='Public Transit',
-        showlegend=False,
-        visible=False,
-        customdata = np.stack((modeshare_data_transit['Mode'], modeshare_data_transit['Percentage']/100), axis=-1),
-        hovertemplate=hovertemplate_text,
-        marker=dict(
-            color=modeshare_data_transit['Source Color'],
-        )))
-    fig.add_trace(go.Bar(
-        x=modeshare_data_other['Year_Season'],
-        y=modeshare_data_other['Percentage'],
-        name='Other',
-        showlegend=False,
-        visible=False,
-        customdata = np.stack((modeshare_data_other['Mode'], modeshare_data_other['Percentage']/100), axis=-1),
-        hovertemplate=hovertemplate_text,
-        marker=dict(
-            color=modeshare_data_other['Source Color'],
-        )))
-    fig.add_trace(go.Bar(
-        x=modeshare_data_non_car['Year_Season'],
-        y=modeshare_data_non_car['Percentage'],
-        name='Non-Auto',
-        showlegend=False,
-        visible=False,
-        customdata = np.stack((modeshare_data_non_car['Mode'], modeshare_data_non_car['Percentage']/100), axis=-1),
-        hovertemplate=hovertemplate_text,
-        marker=dict(
-            color=modeshare_data_non_car['Source Color'],
-        )))
+    fig.add_trace(
+        go.Bar(
+            x=modeshare_data_car["Year_Season"],
+            y=modeshare_data_car["Percentage"],
+            name="Automobile",
+            showlegend=False,
+            customdata=np.stack(
+                (modeshare_data_car["Mode"], modeshare_data_car["Percentage"] / 100), axis=-1
+            ),
+            hovertemplate=hovertemplate_text,
+            marker=dict(
+                color=modeshare_data_car["Source Color"],
+            ),
+        )
+    )
+    fig.add_trace(
+        go.Bar(
+            x=modeshare_data_bike["Year_Season"],
+            y=modeshare_data_bike["Percentage"],
+            name="Bicycle",
+            showlegend=False,
+            visible=False,
+            customdata=np.stack(
+                (modeshare_data_bike["Mode"], modeshare_data_bike["Percentage"] / 100), axis=-1
+            ),
+            hovertemplate=hovertemplate_text,
+            marker=dict(
+                color=modeshare_data_bike["Source Color"],
+            ),
+        )
+    )
+    fig.add_trace(
+        go.Bar(
+            x=modeshare_data_walk["Year_Season"],
+            y=modeshare_data_walk["Percentage"],
+            name="Walk",
+            showlegend=False,
+            visible=False,
+            customdata=np.stack(
+                (modeshare_data_walk["Mode"], modeshare_data_walk["Percentage"] / 100), axis=-1
+            ),
+            hovertemplate=hovertemplate_text,
+            marker=dict(
+                color=modeshare_data_walk["Source Color"],
+            ),
+        )
+    )
+    fig.add_trace(
+        go.Bar(
+            x=modeshare_data_transit["Year_Season"],
+            y=modeshare_data_transit["Percentage"],
+            name="Public Transit",
+            showlegend=False,
+            visible=False,
+            customdata=np.stack(
+                (modeshare_data_transit["Mode"], modeshare_data_transit["Percentage"] / 100),
+                axis=-1,
+            ),
+            hovertemplate=hovertemplate_text,
+            marker=dict(
+                color=modeshare_data_transit["Source Color"],
+            ),
+        )
+    )
+    fig.add_trace(
+        go.Bar(
+            x=modeshare_data_other["Year_Season"],
+            y=modeshare_data_other["Percentage"],
+            name="Other",
+            showlegend=False,
+            visible=False,
+            customdata=np.stack(
+                (modeshare_data_other["Mode"], modeshare_data_other["Percentage"] / 100), axis=-1
+            ),
+            hovertemplate=hovertemplate_text,
+            marker=dict(
+                color=modeshare_data_other["Source Color"],
+            ),
+        )
+    )
+    fig.add_trace(
+        go.Bar(
+            x=modeshare_data_non_car["Year_Season"],
+            y=modeshare_data_non_car["Percentage"],
+            name="Non-Auto",
+            showlegend=False,
+            visible=False,
+            customdata=np.stack(
+                (modeshare_data_non_car["Mode"], modeshare_data_non_car["Percentage"] / 100),
+                axis=-1,
+            ),
+            hovertemplate=hovertemplate_text,
+            marker=dict(
+                color=modeshare_data_non_car["Source Color"],
+            ),
+        )
+    )
     fig.update_layout(title_text="Modeshare by Source")
-    source_sort = ['LOCUS', 'Replica', 'Survey']
+    source_sort = ["LOCUS", "Replica", "Survey"]
+
     def custom_sort(tuple_item):
         return source_sort.index(tuple_item[0])
-    unique_source = list(set(zip(df['Source'], df['Source Color'])))
+
+    unique_source = list(set(zip(df["Source"], df["Source Color"])))
     sorted_source = sorted(unique_source, key=custom_sort)
 
-    for source, color in  sorted_source:
-        fig.add_trace(go.Scatter(
-            x=[None],
-            y=[None],
-            mode="markers",
-            name=source,
-            marker=dict(size=7, color=color, symbol='square'),
-        ))
+    for source, color in sorted_source:
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                name=source,
+                marker=dict(size=7, color=color, symbol="square"),
+            )
+        )
     fig.update_layout(
         updatemenus=[
-            dict(active=0,
-                buttons=list([
-                    dict(label="Mode: Automobile",
-                        method="update",
-                        args=[{"visible": [True, False, False, False, False, False, True, True,True, True,True]}
-                            ]),
-                    dict(label="Mode: Bicycle",
-                        method="update",
-                        args=[{"visible": [False, True,False, False, False, False, True, True,True, True,True]}]),
-                    dict(label="Mode: Walk",
-                        method="update",
-                        args=[{"visible": [False, False, True, False, False, False, True, True,True, True,True]}]),
-                    dict(label="Mode: Public Transit",
+            dict(
+                active=0,
+                buttons=list(
+                    [
+                        dict(
+                            label="Mode: Automobile",
                             method="update",
-                            args=[{"visible": [False, False, False, True, False, False, True, True,True, True,True]}]),
-                    dict(label="Mode: Other",
+                            args=[
+                                {
+                                    "visible": [
+                                        True,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                    ]
+                                }
+                            ],
+                        ),
+                        dict(
+                            label="Mode: Bicycle",
                             method="update",
-                            args=[{"visible": [False, False, False, False, True, False, True, True,True, True,True]}]),
-                    dict(label="Mode: Non-Auto",
+                            args=[
+                                {
+                                    "visible": [
+                                        False,
+                                        True,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                    ]
+                                }
+                            ],
+                        ),
+                        dict(
+                            label="Mode: Walk",
                             method="update",
-                            args=[{"visible": [False, False, False, False, False, True, True, True,True, True,True]}]),
-                ]),
+                            args=[
+                                {
+                                    "visible": [
+                                        False,
+                                        False,
+                                        True,
+                                        False,
+                                        False,
+                                        False,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                    ]
+                                }
+                            ],
+                        ),
+                        dict(
+                            label="Mode: Public Transit",
+                            method="update",
+                            args=[
+                                {
+                                    "visible": [
+                                        False,
+                                        False,
+                                        False,
+                                        True,
+                                        False,
+                                        False,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                    ]
+                                }
+                            ],
+                        ),
+                        dict(
+                            label="Mode: Other",
+                            method="update",
+                            args=[
+                                {
+                                    "visible": [
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        True,
+                                        False,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                    ]
+                                }
+                            ],
+                        ),
+                        dict(
+                            label="Mode: Non-Auto",
+                            method="update",
+                            args=[
+                                {
+                                    "visible": [
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                    ]
+                                }
+                            ],
+                        ),
+                    ]
+                ),
             ),
-        ])
+        ]
+    )
 
     fig.update_layout(title_text="Modeshare by Source")
-    fig.update_xaxes(categoryorder='array', categoryarray=x_order)
-    fig.update_yaxes(title_text="Percentage of Modeshare",ticksuffix= "%")
+    fig.update_xaxes(categoryorder="array", categoryarray=x_order)
+    fig.update_yaxes(title_text="Percentage of Modeshare", ticksuffix="%")
     fig.write_html(
-            config=config,
-            file=path_html,
-            include_plotlyjs="directory",
-            div_id=div_id,
-        )
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
+
 
 def get_data_vehicles_miles_traveled():
     vmt_data = get_fs_data(
