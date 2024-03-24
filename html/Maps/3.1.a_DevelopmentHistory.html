@@ -11,7 +11,7 @@
 
     <link
       rel="stylesheet"
-      href="https://js.arcgis.com/4.28/esri/themes/dark/main.css"
+      href="https://js.arcgis.com/4.28/esri/themes/light/main.css"
     />
     <script src="https://js.arcgis.com/4.28/"></script>
 
@@ -136,17 +136,17 @@
         const legendExpand = new Expand({
           view: view,
           content: legend,
-          expanded: true
+          expanded: false
         });
         // Add the widget to the top-right corner of the view
-        view.ui.add(legendExpand, "bottom-left");
+        view.ui.add(legendExpand, "top-right");
         
         view.ui.add(
           new Fullscreen({
             view: view,
             element: applicationDiv
           }),
-          "top-right"
+          "top-left"
         );
 
         const bookmarks = new Bookmarks({
@@ -165,7 +165,7 @@
         });
 
         // Add the widget to the top-right corner of the view
-        view.ui.add(bkExpand, "top-right");
+        view.ui.add(bkExpand, "top-left");
         // When the layerview is available, setup hovering interactivity
         view.whenLayerView(layer).then(setupHoverTooltip);
 
@@ -549,7 +549,7 @@
   <body>
     <div id="applicationDiv">
       <div id="viewDiv">
-        <div id="titleDiv" class="esri-widget">Tahoe Development History</div>
+        <!-- <div id="titleDiv" class="esri-widget">Tahoe Development History</div> -->
       </div>
       <div id="sliderContainer" class="esri-widget">
         <span id="sliderValue"></span>
