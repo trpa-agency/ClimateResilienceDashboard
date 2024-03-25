@@ -308,4 +308,3 @@ def stacked_area(
         include_plotlyjs="directory",
         div_id=div_id,
     )
-
