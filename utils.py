@@ -289,6 +289,14 @@ def stacked_area(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
+        legend=dict(
+        orientation="h",
+        entrywidth=200,
+        # entrywidthmode="fraction",
+        yanchor="bottom",
+        y=1,
+        xanchor="right",
+        x=1)
     )
     fig.update_traces(hovertemplate=hovertemplate)
 

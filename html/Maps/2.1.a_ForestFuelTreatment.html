@@ -88,15 +88,7 @@
               center: [-120.01,39.01],
               zoom: 10.5
             });
-          
-        // move zoom buttons to top left
-        view.ui.move("zoom", "top-left");
-        
-        var fullscreen = new Fullscreen({
-          view: view
-        });
-        view.ui.add(fullscreen, "top-left");
-          
+
         // setup renderer
         var renderer = {
           type: "unique-value",  // autocasts as new UniqueValueRenderer()
@@ -233,13 +225,30 @@
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
 
+      // // add the UI for a title
+      // view.ui.add("titleDiv", "top-right");
+
+        // move zoom buttons to top left
+        view.ui.move("zoom", "top-left");
+        
+        // Add Full Screen widget
+        var fullscreen = new Fullscreen({
+          view: view
+        });
+        view.ui.add(fullscreen, "top-left")
+        ;
+        
         // Createa Home Button
         var homeWidget = new Home({
             view: view
         });
+        view.ui.add(homeWidget, "top-left");
 
-        // adds the home widget to the top left corner of the MapView
-        view.ui.add(homeWidget, "top-left");            
+        //disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {
+        // disable mouse wheel scroll zooming on the view
+        evt.stopPropagation();
+      });             
      
     });   
 	</script>
