@@ -91,20 +91,6 @@
               zoom: 10.5
             });
           
-        // move zoom buttons to top left
-        view.ui.move("zoom", "top-left");
-        
-        var fullscreen = new Fullscreen({
-          view: view
-        });
-        view.ui.add(fullscreen, "top-left");
-
-        // // Create a popupTemplate
-        // const mangementzoneTemplate = {
-        //   title: "Forest Management Zone: {Name}",
-        //   content: "This area is a forest management zone. It is managed to reduce the risk of high severity fire."          
-        // };
-
         // Set a basic symbol on a layer to visualize all features the same way
         var polyRenderer = {
           type: "simple",  // autocasts as new SimpleRenderer()
@@ -179,11 +165,64 @@
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
 
+        // create legend card
+        var legend = new Legend({
+        view: view,
+        layerInfos: [
+          {
+            layer: txLayer,
+            title: "Forest Health Treatments"
+
+          },
+        //   {
+        //     layer: wuiLayer,
+        //     title: "Wildland Urban Interface"
+
+        //   }
+        ]
+        });
+
+        // Add widget to the top right corner of the view
+        view.ui.add(legend, "top-right");
+        
+        // Create collapasable button for legend
+        var legendExpand = new Expand({
+            expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+            expandTooltip: "Legend",
+            view: view,
+//            expanded: true,
+            autoCollapse: true,
+            content: legend.domNode,
+            group: "top-right"
+            });
+
+        // add layer list button to the top right corner of the view
+        view.ui.add(legendExpand, "top-right");
+
+      // // add the UI for a title
+      // view.ui.add("titleDiv", "top-right");
+
+        // move zoom buttons to top left
+        view.ui.move("zoom", "top-left");
+        
+        // Add Full Screen widget
+        var fullscreen = new Fullscreen({
+          view: view
+        });
+        view.ui.add(fullscreen, "top-left")
+        ;
+        
         // Createa Home Button
         var homeWidget = new Home({
             view: view
         });
-        // add a ValuePick
+        view.ui.add(homeWidget, "top-left");
+
+        //disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {
+        // disable mouse wheel scroll zooming on the view
+        evt.stopPropagation();
+      });     
 
 
       });
