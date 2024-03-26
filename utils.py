@@ -294,9 +294,9 @@ def stacked_area(
         entrywidth=200,
         # entrywidthmode="fraction",
         yanchor="bottom",
-        y=1,
+        y=1.02,
         xanchor="right",
-        x=1)
+        x=0.8)
     )
     fig.update_traces(hovertemplate=hovertemplate)
 
