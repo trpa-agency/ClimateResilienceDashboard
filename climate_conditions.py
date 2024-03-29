@@ -65,23 +65,25 @@ def plot_secchi_depth(df):
         dragmode=False,
         legend=dict(
             orientation="h",
-            entrywidth=200,
+            entrywidth=125,
             # entrywidthmode="fraction",
             yanchor="bottom",
             y=1.05,
             xanchor="right",
             x=1,
+            # xref="container",
+            # yref="container"
         )
     )
     fig.update_yaxes(autorange="reversed", autorangeoptions=dict(include=0))
     fig.add_trace(
         px.line(df, x="year", y="F5_year_average", color_discrete_sequence=["#208385"]).data[0]
     )
-    fig.data[0].name = "Annual Average "
+    fig.data[0].name = "Annual Average"
     fig.data[0].showlegend = True
-    fig.data[1].name = "Trendline          "
+    fig.data[1].name = "Trendline"
     fig.data[1].showlegend = True
-    fig.data[2].name = "5-Year Average "
+    fig.data[2].name = "5-Year Average"
     fig.data[2].showlegend = True
     fig.update_traces(hovertemplate="%{y:.1f} ft")
 
@@ -361,7 +363,7 @@ def plot_lake_level_with_high_water_mark(df):
         dragmode=False,
         legend=dict(
             orientation="h",
-            entrywidth=200,
+            entrywidth=100,
             # entrywidthmode="fraction",
             yanchor="bottom",
             y=1.05,
