@@ -310,8 +310,8 @@ def plot_lake_level_with_high_water_mark(df):
     # create figure
     fig = go.Figure()
     # add water level trace
-    fig.add_trace(go.Scatter(x=df[x], y=df[y], 
-                             mode="lines", name="Water Level", 
+    fig.add_trace(go.Scatter(x=df[x], y=df[y],
+                             mode="lines", name="Water Level",
                              line=dict(
                                     color="#023f64"),
                             # fill="tonexty",
@@ -325,19 +325,19 @@ def plot_lake_level_with_high_water_mark(df):
     df['Low Water Mark']  = 6223
 
     # add high water mark trace
-    fig.add_trace(go.Scatter(x=df["dateTime"], y=df["High Water Mark"], name="High Water ", 
-                            line=dict(color='#023f64', 
+    fig.add_trace(go.Scatter(x=df["dateTime"], y=df["High Water Mark"], name="High Water ",
+                            line=dict(color='#023f64',
                                       width=1,
                                       dash='dashdot') # dash options include 'dash', 'dot', and 'dashdot'
                             )
-                        )               
+                        )
     # add natural rim trace
     fig.add_trace(go.Scatter(x=df["dateTime"], y=df["Low Water Mark"], name="Natural Rim",
-                            line=dict(color='#023f64', 
+                            line=dict(color='#023f64',
                                       width=1,
                                       dash='dot')
                             )
-                        )     
+                        )
     # update layout
     fig.update_layout(
         yaxis=dict(title=y_title),
@@ -386,7 +386,7 @@ def get_all_temp_midlake():
     end = datetime.now().strftime('%Y%m%d')
     dfMerge = pd.DataFrame()
     ids= [1,2,3,4]
-    for id in ids: 
+    for id in ids:
         lakeTempURL = f"https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/nasa-tb?rptdate={start}&rptend={end}&id={id}"
         # get all data from lake temp URL using f string
         response = requests.get(lakeTempURL)
@@ -409,7 +409,7 @@ def get_all_temp_shore():
     dfMerge = pd.DataFrame()
     ids= [1,2,3,4,5,6,7,8,9,10,11]
 
-    for id in ids: 
+    for id in ids:
         lakeTempURL = f"https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate={start}&rptend={end}&id={id}"
         # get all data from lake temp URL using f string
         response = requests.get(lakeTempURL)
