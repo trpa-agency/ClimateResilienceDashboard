@@ -313,7 +313,7 @@ def plot_lake_level_with_high_water_mark(df):
     orders=None
     x_title="Date"
     y_title="Water Level (feet)"
-    hovertemplate="%{y:,.0f}ft"
+    hovertemplate="%{y:,.0f} ft"
     format=",.0f"
     tickvals=None
     ticktext=None
@@ -451,7 +451,7 @@ def plot_lake_temp_midlake(df):
         x_title="Date",
         y_title="Average Lake Surface Temperature (F)",
         format=".1f",
-        hovertemplate="%{y:.2f}F",
+        hovertemplate="%{y:.2f} F",
         markers=False,
         hover_data=None,
         tickvals=None,
