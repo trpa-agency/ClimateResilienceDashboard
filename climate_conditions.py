@@ -68,9 +68,9 @@ def plot_secchi_depth(df):
             entrywidth=200,
             # entrywidthmode="fraction",
             yanchor="bottom",
-            y=1.2,
+            y=1.05,
             xanchor="right",
-            x=0.8,
+            x=1,
         )
     )
     fig.update_yaxes(autorange="reversed", autorangeoptions=dict(include=0))
@@ -366,7 +366,7 @@ def plot_lake_level_with_high_water_mark(df):
             yanchor="bottom",
             y=1.05,
             xanchor="right",
-            x=0.8,
+            x=1,
         )
     )
     # fig.update_traces(name="High Water Mark", showlegend=False)
