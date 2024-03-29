@@ -380,7 +380,6 @@ def plot_transit(df):
         hovermode="x unified",
     )
 
-
 def get_data_mode_share():
     modeshare_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136"

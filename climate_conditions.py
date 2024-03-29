@@ -3,14 +3,11 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import requests
 from meteostat import Daily, Point
 
 from utils import get_fs_data, read_file, scatterplot, stackedbar, trendline
-
-# from pathlib import Path
-# from arcgis import GIS
-# import statsmodel
 
 
 def get_data_greenhouse_gas():
@@ -291,6 +288,89 @@ def plot_lake_level(df):
         hovermode="x",
     )
 
+def plot_lake_level_with_high_water_mark(df):
+    path_html="html/1.3.a_Lake_Level.html"
+    div_id="1.3.a_Lake_Level"
+    x="dateTime"
+    y="value"
+    color=None
+    color_sequence=["#023f64"]
+    sort="dateTime"
+    orders=None
+    x_title="Date"
+    y_title="Water Level (feet)"
+    hovertemplate="%{y:,.0f}ft"
+    format=",.0f"
+    tickvals=None
+    ticktext=None
+    tickangle=None
+    hovermode="x unified"
+    df = df.sort_values(by=sort)
+    config = {"displayModeBar": False}
+    # create figure
+    fig = go.Figure()
+    # add water level trace
+    fig.add_trace(go.Scatter(x=df[x], y=df[y],
+                             mode="lines", name="Water Level",
+                             line=dict(
+                                    color="#023f64"),
+                            # fill="tonexty",
+                            # line_color="#023f64",
+                            # fillpattern=dict(fgcolor='#023f64', fillmode='replace', shape="x"),
+                             ))
+
+
+    # define field/value for high water mark and low water mark
+    df['High Water Mark'] = 6229
+    df['Low Water Mark']  = 6223
+
+    # add high water mark trace
+    fig.add_trace(go.Scatter(x=df["dateTime"], y=df["High Water Mark"], name="High Water ",
+                            line=dict(color='#023f64',
+                                      width=1,
+                                      dash='dashdot') # dash options include 'dash', 'dot', and 'dashdot'
+                            )
+                        )
+    # add natural rim trace
+    fig.add_trace(go.Scatter(x=df["dateTime"], y=df["Low Water Mark"], name="Natural Rim",
+                            line=dict(color='#023f64',
+                                      width=1,
+                                      dash='dot')
+                            )
+                        )
+    # update layout
+    fig.update_layout(
+        yaxis=dict(title=y_title),
+        xaxis=dict(title=x_title, showgrid=False),
+        hovermode=hovermode,
+        template="plotly_white",
+        dragmode=False,
+        legend=dict(
+            orientation="h",
+            entrywidth=200,
+            # entrywidthmode="fraction",
+            yanchor="bottom",
+            y=1.05,
+            xanchor="right",
+            x=0.8,
+        )
+    )
+    # fig.update_traces(name="High Water Mark", showlegend=False)
+    # fig.update_traces(name="Low Water Mark", showlegend=False)
+    fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_yaxes(tickformat=format)
+    fig.update_xaxes(
+        tickvals=tickvals,
+        ticktext=ticktext,
+        tickangle=tickangle,
+    )
+    # write figure to html
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
 
 def get_data_lake_temp():
     lakeTempURL = "https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate=20240130&rptend=20240202&id=4"
@@ -299,30 +379,72 @@ def get_data_lake_temp():
     df["LS_Temp_Avg"] = df["LS_Temp_Avg"].astype(float)
     return df
 
+def get_all_temp_midlake():
+    # get start/end dates for the last year
+    start = datetime.now() - timedelta(days=365)
+    start = start.strftime('%Y%m%d')
+    end = datetime.now().strftime('%Y%m%d')
+    dfMerge = pd.DataFrame()
+    ids= [1,2,3,4]
+    for id in ids:
+        lakeTempURL = f"https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/nasa-tb?rptdate={start}&rptend={end}&id={id}"
+        # get all data from lake temp URL using f string
+        response = requests.get(lakeTempURL)
+        df = pd.DataFrame(response.json())
+        # concat dataframes to dfMerge
+        dfMerge = pd.concat([dfMerge, df])
+        # convert LS_Temp_Avg to float and farenheit
+        dfMerge["RBR_0p5_m"] = dfMerge["RBR_0p5_m"].astype(float)
+        dfMerge["RBR_0p5_F"] = dfMerge["RBR_0p5_m"] * 9/5 + 32
+    # get the mean of all sites by date/time
+    df = dfMerge.groupby('TmStamp')['RBR_0p5_F'].mean().reset_index()
+    return df
 
-def plot_lake_temp(df):
+def get_all_temp_shore():
+    # get all data from lake temp URL
+    start = datetime.now() - timedelta(days=365)
+    start = start.strftime('%Y%m%d')
+    end = datetime.now().strftime('%Y%m%d')
+
+    dfMerge = pd.DataFrame()
+    ids= [1,2,3,4,5,6,7,8,9,10,11]
+
+    for id in ids:
+        lakeTempURL = f"https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate={start}&rptend={end}&id={id}"
+        # get all data from lake temp URL using f string
+        response = requests.get(lakeTempURL)
+        df = pd.DataFrame(response.json())
+        # concat dataframes to dfMerge
+        dfMerge = pd.concat([dfMerge, df])
+        # convert LS_Temp_Avg to float and farenheit
+        dfMerge["LS_Temp_Avg"] = dfMerge["LS_Temp_Avg"].astype(float)
+        dfMerge["LS_Temp_Avg_F"] = dfMerge["LS_Temp_Avg"] * 9/5 + 32
+    # get the mean of all sites by date/time
+    df = dfMerge.groupby('TmStamp')['LS_Temp_Avg_F'].mean().reset_index()
+    return df
+
+def plot_lake_temp_midlake(df):
     trendline(
         df,
         path_html="html/1.3.b_Lake_Temp.html",
         div_id="1.3.b_Lake_Temp",
         x="TmStamp",
-        y="LS_Temp_Avg",
+        y="RBR_0p5_F",
         color=None,
         color_sequence=["#023f64"],
         sort="TmStamp",
         orders=None,
-        x_title="Time",
-        y_title="Average Lake Surface Temperature ",
+        x_title="Date",
+        y_title="Average Lake Surface Temperature (F)",
         format=".1f",
-        hovertemplate="%{y:.2f}",
+        hovertemplate="%{y:.2f}F",
         markers=False,
         hover_data=None,
         tickvals=None,
         ticktext=None,
         tickangle=None,
-        hovermode="x",
+        hovermode="x unified",
     )
-
 
 def get_data_precip():
     # snowlab precip data
