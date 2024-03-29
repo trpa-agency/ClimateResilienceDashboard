@@ -49,28 +49,42 @@ def get_data_secchi_depth():
 # A pretty specific graph
 def plot_secchi_depth(df):
     config = {"displayModeBar": False}
+    # convert everything to feet
+    df["annual_average"] = df["annual_average"] * 3.28084
+    df["F5_year_average"] = df["F5_year_average"] * 3.28084
+    
     fig = px.scatter(
-        df, x="year", y="annual_average", trendline="ols", color_discrete_sequence=["black"]
+        df, x="year", y="annual_average", trendline="ols", color_discrete_sequence=["#023f64"]
     )
-    fig.update_traces(marker=dict(size=10))
+    fig.update_traces(marker=dict(size=8))
     fig.update_layout(
-        yaxis=dict(title="Secchi Depth (meters)"),
+        yaxis=dict(title="Secchi Depth (feet)"),
         xaxis=dict(title="Year", showgrid=False),
         template="plotly_white",
         hovermode="x unified",
         dragmode=False,
+        legend=dict(
+            orientation="h",
+            entrywidth=200,
+            # entrywidthmode="fraction",
+            yanchor="bottom",
+            y=1.2,
+            xanchor="right",
+            x=0.8,
+        )
     )
     fig.update_yaxes(autorange="reversed", autorangeoptions=dict(include=0))
     fig.add_trace(
         px.line(df, x="year", y="F5_year_average", color_discrete_sequence=["#208385"]).data[0]
     )
-    fig.data[0].name = "Annual Average"
+    fig.data[0].name = "Annual Average "
     fig.data[0].showlegend = True
-    fig.data[1].name = "Trendline"
+    fig.data[1].name = "Trendline          "
     fig.data[1].showlegend = True
-    fig.data[2].name = "5-Year Average"
+    fig.data[2].name = "5-Year Average "
     fig.data[2].showlegend = True
-    fig.update_traces(hovertemplate="%{y:.2f}")
+    fig.update_traces(hovertemplate="%{y:.1f} ft")
+
     fig.write_html(
         config=config,
         file="html/1.3.c_Secchi_Depth.html",
