@@ -610,7 +610,7 @@ def plot_extremeheat(df):
         # title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
         color_discrete_sequence=color_sequence
     )
-   
+
     # update layout
     fig.update_layout(
         yaxis=dict(title="Number of Days"),
