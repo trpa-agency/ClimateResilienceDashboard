@@ -159,12 +159,12 @@ def stackedbar(
         legend_title=None,
         legend=dict(
             orientation="h",
-            entrywidth=200,
+            entrywidth=80,
             # entrywidthmode="fraction",
             yanchor="bottom",
-            y=1.2,
+            y=1,
             xanchor="right",
-            x=0.8,
+            x=1,
         )
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))

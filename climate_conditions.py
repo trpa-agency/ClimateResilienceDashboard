@@ -571,6 +571,16 @@ def plot_temp(df):
 
 
 def plot_extremeheat(df):
+    path_html = "html/1.2.a_ExtremeHeatDays.html"
+    div_id = "1.3.d_Precip"
+    color_sequence=["#023f64"]
+    hovertemplate="%{y:,.0f} days over 85 degrees F"
+    format=",.0f"
+    tickvals=None
+    ticktext=None
+    tickangle=None
+    hovermode="x unified"
+    config = {"displayModeBar": False}
     # create a dataframe with the number of extreme heat days
     extremeHeatDaysDF = df[df["MaxTemp"] > 85]
     extremeHeatDaysDF = extremeHeatDaysDF.assign(Count=1)
@@ -582,13 +592,31 @@ def plot_extremeheat(df):
         extremeHeatDaysDF,
         x="Year",
         y="Count",
-        title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
+        # title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
+        color_discrete_sequence=color_sequence
     )
-    fig.update_layout(xaxis_title="Year", yaxis_title="Number of Days", legend_title="Temperature")
-    path_html = "html/1.2.a_ExtremeHeatDays.html"
-    div_id = "1.3.d_Precip"
+   
+    # update layout
+    fig.update_layout(
+        yaxis=dict(title="Number of Days"),
+        xaxis=dict(title="Year", showgrid=False),
+        hovermode=hovermode,
+        template="plotly_white",
+        dragmode=False
+    )
+
+    fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_yaxes(tickformat=format)
+    fig.update_xaxes(
+        tickvals=tickvals,
+        ticktext=ticktext,
+        tickangle=tickangle,
+    )
+    # write figure to html
     fig.write_html(
+        config=config,
         file=path_html,
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
