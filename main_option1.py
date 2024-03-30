@@ -8,11 +8,13 @@ app.task("daily between 22:00 and 23:00")
 app.task("weekly before Friday")
 app.task("monthly starting 3rd")
 
+
 @app.cond()
 def is_foo():
     "This is a custom condition"
     ...
     return True
+
 
 @app.task(daily & is_foo)
 def do_daily():
@@ -20,14 +22,18 @@ def do_daily():
     ...
     return ...
 
+
 @app.task(weekly & is_foo)
 def do_weekly():
     "This task runs once a week when foo is true"
     ...
     return ...
 
-@app.task((daily.at("10:00") | daily.at("19:00")) & time_of_week.between("Mon", "Fri"),
-          execution="process")
+
+@app.task(
+    (daily.at("10:00") | daily.at("19:00")) & time_of_week.between("Mon", "Fri"),
+    execution="process",
+)
 def do_complex():
     "This task runs on complex interval and on separate process"
     ...
@@ -40,10 +46,12 @@ def do_after_another(arg=Return(do_daily)):
     return argument as an input"""
     ...
 
+
 @app.task(daily)
 def do_with_params(arg1=FuncArg(lambda: ...), arg2=Arg("myparam")):
     """This task runs with variety of arguments"""
     ...
+
 
 @app.task(daily, execution="thread")
 def do_on_session(session=Session()):
@@ -55,6 +63,7 @@ def do_on_session(session=Session()):
 
     # Call for shut down
     session.shut_down()
+
 
 if __name__ == "__main__":
     app.params(myparam="...")

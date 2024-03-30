@@ -99,7 +99,7 @@ def trendline(
             y=1.2,
             xanchor="right",
             x=0.8,
-        )
+        ),
     )
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
@@ -159,12 +159,12 @@ def stackedbar(
         legend_title=None,
         legend=dict(
             orientation="h",
-            entrywidth=200,
+            entrywidth=80,
             # entrywidthmode="fraction",
             yanchor="bottom",
-            y=1.2,
+            y=1,
             xanchor="right",
-            x=0.8,
+            x=1,
         )
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
@@ -224,7 +224,7 @@ def groupedbar_percent(
             y=1.2,
             xanchor="right",
             x=0.8,
-        )
+        ),
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_traces(hovertemplate=hovertemplate)
@@ -280,7 +280,7 @@ def scatterplot(
             y=1.2,
             xanchor="right",
             x=0.8,
-        )
+        ),
     )
     fig.update_yaxes(autorangeoptions=dict(include=0))
     fig.add_trace(px.line(df, x=x, y=y2, color_discrete_sequence=["#208385"]).data[0])
@@ -333,7 +333,7 @@ def stacked_area(
             y=1.2,
             xanchor="right",
             x=0.8,
-        )
+        ),
     )
     fig.update_traces(hovertemplate=hovertemplate)
 
