@@ -73,7 +73,7 @@ def plot_secchi_depth(df):
             x=1,
             # xref="container",
             # yref="container"
-        )
+        ),
     )
     fig.update_yaxes(autorange="reversed", autorangeoptions=dict(include=0))
     fig.add_trace(
@@ -304,56 +304,66 @@ def plot_lake_level(df):
         hovermode="x",
     )
 
+
 def plot_lake_level_with_high_water_mark(df):
-    path_html="html/1.3.a_Lake_Level.html"
-    div_id="1.3.a_Lake_Level"
-    x="dateTime"
-    y="value"
-    color=None
-    color_sequence=["#023f64"]
-    sort="dateTime"
-    orders=None
-    x_title="Date"
-    y_title="Water Level (feet)"
-    hovertemplate="%{y:,.0f} ft"
-    format=",.0f"
-    tickvals=None
-    ticktext=None
-    tickangle=None
-    hovermode="x unified"
+    path_html = "html/1.3.a_Lake_Level.html"
+    div_id = "1.3.a_Lake_Level"
+    x = "dateTime"
+    y = "value"
+    color = None
+    color_sequence = ["#023f64"]
+    sort = "dateTime"
+    orders = None
+    x_title = "Date"
+    y_title = "Water Level (feet)"
+    hovertemplate = "%{y:,.0f} ft"
+    format = ",.0f"
+    tickvals = None
+    ticktext = None
+    tickangle = None
+    hovermode = "x unified"
     df = df.sort_values(by=sort)
     config = {"displayModeBar": False}
     # create figure
     fig = go.Figure()
     # add water level trace
-    fig.add_trace(go.Scatter(x=df[x], y=df[y],
-                             mode="lines", name="Water Level",
-                             line=dict(
-                                    color="#023f64"),
-                            # fill="tonexty",
-                            # line_color="#023f64",
-                            # fillpattern=dict(fgcolor='#023f64', fillmode='replace', shape="x"),
-                             ))
-
+    fig.add_trace(
+        go.Scatter(
+            x=df[x],
+            y=df[y],
+            mode="lines",
+            name="Water Level",
+            line=dict(color="#023f64"),
+            # fill="tonexty",
+            # line_color="#023f64",
+            # fillpattern=dict(fgcolor='#023f64', fillmode='replace', shape="x"),
+        )
+    )
 
     # define field/value for high water mark and low water mark
-    df['High Water Mark'] = 6229
-    df['Low Water Mark']  = 6223
+    df["High Water Mark"] = 6229
+    df["Low Water Mark"] = 6223
 
     # add high water mark trace
-    fig.add_trace(go.Scatter(x=df["dateTime"], y=df["High Water Mark"], name="High Water ",
-                            line=dict(color='#023f64',
-                                      width=1,
-                                      dash='dashdot') # dash options include 'dash', 'dot', and 'dashdot'
-                            )
-                        )
+    fig.add_trace(
+        go.Scatter(
+            x=df["dateTime"],
+            y=df["High Water Mark"],
+            name="High Water ",
+            line=dict(
+                color="#023f64", width=1, dash="dashdot"
+            ),  # dash options include 'dash', 'dot', and 'dashdot'
+        )
+    )
     # add natural rim trace
-    fig.add_trace(go.Scatter(x=df["dateTime"], y=df["Low Water Mark"], name="Natural Rim",
-                            line=dict(color='#023f64',
-                                      width=1,
-                                      dash='dot')
-                            )
-                        )
+    fig.add_trace(
+        go.Scatter(
+            x=df["dateTime"],
+            y=df["Low Water Mark"],
+            name="Natural Rim",
+            line=dict(color="#023f64", width=1, dash="dot"),
+        )
+    )
     # update layout
     fig.update_layout(
         yaxis=dict(title=y_title),
@@ -369,7 +379,7 @@ def plot_lake_level_with_high_water_mark(df):
             y=1.05,
             xanchor="right",
             x=1,
-        )
+        ),
     )
     # fig.update_traces(name="High Water Mark", showlegend=False)
     # fig.update_traces(name="Low Water Mark", showlegend=False)
@@ -388,6 +398,7 @@ def plot_lake_level_with_high_water_mark(df):
         div_id=div_id,
     )
 
+
 def get_data_lake_temp():
     lakeTempURL = "https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate=20240130&rptend=20240202&id=4"
     response = requests.get(lakeTempURL)
@@ -395,13 +406,14 @@ def get_data_lake_temp():
     df["LS_Temp_Avg"] = df["LS_Temp_Avg"].astype(float)
     return df
 
+
 def get_all_temp_midlake():
     # get start/end dates for the last year
     start = datetime.now() - timedelta(days=365)
-    start = start.strftime('%Y%m%d')
-    end = datetime.now().strftime('%Y%m%d')
+    start = start.strftime("%Y%m%d")
+    end = datetime.now().strftime("%Y%m%d")
     dfMerge = pd.DataFrame()
-    ids= [1,2,3,4]
+    ids = [1, 2, 3, 4]
     for id in ids:
         lakeTempURL = f"https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/nasa-tb?rptdate={start}&rptend={end}&id={id}"
         # get all data from lake temp URL using f string
@@ -411,19 +423,20 @@ def get_all_temp_midlake():
         dfMerge = pd.concat([dfMerge, df])
         # convert LS_Temp_Avg to float and farenheit
         dfMerge["RBR_0p5_m"] = dfMerge["RBR_0p5_m"].astype(float)
-        dfMerge["RBR_0p5_F"] = dfMerge["RBR_0p5_m"] * 9/5 + 32
+        dfMerge["RBR_0p5_F"] = dfMerge["RBR_0p5_m"] * 9 / 5 + 32
     # get the mean of all sites by date/time
-    df = dfMerge.groupby('TmStamp')['RBR_0p5_F'].mean().reset_index()
+    df = dfMerge.groupby("TmStamp")["RBR_0p5_F"].mean().reset_index()
     return df
+
 
 def get_all_temp_shore():
     # get all data from lake temp URL
     start = datetime.now() - timedelta(days=365)
-    start = start.strftime('%Y%m%d')
-    end = datetime.now().strftime('%Y%m%d')
+    start = start.strftime("%Y%m%d")
+    end = datetime.now().strftime("%Y%m%d")
 
     dfMerge = pd.DataFrame()
-    ids= [1,2,3,4,5,6,7,8,9,10,11]
+    ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
     for id in ids:
         lakeTempURL = f"https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate={start}&rptend={end}&id={id}"
@@ -434,10 +447,11 @@ def get_all_temp_shore():
         dfMerge = pd.concat([dfMerge, df])
         # convert LS_Temp_Avg to float and farenheit
         dfMerge["LS_Temp_Avg"] = dfMerge["LS_Temp_Avg"].astype(float)
-        dfMerge["LS_Temp_Avg_F"] = dfMerge["LS_Temp_Avg"] * 9/5 + 32
+        dfMerge["LS_Temp_Avg_F"] = dfMerge["LS_Temp_Avg"] * 9 / 5 + 32
     # get the mean of all sites by date/time
-    df = dfMerge.groupby('TmStamp')['LS_Temp_Avg_F'].mean().reset_index()
+    df = dfMerge.groupby("TmStamp")["LS_Temp_Avg_F"].mean().reset_index()
     return df
+
 
 def plot_lake_temp_midlake(df):
     trendline(
@@ -461,6 +475,7 @@ def plot_lake_temp_midlake(df):
         tickangle=None,
         hovermode="x unified",
     )
+
 
 def get_data_precip():
     # snowlab precip data
