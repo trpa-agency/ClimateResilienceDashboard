@@ -93,12 +93,12 @@ def trendline(
         dragmode=False,
         legend=dict(
             orientation="h",
-            entrywidth=200,
+            entrywidth=120,
             # entrywidthmode="fraction",
             yanchor="bottom",
-            y=1.2,
+            y=1.05,
             xanchor="right",
-            x=0.8,
+            x=1,
         ),
     )
     fig.update_traces(hovertemplate=hovertemplate)
@@ -129,6 +129,7 @@ def stackedbar(
     orders,
     y_title,
     x_title,
+    custom_data,
     hovertemplate,
     hovermode,
     orientation,
@@ -148,6 +149,7 @@ def stackedbar(
         color_discrete_sequence=color_sequence,
         category_orders=orders,
         orientation=orientation,
+        custom_data=custom_data
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
@@ -159,7 +161,7 @@ def stackedbar(
         legend_title=None,
         legend=dict(
             orientation="h",
-            entrywidth=80,
+            entrywidth=200,
             # entrywidthmode="fraction",
             yanchor="bottom",
             y=1,
