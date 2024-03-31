@@ -69,3 +69,4 @@ if __name__ == "__main__":
     app.params(myparam="...")
     app.run()
 
+main
