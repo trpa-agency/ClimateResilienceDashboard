@@ -436,7 +436,7 @@ def plot_veg(df):
     orientation=None
     format=",.0f"
     custom_data=['Acres','TotalAcres']
-    
+
     additional_formatting = dict(
                                 # title="Vegetation Type % Abundance",
                                 hovermode="x unified",
@@ -483,7 +483,7 @@ def plot_veg(df):
         )
 
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-          
+
     fig.update_layout(
         # yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
         # xaxis=dict(title=x_title),
