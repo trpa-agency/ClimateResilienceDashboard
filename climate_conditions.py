@@ -589,7 +589,7 @@ def plot_extremeheat(df):
     path_html = "html/1.2.a_ExtremeHeatDays.html"
     div_id = "1.3.d_Precip"
     color_sequence=["#023f64"]
-    hovertemplate="%{y:,.0f} days over 85 degrees F"
+    hovertemplate="%{y:,.0f} days over 85 F"
     format=",.0f"
     tickvals=None
     ticktext=None
@@ -613,7 +613,7 @@ def plot_extremeheat(df):
    
     # update layout
     fig.update_layout(
-        yaxis=dict(title="Number of Days"),
+        yaxis=dict(title="Days"),
         xaxis=dict(title="Year", showgrid=False),
         hovermode=hovermode,
         template="plotly_white",
