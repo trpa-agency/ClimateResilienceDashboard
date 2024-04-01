@@ -634,4 +634,3 @@ def plot_extremeheat(df):
         include_plotlyjs="directory",
         div_id=div_id,
     )
-
