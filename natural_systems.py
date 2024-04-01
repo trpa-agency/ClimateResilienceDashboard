@@ -57,7 +57,11 @@ def plot_forest_fuel(df):
         },
         y_title="Acres Treated",
         x_title="Year",
-        hovertemplate="%{y:,.0f} acres",
+        custom_data=["Treatment Zone"],
+        hovertemplate="<br>".join([
+        "<b>%{y:,.1f}</b> acres of forest fuel treatment",
+        "in the <em>%{customdata[0]}</em> zone"
+            ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -87,7 +91,11 @@ def plot_old_growth_forest(df):
         orders=None,
         y_title="Acres",
         x_title="Seral Stage",
-        hovertemplate="%{y:.2f}",
+        custom_data=["SeralStage"],
+        hovertemplate="<br>".join([
+        "<b>%{y:,.0f}</b> acres of",
+        "<em>%{customdata[0]}</em> forest"
+            ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -105,7 +113,11 @@ def plot_old_growth_forest(df):
         orders=None,
         y_title="Acres",
         x_title="Structure",
-        hovertemplate="%{y:.2f}",
+        custom_data=["SpatialVar"],
+        hovertemplate="<br>".join([
+        "<b>%{y:,.0f}</b> acres of",
+        "<em>%{customdata[0]}</em> old growth forest"
+            ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -123,7 +135,11 @@ def plot_old_growth_forest(df):
         orders=None,
         y_title="Acres",
         x_title="Vegetation Type",
-        hovertemplate="%{y:.2f}",
+        custom_data=["TRPA_VegType"],
+        hovertemplate="<br>".join([
+        "<b>%{y:,.0f}</b> acres of",
+        "<em>%{customdata[0]}</em> old growth forest"
+            ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -188,7 +204,7 @@ def plot_probability_of_high_severity_fire(df):
         custom_data=["Probability"],
         hovertemplate="<br>".join([
             "<b>%{y:.0%}</b> of the forested area is",
-            "at risk of <em>%{customdata[0]}</em>"
+            "likely to burn as <em>%{customdata[0]}</em>"
                 ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -253,6 +269,29 @@ def plot_aquatic_species(df):
         hovermode="x",
     )
 
+def plot_aquatic_species_bar(df):
+    stackedbar(
+        df,
+        path_html="html/2.2.a_Aquatic_Species.html",
+        div_id="2.2.a_Aquatic_Species",
+        x="Year",
+        y="Acres",
+        color="Invasive Species Type",
+        color_sequence=["#023f64", "#7ebfb5"],
+        facet=None,
+        orders=None,
+        x_title="Year",
+        y_title="Acres",
+        custom_data=["Invasive Species Type"],
+        hovertemplate="<br>".join([
+            "<b>%{y:.0f} acres</b> of",
+            "<em>%{customdata[0]}</em> invasive species",
+            "<em>treated.</em>"
+                ])+"<extra></extra>",
+        hovermode="x unified",
+        orientation=None,
+        format=",.0f"
+    )
 
 def get_data_restored_wetlands_meadows():
     eipSEZRestored = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/9"
@@ -265,6 +304,9 @@ def get_data_restored_wetlands_meadows():
         }
     )
     df = data.groupby(["Year", "Action Performed"])["Acres"].sum().reset_index()
+    # # add SEZ Restored to the Action Performed column
+    # df["Action Performed"] = df["Action Performed"].replace("Restored", "SEZ Restored")
+
     return df
 
 
@@ -282,15 +324,42 @@ def plot_restored_wetlands_meadows(df):
         x_title="Year",
         y_title="Acres",
         format=",.0f",
-        hovertemplate="%{y:,.0f}",
+        custom_data=["Action Performed"],
+        hovertemplate="<br>".join([
+            "<b>%{y:.0f}</b> acres of",
+            "wetlands and meadows <em>%{customdata[0]}</em>"
+                ])+"<extra></extra>",
         markers=True,
         hover_data=None,
         tickvals=None,
         ticktext=None,
         tickangle=None,
-        hovermode="x",
+        hovermode="x unified",
+
     )
 
+def plot_restored_wetlands_meadows_bar(df):
+    stackedbar(
+        df,
+        path_html="html/2.3.a_Restored_Wetlands_Meadows.html",
+        div_id="2.3.a_Restored_Wetlands_Meadows",
+        x="Year",
+        y="Acres",
+        color="Action Performed",
+        color_sequence=["#023f64", "#7ebfb5"],
+        orders=None,
+        x_title="Year",
+        y_title="Acres",
+        facet=None,
+        custom_data=["Action Performed"],
+        hovertemplate="<br>".join([
+            "<b>%{y:.0f} acres</b> of wetlands and meadows",
+            "<em>%{customdata[0]}</em>"
+                ])+"<extra></extra>",
+        hovermode="x unified",
+        orientation=None,
+        format=",.0f"
+    )
 
 def get_data_bmp():
     # BMP map service from BMP database

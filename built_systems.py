@@ -135,6 +135,8 @@ def get_data_energy_mix():
 
 
 def plot_energy_mix(df):
+    # change name of Renewables to Renewable in Type column
+    df["Type"] = df["Type"].replace("Renewables", "Renewable")
     stackedbar(
         df,
         path_html="html/3.2.a_EnergyMix.html",
@@ -147,7 +149,11 @@ def plot_energy_mix(df):
         orders={"Year": []},
         y_title="% of Renewable Energy by Share of Total",
         x_title="Year",
-        hovertemplate="%{y}",
+        custom_data=["Type"],
+        hovertemplate="<br>".join([
+            "<b>%{y:.0%}</b>of energy",
+            "comes from <b>%{customdata[0]}</b> sources"
+                ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=".0%",

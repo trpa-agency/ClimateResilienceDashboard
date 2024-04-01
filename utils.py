@@ -164,9 +164,9 @@ def stackedbar(
             entrywidth=200,
             # entrywidthmode="fraction",
             yanchor="bottom",
-            y=1,
+            y=1.1,
             xanchor="right",
-            x=1,
+            x=1.1,
         )
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
