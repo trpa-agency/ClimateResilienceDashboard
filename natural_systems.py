@@ -407,6 +407,7 @@ def plot_bmp(df):
         hovertemplate="%{y:,.0f}",
         hovermode="x unified",
         orientation=None,
+        custom_data=None,
         format=",.0f",
     )
 
@@ -457,6 +458,7 @@ def plot_areawide(df):
         orders=None,
         y_title="Impervious Surface Covered by Stormwater Areawide Treatment",
         x_title="Year",
+        custom_data=None,
         hovertemplate="%{y:,.0f}",
         hovermode="x unified",
         orientation=None,

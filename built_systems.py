@@ -67,6 +67,7 @@ def plot_affordable_units(df):
         y_title="Total Units",
         x_title="Location to Town Center",
         format=".0f",
+        custom_data=None,
         hovertemplate="%{y:.0f}",
         hovermode="x unified",
         orientation=None,
@@ -158,7 +159,6 @@ def plot_energy_mix(df):
         orientation=None,
         format=".0%",
     )
-
 
 def get_data_deed_restricted():
     # deed restriction service
@@ -311,9 +311,12 @@ def plot_low_stress_bicycle(df):
         y_title="Total Miles of Bike Lane",
         hovermode="x unified",
         format=".2f",
-        hovertemplate="%{y:.2f}",
+        custom_data=["Class"],   
+        hovertemplate="<br>".join([
+            "<b>%{y:.0f}</b> total miles of",
+            "<b>Class %{customdata[0]:,.0f}</b> bike route built"
+                ])+"<extra></extra>"
     )
-
 
 def get_data_transit():
     url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/131"
