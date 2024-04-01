@@ -311,7 +311,7 @@ def plot_low_stress_bicycle(df):
         y_title="Total Miles of Bike Lane",
         hovermode="x unified",
         format=".2f",
-        custom_data=["Class"],   
+        custom_data=["Class"],
         hovertemplate="<br>".join([
             "<b>%{y:.0f}</b> total miles of",
             "<b>Class %{customdata[0]:,.0f}</b> bike route built"
