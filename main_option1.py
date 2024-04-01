@@ -68,5 +68,3 @@ def do_on_session(session=Session()):
 if __name__ == "__main__":
     app.params(myparam="...")
     app.run()
-
-main

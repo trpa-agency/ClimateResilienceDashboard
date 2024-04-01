@@ -67,6 +67,7 @@ def plot_affordable_units(df):
         y_title="Total Units",
         x_title="Location to Town Center",
         format=".0f",
+        custom_data=None,
         hovertemplate="%{y:.0f}",
         hovermode="x unified",
         orientation=None,
@@ -158,7 +159,6 @@ def plot_energy_mix(df):
         orientation=None,
         format=".0%",
     )
-
 
 def get_data_deed_restricted():
     # deed restriction service
@@ -311,9 +311,12 @@ def plot_low_stress_bicycle(df):
         y_title="Total Miles of Bike Lane",
         hovermode="x unified",
         format=".2f",
-        hovertemplate="%{y:.2f}",
+        custom_data=["Class"],   
+        hovertemplate="<br>".join([
+            "<b>%{y:.0f}</b> total miles of",
+            "<b>Class %{customdata[0]:,.0f}</b> bike route built"
+                ])+"<extra></extra>"
     )
-
 
 def get_data_transit():
     url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/131"
@@ -741,7 +744,7 @@ def plot_mode_share(df):
     )
 
 
-def get_data_vehicles_miles_traveled():
+def get_data_vehicle_miles_traveled():
     vmt_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133"
     )
@@ -755,7 +758,7 @@ def get_data_vehicles_miles_traveled():
     return vmt_data_graph
 
 
-def plot_vehicles_miles_traveled(df):
+def plot_vehicle_miles_traveled(df):
     trendline(
         df,
         path_html="html/3.3.b_Vehicle_Miles_Traveled.html",
@@ -768,12 +771,13 @@ def plot_vehicles_miles_traveled(df):
         sort="year",
         y_title="Total VMT",
         x_title="Year",
-        hovertemplate="%{y}",
-        format=".%",
+        format=",.0f",
+        hovertemplate="%{y:,.0f} vehicle miles traveled",
         markers=True,
         hover_data=None,
         tickvals=None,
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
+        custom_data=None
     )

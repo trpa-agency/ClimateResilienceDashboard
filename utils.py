@@ -72,6 +72,7 @@ def trendline(
     ticktext,
     tickangle,
     hovermode,
+    custom_data,
 ):
     df = df.sort_values(by=sort)
     config = {"displayModeBar": False}
@@ -84,6 +85,7 @@ def trendline(
         category_orders=orders,
         markers=markers,
         hover_data=hover_data,
+        custom_data=custom_data
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
@@ -91,6 +93,7 @@ def trendline(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
+        legend_title=None,
         legend=dict(
             orientation="h",
             entrywidth=120,
@@ -164,9 +167,9 @@ def stackedbar(
             entrywidth=200,
             # entrywidthmode="fraction",
             yanchor="bottom",
-            y=1.1,
+            y=1,
             xanchor="right",
-            x=1.1,
+            x=1,
         )
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
@@ -312,6 +315,7 @@ def stacked_area(
     hovermode,
     format,
     hovertemplate,
+    custom_data
 ):
     fig = px.area(
         df,
@@ -320,6 +324,7 @@ def stacked_area(
         color=color,
         line_group=line_group,
         color_discrete_sequence=color_sequence,
+        custom_data=custom_data
     )
     fig.update_layout(
         yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
@@ -327,6 +332,7 @@ def stacked_area(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
+        legend_title=None,
         legend=dict(
             orientation="h",
             entrywidth=200,
