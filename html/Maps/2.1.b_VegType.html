@@ -7,7 +7,6 @@
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
     <title>Climate Resilience Dashboard - Vegetation Type</title>
-
     <style>
       html,
       body,
@@ -17,7 +16,6 @@
         margin: 0;
         padding: 0;
       }
-
       #infoDiv {
         position: absolute;
         top: 15px;
@@ -41,48 +39,27 @@
       }
     </style>
 
-    <link
-      rel="stylesheet"
-      href="https://js.arcgis.com/4.28/esri/themes/light/main.css"
-    />
-    <script src="https://js.arcgis.com/4.28/"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.29/"></script>
 
     <script>
       require([
-        "esri/config",
         "esri/views/MapView",
         "esri/WebMap",
-        "esri/layers/FeatureLayer",
-        "esri/layers/MapImageLayer",
-        "esri/layers/TileLayer",
         "esri/widgets/Expand",
         "esri/widgets/Home",
-        "esri/widgets/LayerList",
         "esri/widgets/Legend",
         "esri/widgets/Fullscreen"
       ], function(
-        esriConfig,
         MapView,
         WebMap,
-        FeatureLayer,
-        MapImageLayer,
-        TileLayer,
         Expand,
         Home,
-        LayerList,
         Legend,
         Fullscreen
       ) {
-          {
-        esriConfig.portalUrl = "https://maps.trpa.org/portal/";
-            };
-        
-        var map = new WebMap({
-              portalItem: { // autocasts as new PortalItem()
-                // basemap webmap to use
-                id: "e1043a721b3943a6bba5f87ea468ecbb"
-              }
-            });
+          
+        var map = new WebMap({portalItem: {id: "e793c0261c5c45d5a0eb5f0cc566c988"}});
 
         var view = new MapView({
               map: map,  // The WebMap instance created above
@@ -90,53 +67,33 @@
               center: [-120.01,39.01],
               zoom: 10.5
             });
+        
           
         // move zoom buttons to top left
         view.ui.move("zoom", "top-left");
         
-        var fullscreen = new Fullscreen({
-          view: view
-        });
+        // add fullscreen button to top left
+        var fullscreen = new Fullscreen({view: view});
         view.ui.add(fullscreen, "top-left");
 
-        // Seral Stage feature layer
-        var vegLayer = new MapImageLayer({
-          url: "https://maps.trpa.org/server/rest/services/Vegetation_Type/MapServer",
-          title: "Vegetation Type",
-          // renderer: polyRenderer,
-          blendMode: "multiply",
-          opacity: 0.7,
-          // definitionExpression: "gridcode = 1"
+        // Add map item to the legend
+        view.when(function() {
+          var featureLayer = map.layers.getItemAt(1);
+          var legend = new Legend({
+            view: view,
+            layerInfos: [{
+            layer: featureLayer
+          }]
         });
-        map.add(vegLayer);
-
-        // boundary feature layer
-        var trpaLayer = new FeatureLayer({
-          url: "https://maps.trpa.org/server/rest/services/Boundaries/FeatureServer/4",
-          title: "TRPA Boundary"
-        });
-        map.add(trpaLayer);
 
         // create legend card
-        var legend = new Legend({
-        view: view,
-        layerInfos: [
-          {
-            layer: vegLayer,
-            title: "Vegetation Type"
-          }
-        ]
-        });
-        
-        // Add widget to the top right corner of the view
         view.ui.add(legend, "top-right");
         
         // Create collapasable button for legend
         var legendExpand = new Expand({
-            expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+            expandIconClass: "esri-icon-layers", 
             expandTooltip: "Legend",
             view: view,
-//            expanded: true,
             autoCollapse: true,
             content: legend.domNode,
             group: "top-right"
@@ -145,15 +102,16 @@
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
 
-        // Createa Home Button
-        var homeWidget = new Home({
-            view: view
-        });
-        // add a ValuePick
+        // Create a Home Button
+        var homeWidget = new Home({view: view});
+        view.ui.add(homeWidget, "top-left");
 
+        // Disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
 
+        
       });
-    
+    });
 
 	</script>
   </head>
