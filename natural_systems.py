@@ -59,8 +59,8 @@ def plot_forest_fuel(df):
         x_title="Year",
         custom_data=["Treatment Zone"],
         hovertemplate="<br>".join([
-        "<b>%{y:,.1f}</b> acres of forest fuel treatment",
-        "in the <em>%{customdata[0]}</em> zone"
+        "<b>%{y:,.0f} acres</b> of forest health treatment",
+        "in the <b>%{customdata[0]}</b>"
             ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,

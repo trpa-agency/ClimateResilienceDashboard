@@ -128,6 +128,9 @@ def plot_home_heating(df):
         hovermode="x unified",
         orientation=None,
         format=".0%",
+        custom_data=None,
+        additional_formatting=None,
+        facet_row=None
     )
 
 
@@ -210,15 +213,16 @@ def plot_data_deed_restricted(df):
         orders=None,
         x_title="Year",
         y_title="Cumuluative Total of Deed Restricted Parcels",
-        format=".0f",
+        format=",.0f",
         hovertemplate="%{y:.0f}",
         markers=True,
         hover_data=None,
         tickvals=None,
         ticktext=None,
         tickangle=None,
-        hovermode="x",
-    )
+        hovermode="x unified",
+        custom_data=None
+                )
     stacked_area(
         df,
         path_html="html/3.1.c_Deed_Restricted_Units_v2.html",
@@ -231,8 +235,12 @@ def plot_data_deed_restricted(df):
         x_title="Year",
         y_title="Cumuluative Count of Deed Restricted Parcels",
         hovermode="x unified",
-        format=".0f",
-        hovertemplate="%{y:.0f}",
+        format=",.0f",
+        custom_data=["Type"],
+        hovertemplate="<br>".join([
+            "<b>%{y:.0f}</b> parcels with a",
+            "<b>%{customdata[0]}</b> deed restriction"
+                ])+"<extra></extra>"
     )
 
 
@@ -240,7 +248,6 @@ def get_data_low_stress_bicycle():
     sdf_bikelane = get_fs_data_spatial(
         "https://maps.trpa.org/server/rest/services/Transportation/MapServer/3"
     )
-
     # recalc miles field from shape length
     sdf_bikelane.MILES = sdf_bikelane["Shape.STLength()"] / 1609.34
     # filter for CLASS = 1 2 or 3
@@ -284,7 +291,10 @@ def get_data_low_stress_bicycle():
 
     # cast Year as integer
     df["Year"] = df["Year"].astype(int)
-
+    # cast Class as text
+    df["Class"] = df["Class"].astype(str)
+    # add the word "Class" to the beginning of the Class field
+    df["Class"] = "Class " + df["Class"]
     # sort by year and miles
     df.sort_values(["Year", "Miles"], inplace=True)
     # Replace NaN values in 'MILES' with 0
@@ -296,7 +306,7 @@ def get_data_low_stress_bicycle():
     df["Year"] = df["Year"].astype(str)
     return df
 
-
+# miles of bike route built area plot
 def plot_low_stress_bicycle(df):
     stacked_area(
         df,
@@ -308,13 +318,13 @@ def plot_low_stress_bicycle(df):
         line_group="Class",
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         x_title="Year",
-        y_title="Total Miles of Bike Lane",
+        y_title="Total Miles of Bike Route Built",
         hovermode="x unified",
-        format=".2f",
-        custom_data=["Class"],   
+        format=".0f",
+        custom_data=["Class"],
         hovertemplate="<br>".join([
             "<b>%{y:.0f}</b> total miles of",
-            "<b>Class %{customdata[0]:,.0f}</b> bike route built"
+            "<b>%{customdata[0]}</b> bike route built"
                 ])+"<extra></extra>"
     )
 
@@ -365,7 +375,7 @@ def get_data_transit():
     df["Transit Provider"] = df["Transit Provider"].str.replace("_", " ")
     return df
 
-
+# tranit ridership line plot
 def plot_transit(df):
     trendline(
         df,
@@ -388,7 +398,6 @@ def plot_transit(df):
         tickangle=None,
         hovermode="x unified",
     )
-
 
 def get_data_mode_share():
     modeshare_data = get_fs_data(

@@ -1,9 +1,7 @@
 from pathlib import Path
-
 import pandas as pd
 import plotly.express as px
 from arcgis.features import FeatureLayer
-
 
 # Reads in csv file
 def read_file(path_file):
@@ -11,7 +9,6 @@ def read_file(path_file):
     p.expanduser()
     data = pd.read_csv(p)
     return data
-
 
 # Gets data with query from the TRPA server
 def get_fs_data_query(service_url, query_params):
@@ -24,7 +21,6 @@ def get_fs_data_query(service_url, query_params):
     # return data frame
     return all_data
 
-
 # Gets data from the TRPA server
 def get_fs_data(service_url):
     feature_layer = FeatureLayer(service_url)
@@ -36,20 +32,17 @@ def get_fs_data(service_url):
     # return data frame
     return all_data
 
-
 # Gets spatially enabled dataframe from TRPA server
 def get_fs_data_spatial(service_url):
     feature_layer = FeatureLayer(service_url)
     query_result = feature_layer.query().sdf
     return query_result
 
-
 # Gets spatially enabled dataframe with query
 def get_fs_data_spatial_query(service_url, query_params):
     feature_layer = FeatureLayer(service_url)
     query_result = feature_layer.query(query_params).sdf
     return query_result
-
 
 # Trendline
 def trendline(
@@ -73,6 +66,7 @@ def trendline(
     tickangle,
     hovermode,
     custom_data,
+    additional_formatting=None,
 ):
     df = df.sort_values(by=sort)
     config = {"displayModeBar": False}
@@ -103,6 +97,7 @@ def trendline(
             xanchor="right",
             x=1,
         ),
+
     )
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
@@ -111,13 +106,13 @@ def trendline(
         ticktext=ticktext,
         tickangle=tickangle,
     )
+    fig.update_layout(additional_formatting)
     fig.write_html(
         config=config,
         file=path_html,
         include_plotlyjs="directory",
         div_id=div_id,
     )
-
 
 # Stacked Percent Bar chart
 def stackedbar(
@@ -164,7 +159,7 @@ def stackedbar(
         legend_title=None,
         legend=dict(
             orientation="h",
-            entrywidth=200,
+            entrywidth=120,
             # entrywidthmode="fraction",
             yanchor="bottom",
             y=1,
@@ -184,7 +179,6 @@ def stackedbar(
         div_id=div_id,
     )
 
-
 # Grouped Percent Bar chart
 def groupedbar_percent(
     df,
@@ -201,6 +195,7 @@ def groupedbar_percent(
     hovertemplate,
     hovermode,
     format,
+    additional_formatting=None,
 ):
     config = {"displayModeBar": False}
     fig = px.bar(
@@ -233,7 +228,7 @@ def groupedbar_percent(
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_traces(hovertemplate=hovertemplate)
-
+    fig.update_layout(additional_formatting)
     fig.write_html(
         config=config,
         file=path_html,
@@ -258,6 +253,7 @@ def scatterplot(
     hovermode,
     legend_number,
     legend_otherline,
+    additional_formatting=None
 ):
     config = {"displayModeBar": False}
     fig = px.scatter(
@@ -279,12 +275,11 @@ def scatterplot(
         dragmode=False,
         legend=dict(
             orientation="h",
-            entrywidth=200,
-            # entrywidthmode="fraction",
+            entrywidth=100,
             yanchor="bottom",
-            y=1.2,
+            y=1,
             xanchor="right",
-            x=0.8,
+            x=1,
         ),
     )
     fig.update_yaxes(autorangeoptions=dict(include=0))
@@ -292,13 +287,13 @@ def scatterplot(
     fig.data[legend_number].name = legend_otherline
     fig.data[legend_number].showlegend = True
     fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_layout(additional_formatting)
     fig.write_html(
         config=config,
         file=path_html,
         include_plotlyjs="directory",
         div_id=div_id,
     )
-
 
 # Stacked Area Chart
 def stacked_area(
@@ -315,7 +310,8 @@ def stacked_area(
     hovermode,
     format,
     hovertemplate,
-    custom_data
+    custom_data,
+    additional_formatting=None
 ):
     fig = px.area(
         df,
@@ -335,18 +331,17 @@ def stacked_area(
         legend_title=None,
         legend=dict(
             orientation="h",
-            entrywidth=200,
+            entrywidth=160,
             # entrywidthmode="fraction",
             yanchor="bottom",
-            y=1.2,
+            y=1.1,
             xanchor="right",
-            x=0.8,
+            x=1,
         ),
     )
     fig.update_traces(hovertemplate=hovertemplate)
-
     config = {"displayModeBar": False}
-
+    fig.update_layout(additional_formatting)
     fig.write_html(
         config=config,
         file=path_html,
