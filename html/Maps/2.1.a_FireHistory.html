@@ -6,8 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Fire History</title>
-
+    <title>Climate Resilience Dashboard - Fire History</title>
     <style>
       html,
       body,
@@ -17,8 +16,6 @@
         margin: 0;
         padding: 0;
       }
-
-
       #infoDiv {
         position: absolute;
         top: 15px;
@@ -42,94 +39,61 @@
       }
     </style>
 
-    <link
-      rel="stylesheet"
-      href="https://js.arcgis.com/4.28/esri/themes/light/main.css"
-    />
-    <script src="https://js.arcgis.com/4.28/"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.29/"></script>
 
     <script>
       require([
-        "esri/config",
         "esri/views/MapView",
         "esri/WebMap",
-        "esri/layers/FeatureLayer",
-        "esri/layers/TileLayer",
         "esri/widgets/Expand",
         "esri/widgets/Home",
-        "esri/widgets/LayerList",
         "esri/widgets/Legend",
         "esri/widgets/Fullscreen"
       ], function(
-        esriConfig,
         MapView,
         WebMap,
-        FeatureLayer,
-        TileLayer,
         Expand,
         Home,
-        LayerList,
         Legend,
         Fullscreen
       ) {
-          {
-        esriConfig.portalUrl = "https://maps.trpa.org/portal/";
-            };
-        
-        var map = new WebMap({
-              portalItem: { // autocasts as new PortalItem()
-                id: "e1043a721b3943a6bba5f87ea468ecbb"
-              }
-            });
+          
+        var map = new WebMap({portalItem: {id: "fc5b1de6961d4a4289c272261fe9a358"}});
 
         var view = new MapView({
               map: map,  // The WebMap instance created above
               container: "viewDiv",
               center: [-120.01,39.01],
-              zoom: 10.5
+              zoom: 8
             });
+        
           
         // move zoom buttons to top left
-        view.ui.move("zoom", "top-left"); 
+        view.ui.move("zoom", "top-left");
+        
+        // add fullscreen button to top left
+        var fullscreen = new Fullscreen({view: view});
+        view.ui.add(fullscreen, "top-left");
 
-        // fire history feature layer
-        // https://calfire-forestry.maps.arcgis.com/home/item.html?id=e3802d2abf8741a187e73a9db49d68fe
-        var fireLayer = new FeatureLayer({
-          url: "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/California_Fire_Perimeters/FeatureServer",
-          title: "Fire History"
+        // Add map item to the legend
+        view.when(function() {
+          var featureLayer = map.layers.getItemAt(0);
+          var legend = new Legend({
+            view: view,
+            layerInfos: [{
+            layer: featureLayer
+          }]
         });
-          
-        map.add(fireLayer);
-          
-        // boundary feature layer
-        var trpaLayer = new FeatureLayer({
-          url: "https://maps.trpa.org/server/rest/services/Boundaries/FeatureServer/4",
-          title: "TRPA Boundary"
-        });
-          
-        map.add(trpaLayer);
-          
+
         // create legend card
-        var legend = new Legend({
-        view: view,
-        layerInfos: [
-          {
-            layer: fireLayer,
-            title: "Fire History"
-
-          }
-        ]
-        });
-
-        // Add widget to the top right corner of the view
         view.ui.add(legend, "top-right");
         
         // Create collapasable button for legend
         var legendExpand = new Expand({
-            expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+            expandIconClass: "esri-icon-layers", 
             expandTooltip: "Legend",
             view: view,
-//            expanded: true,
             autoCollapse: true,
             content: legend.domNode,
             group: "top-right"
@@ -138,59 +102,17 @@
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
 
-//        // create legend card
-//        var legend = new Legend({
-//         view: view,
-//         layerInfos: [
-//           {
-//             layer: layer,
-//             title: ""
-//           }
-//         ]
-//         });
-//         // Add widget to the top right corner of the view
-//         view.ui.add(legend, "top-right");
-        
-//         // Create collapasable button for legend
-//         var legendExpand = new Expand({
-//             expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
-//             expandTooltip: "Legend",
-//             view: view,
-// //            expanded: true,
-//             autoCollapse: true,
-//             content: legend.domNode,
-//             group: "top-right"
-//             });
-
-//         // add layer list button to the top right corner of the view
-//         view.ui.add(legendExpand, "top-right");
-
-      // // add the UI for a title
-      // view.ui.add("titleDiv", "top-right");
-
-        // move zoom buttons to top left
-        view.ui.move("zoom", "top-left");
-        
-        // Add Full Screen widget
-        var fullscreen = new Fullscreen({
-          view: view
-        });
-        view.ui.add(fullscreen, "top-left")
-        ;
-        
-        // Createa Home Button
-        var homeWidget = new Home({
-            view: view
-        });
+        // Create a Home Button
+        var homeWidget = new Home({view: view});
         view.ui.add(homeWidget, "top-left");
 
-        //disable scroll on zoom
-        view.on("mouse-wheel", function(evt) {
-        // disable mouse wheel scroll zooming on the view
-        evt.stopPropagation();
-      });      
-     
-    });   
+        // Disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
+
+        
+      });
+    });
+
 	</script>
   </head>
   <body>
