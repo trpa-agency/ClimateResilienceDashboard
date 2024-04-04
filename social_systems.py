@@ -262,7 +262,7 @@ def plot_race_ethnicity(df):
                                 y=1.05,
                                 xanchor="right",
                                 x=1,
-                            ))  
+                            ))
     )
     groupedbar_percent(
         df,
@@ -299,7 +299,7 @@ def plot_race_ethnicity(df):
                                 y=1.05,
                                 xanchor="right",
                                 x=1,
-                            ))  
+                            ))
     )
 
 
@@ -479,8 +479,8 @@ def plot_rent_prices(df):
 
 def get_data_median_home_price():
     url="https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/147"
-    
-    
+
+
     data = get_fs_data(url)
     # convert month and year to datetime
     data["month_year"] = pd.to_datetime(data["month_year"])
