@@ -7,7 +7,6 @@
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
     <title>Climate Resilience Dashboard - Prescribed Fire, Firewise Community, Emergency Services</title>
-
     <style>
       html,
       body,
@@ -17,8 +16,6 @@
         margin: 0;
         padding: 0;
       }
-
-
       #infoDiv {
         position: absolute;
         top: 15px;
@@ -42,156 +39,71 @@
       }
     </style>
 
-    <link
-      rel="stylesheet"
-      href="https://js.arcgis.com/4.28/esri/themes/light/main.css"
-    />
-    <script src="https://js.arcgis.com/4.28/"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.29/"></script>
 
     <script>
       require([
-        "esri/config",
         "esri/views/MapView",
         "esri/WebMap",
-        "esri/layers/FeatureLayer",
-        "esri/layers/TileLayer",
         "esri/widgets/Expand",
         "esri/widgets/Home",
-        "esri/widgets/LayerList",
         "esri/widgets/Legend",
         "esri/widgets/Fullscreen"
       ], function(
-        esriConfig,
         MapView,
         WebMap,
-        FeatureLayer,
-        TileLayer,
         Expand,
         Home,
-        LayerList,
         Legend,
         Fullscreen
       ) {
-          {
-        esriConfig.portalUrl = "https://maps.trpa.org/portal/";
-            };
-        
-        var map = new WebMap({
-              portalItem: { // autocasts as new PortalItem()
-                // basemap webmap to use
-                id: "e1043a721b3943a6bba5f87ea468ecbb"
-              }
-            });
+          
+        var map = new WebMap({portalItem: {id: "e841b405234f46a8a4d33e96e8531b5e"}});
 
         var view = new MapView({
               map: map,  // The WebMap instance created above
               container: "viewDiv",
               center: [-120.01,39.01],
-              zoom: 10.5
+              zoom: 8
             });
+        
           
         // move zoom buttons to top left
         view.ui.move("zoom", "top-left");
         
-        var fullscreen = new Fullscreen({
-          view: view
-        });
+        // add fullscreen button to top left
+        var fullscreen = new Fullscreen({view: view});
         view.ui.add(fullscreen, "top-left");
 
-        // Create a popupTemplate
-        const incidentTemplate = {
-          title: "Fire Incident Name: {IncidentName}",
-          content:[
+       // Add map item to the legend
+       view.when(function() {
+          var featureLayer = map.layers.getItemAt(2);
+          var featureLayer2 = map.layers.getItemAt(1);
+          var featureLayer3 = map.layers.getItemAt(3);
+          var legend = new Legend({
+            view: view,
+            layerInfos: [
               {
-          type: "fields",
-          fieldInfos: [
-                { 
-                  fieldName: "IncidentTypeCategory",
-                  label: "Incident Type"
-                }
-                ]
-              }
-              ]            
-        };
-
-        // fire incident layer
-        var fireIncident = new FeatureLayer({
-          url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/USA_Wildfires_v1/FeatureServer/0",
-          title: "Fire Incident",
-          popupTemplate: incidentTemplate
-        });
-        
-        map.add(fireIncident);
-
-        // Create a popupTemplate
-        const firewiseTemplate = {
-          title: "Community: {Name}",
-          content:[
+                layer: featureLayer
+              },
               {
-          type: "fields",
-          fieldInfos: [
-                { 
-                  fieldName: "Status",
-                  label: "Status"
-                }, 
-                { 
-                  fieldName: "ApprovalYear",
-                  label: "Approval Year"
-                }
-                ]
+                layer: featureLayer2
+              },
+              {
+                layer: featureLayer3
               }
-              ]            
-        };
-
-        // firewise feature layer
-        var firewiseLayer = new FeatureLayer({
-          url: "https://services1.arcgis.com/0V03GIVRCAoxbtdR/ArcGIS/rest/services/Firewise_sites_In_Good_Standing_/FeatureServer/0",
-          title: "Firewise Community",
-          popupTemplate: firewiseTemplate,
+            ]
         });
-          
-        map.add(firewiseLayer);
-
-        // emergency services
-        var emergenyMedical = new FeatureLayer({
-          url: "https://maps.trpa.org/server/rest/services/Emergency_Services/MapServer/2",
-          title: "Emergency Facilities",
-        });
-        map.add(emergenyMedical);
-        
-        // boundary feature layer
-        var trpaLayer = new FeatureLayer({
-          url: "https://maps.trpa.org/server/rest/services/Boundaries/FeatureServer/4",
-          title: "TRPA Boundary"
-        });
-          
-        map.add(trpaLayer);
 
         // create legend card
-        var legend = new Legend({
-        view: view,
-        layerInfos: [
-          {
-            layer: fireIncident,
-            title: "Fire Incident"
-
-          },
-          {
-            layer: firewiseLayer,
-            title: "Firewise Community in Good Standing"
-
-          }
-        ]
-        });
-        // Add widget to the top right corner of the view
         view.ui.add(legend, "top-right");
         
         // Create collapasable button for legend
         var legendExpand = new Expand({
-            expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+            expandIconClass: "esri-icon-layers", 
             expandTooltip: "Legend",
             view: view,
-//            expanded: true,
             autoCollapse: true,
             content: legend.domNode,
             group: "top-right"
@@ -200,14 +112,15 @@
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
 
-        // Createa Home Button
-        var homeWidget = new Home({
-            view: view
-        });
+        // Create a Home Button
+        var homeWidget = new Home({view: view});
+        view.ui.add(homeWidget, "top-left");
 
-        // adds the home widget to the top left corner of the MapView
-        view.ui.add(homeWidget, "top-left");            
-     
+        // Disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
+
+        
+      });
     });
 
 	</script>
