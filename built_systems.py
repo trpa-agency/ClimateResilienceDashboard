@@ -12,7 +12,6 @@ from utils import (
     trendline,
 )
 
-
 def get_data_affordable_units():
     # parcel development history layer
     parcelURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17"
@@ -71,6 +70,14 @@ def plot_affordable_units(df):
         hovertemplate="%{y:.0f}",
         hovermode="x unified",
         orientation=None,
+        additional_formatting=dict(legend=dict(
+                                orientation="h",
+                                entrywidth=100,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=0.95,
+                            ))
     )
 
 
@@ -129,8 +136,15 @@ def plot_home_heating(df):
         orientation=None,
         format=".0%",
         custom_data=None,
-        additional_formatting=None,
-        facet_row=None
+        facet_row=None,
+        additional_formatting=dict(legend=dict(
+                                orientation="h",
+                                entrywidth=100,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=0.95,
+                            ))
     )
 
 
@@ -151,16 +165,25 @@ def plot_energy_mix(df):
         color="Type",
         color_sequence=["#208385", "#FC9A62"],
         orders={"Year": []},
-        y_title="% of Renewable Energy by Share of Total",
+        y_title="Share of Total Energy Produced",
         x_title="Year",
-        custom_data=["Type"],
+        custom_data=["Type", "Source"],
         hovertemplate="<br>".join([
-            "<b>%{y:.0%}</b>of energy",
-            "comes from <b>%{customdata[0]}</b> sources"
+            "<b>%{y:.0%}</b> of energy produced by",
+            "<b>%{customdata[1]}</b> was from",
+            "<b>%{customdata[0]}</b> sources"
                 ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=".0%",
+        additional_formatting = dict(legend=dict(
+                                        orientation="h",
+                                        entrywidth=100,
+                                        yanchor="bottom",
+                                        y=1.05,
+                                        xanchor="right",
+                                        x=0.95,
+                                    ))
     )
 
 def get_data_deed_restricted():
@@ -221,7 +244,15 @@ def plot_data_deed_restricted(df):
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
-        custom_data=None
+        custom_data=None,
+        additional_formatting=dict(legend=dict(
+                                orientation="h",
+                                entrywidth=100,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=0.95,
+                            ))
                 )
     stacked_area(
         df,
@@ -240,7 +271,15 @@ def plot_data_deed_restricted(df):
         hovertemplate="<br>".join([
             "<b>%{y:.0f}</b> parcels with a",
             "<b>%{customdata[0]}</b> deed restriction"
-                ])+"<extra></extra>"
+                ])+"<extra></extra>",
+        additional_formatting=dict(legend=dict(
+                                orientation="h",
+                                entrywidth=100,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=0.95,
+                            ))
     )
 
 
@@ -318,14 +357,22 @@ def plot_low_stress_bicycle(df):
         line_group="Class",
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         x_title="Year",
-        y_title="Total Miles of Bike Route Built",
+        y_title="Total Miles of Bike Routes Built",
         hovermode="x unified",
         format=".0f",
         custom_data=["Class"],
         hovertemplate="<br>".join([
             "<b>%{y:.0f}</b> total miles of",
-            "<b>%{customdata[0]}</b> bike route built"
-                ])+"<extra></extra>"
+            "<b>%{customdata[0]}</b> routes completed"
+                ])+"<extra></extra>",
+        additional_formatting=dict(legend=dict(
+                                        orientation="h",
+                                        entrywidth=100,
+                                        yanchor="bottom",
+                                        y=1.05,
+                                        xanchor="right",
+                                        x=0.95,
+                                    ))
     )
 
 def get_data_transit():
@@ -389,14 +436,26 @@ def plot_transit(df):
         orders=None,
         x_title="Date",
         y_title="Ridership",
-        format=",.0f",
-        hovertemplate="%{y:,.0f}",
         markers=True,
         hover_data=None,
         tickvals=None,
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
+        format=",.0f",
+        custom_data=["Transit Provider"],
+        hovertemplate="<br>".join([
+            "<b>%{y:,.0f}</b> riders on the",
+            "<b>%{customdata[0]}</b> transit line"
+                ])+"<extra></extra>",
+        additional_formatting = dict(legend=dict(
+                                        orientation="h",
+                                        entrywidth=100,
+                                        yanchor="bottom",
+                                        y=1.05,
+                                        xanchor="right",
+                                        x=0.95,
+                                    ))
     )
 
 def get_data_mode_share():

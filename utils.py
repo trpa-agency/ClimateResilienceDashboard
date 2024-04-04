@@ -87,17 +87,7 @@ def trendline(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None,
-        legend=dict(
-            orientation="h",
-            entrywidth=120,
-            # entrywidthmode="fraction",
-            yanchor="bottom",
-            y=1.05,
-            xanchor="right",
-            x=1,
-        ),
-
+        legend_title=None
     )
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
@@ -121,7 +111,6 @@ def stackedbar(
     div_id,
     x,
     y,
-    facet,
     color,
     color_sequence,
     orders,
@@ -130,9 +119,11 @@ def stackedbar(
     custom_data,
     hovertemplate,
     hovermode,
-    orientation,
     format,
+    name = None,
     additional_formatting=None,
+    orientation=None,
+    facet=None,
     facet_row=None,
 ):
     config = {"displayModeBar": False}
@@ -149,25 +140,21 @@ def stackedbar(
         orientation=orientation,
         custom_data=custom_data
     )
+    
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+
     fig.update_layout(
         yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
         xaxis=dict(title=x_title),
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None,
-        legend=dict(
-            orientation="h",
-            entrywidth=120,
-            # entrywidthmode="fraction",
-            yanchor="bottom",
-            y=1,
-            xanchor="right",
-            x=1,
-        )
+        legend_title=None
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
+    # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
+    fig.update_yaxes(col=2,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
+    fig.update_yaxes(col=3,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
     fig.update_xaxes(tickformat=".0f")
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_layout(additional_formatting)
@@ -195,6 +182,7 @@ def groupedbar_percent(
     hovertemplate,
     hovermode,
     format,
+    custom_data=None,
     additional_formatting=None,
 ):
     config = {"displayModeBar": False}
@@ -207,6 +195,7 @@ def groupedbar_percent(
         facet_col=facet,
         color_discrete_sequence=color_sequence,
         category_orders=orders,
+        custom_data=custom_data
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
@@ -227,6 +216,9 @@ def groupedbar_percent(
         ),
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
+    fig.update_yaxes(col=2,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
+    fig.update_yaxes(col=3,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
+    # fig.update_yaxes(col=4,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_layout(additional_formatting)
     fig.write_html(
@@ -253,6 +245,7 @@ def scatterplot(
     hovermode,
     legend_number,
     legend_otherline,
+    custom_data=None,
     additional_formatting=None
 ):
     config = {"displayModeBar": False}
@@ -273,14 +266,7 @@ def scatterplot(
         template="plotly_white",
         hovermode=hovermode,
         dragmode=False,
-        legend=dict(
-            orientation="h",
-            entrywidth=100,
-            yanchor="bottom",
-            y=1,
-            xanchor="right",
-            x=1,
-        ),
+        legend_title=None,
     )
     fig.update_yaxes(autorangeoptions=dict(include=0))
     fig.add_trace(px.line(df, x=x, y=y2, color_discrete_sequence=["#208385"]).data[0])
@@ -310,7 +296,7 @@ def stacked_area(
     hovermode,
     format,
     hovertemplate,
-    custom_data,
+    custom_data=None,
     additional_formatting=None
 ):
     fig = px.area(
@@ -328,16 +314,7 @@ def stacked_area(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None,
-        legend=dict(
-            orientation="h",
-            entrywidth=160,
-            # entrywidthmode="fraction",
-            yanchor="bottom",
-            y=1.1,
-            xanchor="right",
-            x=1,
-        ),
+        legend_title=None
     )
     fig.update_traces(hovertemplate=hovertemplate)
     config = {"displayModeBar": False}

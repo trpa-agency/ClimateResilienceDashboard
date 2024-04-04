@@ -116,7 +116,7 @@ def plot_old_growth_forest(df):
         custom_data=["SpatialVar"],
         hovertemplate="<br>".join([
         "<b>%{y:,.0f}</b> acres of",
-        "<em>%{customdata[0]}</em> old growth forest"
+        "<b>%{customdata[0]}</b> old growth forest"
             ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -138,7 +138,7 @@ def plot_old_growth_forest(df):
         custom_data=["TRPA_VegType"],
         hovertemplate="<br>".join([
         "<b>%{y:,.0f}</b> acres of",
-        "<em>%{customdata[0]}</em> old growth forest"
+        "<b>%{customdata[0]}</b> old growth forest"
             ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -358,7 +358,16 @@ def plot_restored_wetlands_meadows_bar(df):
                 ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
-        format=",.0f"
+        format=",.0f",
+        additional_formatting=dict(legend=dict(
+                                orientation="h",
+                                entrywidth=120,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=0.95,
+                            ))
+
     )
 
 def get_data_bmp():
@@ -409,6 +418,16 @@ def plot_bmp(df):
         orientation=None,
         custom_data=None,
         format=",.0f",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=120,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        )
     )
 
 
@@ -436,10 +455,10 @@ def get_areawide_data():
         ["Active", "Constructed"], "Completed"
     )
     # create cumulative sum of acres of status - completed
-    sdf_impervious_hard_summary["Acres Covered"] = sdf_impervious_hard_summary["Acres"].cumsum()
+    sdf_impervious_hard_summary["Total Acres Treated"] = sdf_impervious_hard_summary["Acres"].cumsum()
     # subtract area covereed by cumulatve sum from total acres
-    sdf_impervious_hard_summary["Acres Remaining"] = (
-        total_acres - sdf_impervious_hard_summary["Acres Covered"]
+    sdf_impervious_hard_summary["Total Acres Untreated"] = (
+        total_acres - sdf_impervious_hard_summary["Total Acres Treated"]
     )
     df = sdf_impervious_hard_summary
     return df
@@ -451,18 +470,31 @@ def plot_areawide(df):
         path_html="html/2.4.c_Areawide_Covering_Impervious.html",
         div_id="2.4.c_Areawide",
         x="Year_Completed",
-        y=["Acres Covered", "Acres Remaining"],
+        y=["Total Acres Treated", "Total Acres Untreated"],
         facet=None,
         color=None,
         color_sequence=["#208385", "#808080"],
         orders=None,
-        y_title="Impervious Surface Covered by Stormwater Areawide Treatment",
+        y_title="Acres",
         x_title="Year",
-        custom_data=None,
-        hovertemplate="%{y:,.0f}",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
+        # custom_data = list(df.columns[3:],
+        # hovertemplate="<br>".join([
+        #     "b>%{y:,.0f}</b> of <b>%{customdata}</b>",
+        #     "by areawide stormwater infrastructure"
+        #         ]) +"<extra></extra>",
+        custom_data=None,
+        hovertemplate="%{y:,.0f}",
+        additional_formatting=dict(legend=dict(
+                                orientation="h",
+                                entrywidth=130,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=0.95,
+                            ))
     )
 
 def get_veg():
