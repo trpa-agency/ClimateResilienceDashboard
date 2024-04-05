@@ -221,7 +221,7 @@ def plot_rent_prices(df):
                                 x=0.95,
                             ))
      )
-    
+
 # get tenure by age data
 def get_data_tenure_by_age():
     data = get_fs_data(

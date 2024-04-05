@@ -148,9 +148,9 @@ def plot_purple_air_fire(df):
     # get fire data
     dfFire = get_fire_data()
     # creat a plotly express line chart
-    fig = px.line(dfAir, 
-                    x="Date", 
-                    y="PM 2.5 (ug/m3)", 
+    fig = px.line(dfAir,
+                    x="Date",
+                    y="PM 2.5 (ug/m3)",
                     title='Purple Air PM2.5'
                                 )
 
@@ -161,10 +161,10 @@ def plot_purple_air_fire(df):
     )
 
     # add scatter trace to figure of points of dfMerge by date and mean_pm25
-    fig.add_trace(go.Scatter(x=dfFire['Date'], 
-                            y=dfFire['PM 2.5 (ug/m3)'], 
+    fig.add_trace(go.Scatter(x=dfFire['Date'],
+                            y=dfFire['PM 2.5 (ug/m3)'],
                             mode='markers',
-                            name='Fire Start Date', 
+                            name='Fire Start Date',
                             customdata=dfFire[["Fire", "Acres"]],
                             hovertemplate="<br>".join([
                                             "<b>%{customdata[0]}</b> fire started",
@@ -172,15 +172,15 @@ def plot_purple_air_fire(df):
                                             "<i>%{customdata[1]:,.0f} acres</i>"
                                                 ])+"<extra></extra>"
                                                 ))
-                            
+
     # make the scatter plot markers larger
     fig.update_traces(marker=dict(size=12))
 
     # label points by FIRE_NAME
     for i, txt in enumerate(df['Fire']):
-        fig.add_annotation(x=df['Date'].iloc[i], y=df['PM 2.5 (ug/m3)'].iloc[i], 
-                                text=txt+" FIRE", 
-                                showarrow=True, 
+        fig.add_annotation(x=df['Date'].iloc[i], y=df['PM 2.5 (ug/m3)'].iloc[i],
+                                text=txt+" FIRE",
+                                showarrow=True,
                                 align="center",
                                 arrowhead=1,
                                 # arrowsize=1,
@@ -233,7 +233,7 @@ def plot_purple_air_fire(df):
             include_plotlyjs="directory",
             div_id=div_id
     )
-    
+
 def plot_purple_air(df):
     trendline(
         df,
