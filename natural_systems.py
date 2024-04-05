@@ -60,7 +60,7 @@ def plot_forest_fuel(df):
         custom_data=["Treatment Zone"],
         hovertemplate="<br>".join([
         "<b>%{y:,.0f} acres</b> of forest health treatment",
-        "in the <b>%{customdata[0]}</b>"
+        "in the <i>%{customdata[0]}</i>"
             ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -94,7 +94,7 @@ def plot_old_growth_forest(df):
         custom_data=["SeralStage"],
         hovertemplate="<br>".join([
         "<b>%{y:,.0f}</b> acres of",
-        "<em>%{customdata[0]}</em> forest"
+        "<i>%{customdata[0]}</i> forest"
             ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -116,7 +116,7 @@ def plot_old_growth_forest(df):
         custom_data=["SpatialVar"],
         hovertemplate="<br>".join([
         "<b>%{y:,.0f}</b> acres of",
-        "<b>%{customdata[0]}</b> old growth forest"
+        "<i>%{customdata[0]}</i> old growth forest"
             ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -138,7 +138,7 @@ def plot_old_growth_forest(df):
         custom_data=["TRPA_VegType"],
         hovertemplate="<br>".join([
         "<b>%{y:,.0f}</b> acres of",
-        "<b>%{customdata[0]}</b> old growth forest"
+        "<i>%{customdata[0]}</i> old growth forest"
             ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -204,7 +204,7 @@ def plot_probability_of_high_severity_fire(df):
         custom_data=["Probability"],
         hovertemplate="<br>".join([
             "<b>%{y:.0%}</b> of the forested area is",
-            "likely to burn as <em>%{customdata[0]}</em>"
+            "likely to burn as <i>%{customdata[0]}</i>"
                 ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -285,8 +285,7 @@ def plot_aquatic_species_bar(df):
         custom_data=["Invasive Species Type"],
         hovertemplate="<br>".join([
             "<b>%{y:.0f} acres</b> of",
-            "<em>%{customdata[0]}</em> invasive species",
-            "<em>treated.</em>"
+            "<i>%{customdata[0]}</i> invasive species treated"
                 ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -327,7 +326,7 @@ def plot_restored_wetlands_meadows(df):
         custom_data=["Action Performed"],
         hovertemplate="<br>".join([
             "<b>%{y:.0f}</b> acres of",
-            "wetlands and meadows <em>%{customdata[0]}</em>"
+            "wetlands and meadows <i>%{customdata[0]}</i>"
                 ])+"<extra></extra>",
         markers=True,
         hover_data=None,
@@ -354,7 +353,7 @@ def plot_restored_wetlands_meadows_bar(df):
         custom_data=["Action Performed"],
         hovertemplate="<br>".join([
             "<b>%{y:.0f} acres</b> of wetlands and meadows",
-            "<em>%{customdata[0]}</em>"
+            "<i>%{customdata[0]}</i>"
                 ])+"<extra></extra>",
         hovermode="x unified",
         orientation=None,
@@ -579,7 +578,7 @@ def plot_veg(df):
     fig.update_traces(
         name='',
         hovertemplate="<br>".join([
-            "<b>%{y:.1f}%</b> or <b>%{customdata[0]:,.0f}</b> acres",
+            "<b>%{y:.1f}%</b> or <i>%{customdata[0]:,.0f}</i> acres",
             "of the total undisturbed vegetation",
             "(%{customdata[1]:,.0f} acres)"
             ])
