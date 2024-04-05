@@ -12,6 +12,7 @@ from utils import (
     trendline,
 )
 
+# get data for affordable units
 def get_data_affordable_units():
     # parcel development history layer
     parcelURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17"
@@ -51,7 +52,7 @@ def get_data_affordable_units():
     df["Total Residential Units"] = df["Total Residential Units"].astype(int)
     return df
 
-
+# html\3.1.a_Affordable_Units.html
 def plot_affordable_units(df):
     stackedbar(
         df,
@@ -80,7 +81,7 @@ def plot_affordable_units(df):
                             ))
     )
 
-
+# get data for home heating
 def get_data_home_heating():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
@@ -107,7 +108,7 @@ def get_data_home_heating():
     df["share"] = df["value"] / df["value_total"]
     return df
 
-
+# html\3.1.b_HomeHeatingFuels.html
 def plot_home_heating(df):
     stackedbar(
         df,
@@ -131,7 +132,7 @@ def plot_home_heating(df):
         orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
         y_title="% of Home Energy Sources by Share of Total",
         x_title="Year",
-        hovertemplate="%{y}",
+        hovertemplate="%{y:.0%}",
         hovermode="x unified",
         orientation=None,
         format=".0%",
@@ -139,53 +140,15 @@ def plot_home_heating(df):
         facet_row=None,
         additional_formatting=dict(legend=dict(
                                 orientation="h",
-                                entrywidth=100,
+                                entrywidth=150,
                                 yanchor="bottom",
-                                y=1.05,
+                                y=1.2,
                                 xanchor="right",
                                 x=0.95,
                             ))
     )
 
-
-def get_data_energy_mix():
-    return read_file("data/EnergyMix_long.csv")
-
-
-def plot_energy_mix(df):
-    # change name of Renewables to Renewable in Type column
-    df["Type"] = df["Type"].replace("Renewables", "Renewable")
-    stackedbar(
-        df,
-        path_html="html/3.2.a_EnergyMix.html",
-        div_id="3.2.a_EnergyMix",
-        x="Year",
-        y="Share",
-        facet="Source",
-        color="Type",
-        color_sequence=["#208385", "#FC9A62"],
-        orders={"Year": []},
-        y_title="Share of Total Energy Produced",
-        x_title="Year",
-        custom_data=["Type", "Source"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0%}</b> of energy produced by",
-            "<b>%{customdata[1]}</b> was from",
-            "<b>%{customdata[0]}</b> sources"
-                ])+"<extra></extra>",
-        hovermode="x unified",
-        orientation=None,
-        format=".0%",
-        additional_formatting = dict(legend=dict(
-                                        orientation="h",
-                                        entrywidth=100,
-                                        yanchor="bottom",
-                                        y=1.05,
-                                        xanchor="right",
-                                        x=0.95,
-                                    ))
-    )
-
+# get data for deed restricted units
 def get_data_deed_restricted():
     # deed restriction service
     deedRestrictionService = "https://www.laketahoeinfo.org/WebServices/GetDeedRestrictedParcels/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476"
@@ -222,7 +185,8 @@ def get_data_deed_restricted():
     df["Cumulative Count"] = df.sort_values("Year").groupby("Type")["Count"].cumsum()
     return df
 
-
+# html\3.1.c_Deed_Restricted_Units_v1.html
+# html\3.1.c_Deed_Restricted_Units_v2.html
 def plot_data_deed_restricted(df):
     trendline(
         df,
@@ -282,90 +246,36 @@ def plot_data_deed_restricted(df):
                             ))
     )
 
+# get data for energy mix
+def get_data_energy_mix():
+    return read_file("data/EnergyMix_long.csv")
 
-def get_data_low_stress_bicycle():
-    sdf_bikelane = get_fs_data_spatial(
-        "https://maps.trpa.org/server/rest/services/Transportation/MapServer/3"
-    )
-    # recalc miles field from shape length
-    sdf_bikelane.MILES = sdf_bikelane["Shape.STLength()"] / 1609.34
-    # filter for CLASS = 1 2 or 3
-    filtered_sdf_bikelane = sdf_bikelane[sdf_bikelane["CLASS"].isin(["1", "2", "3"])]
-    # fix bad values
-    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
-        ["before 2010", " before 2010"], "2010"
-    )
-    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
-        ["before 2006", "Before 2006", "BEFORE 2006"], "2006"
-    )
-    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
-        [" 2014"], "2014"
-    )
-    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
-        ["2007 (1A) 2008 (1B)"], "2008"
-    )
-    # drop rows with <NA> values
-    filtered_sdf_bikelane = filtered_sdf_bikelane.dropna(subset=["YR_OF_CONS"])
-    # drop rows with 'i dont know' or 'UNKNOWN' values
-    filtered_sdf_bikelane = filtered_sdf_bikelane[
-        ~filtered_sdf_bikelane["YR_OF_CONS"].isin(["i dont know", "UNKNOWN"])
-    ]
-    # rename columns
-    df = filtered_sdf_bikelane.rename(
-        columns={"CLASS": "Class", "YR_OF_CONS": "Year", "MILES": "Miles"}
-    )
-    # Create a DataFrame with all possible combinations of 'Type' and 'Year'
-    df_all = pd.DataFrame(
-        {
-            "Class": np.repeat(df["Class"].unique(), df["Year"].nunique()),
-            "Year": df["Year"].unique().tolist() * df["Class"].nunique(),
-        }
-    )
-    # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
-    df = pd.merge(df_all, df, on=["Class", "Year"], how="left")
-    # add 2005 to the Year field for Class 1 2, and 3
-    dict = {"Class": ["1", "2", "3"], "Year": ["2005", "2005", "2005"], "Miles": [0, 0, 0]}
-    df2 = pd.DataFrame(dict)
-    df = pd.concat([df, df2], ignore_index=True)
-
-    # cast Year as integer
-    df["Year"] = df["Year"].astype(int)
-    # cast Class as text
-    df["Class"] = df["Class"].astype(str)
-    # add the word "Class" to the beginning of the Class field
-    df["Class"] = "Class " + df["Class"]
-    # sort by year and miles
-    df.sort_values(["Year", "Miles"], inplace=True)
-    # Replace NaN values in 'MILES' with 0
-    df["Miles"] = df["Miles"].fillna(0)
-    # create grouped dataframe
-    df = df.groupby(["Year", "Class"])["Miles"].sum().reset_index()
-    # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
-    df["Total Miles"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
-    df["Year"] = df["Year"].astype(str)
-    return df
-
-# miles of bike route built area plot
-def plot_low_stress_bicycle(df):
-    stacked_area(
+# html/3.2.a_EnergyMix.html
+def plot_energy_mix(df):
+    # change name of Renewables to Renewable in Type column
+    df["Type"] = df["Type"].replace("Renewables", "Renewable")
+    stackedbar(
         df,
-        path_html="html/3.3.f_Low_Stress_Bicycle.html",
-        div_id="3.3.f_Low_Stress_Bicycle",
+        path_html="html/3.2.a_EnergyMix.html",
+        div_id="3.2.a_EnergyMix",
         x="Year",
-        y="Total Miles",
-        color="Class",
-        line_group="Class",
-        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
+        y="Share",
+        facet="Source",
+        color="Type",
+        color_sequence=["#208385", "#FC9A62"],
+        orders={"Year": []},
+        y_title="Share of Total Energy Produced",
         x_title="Year",
-        y_title="Total Miles of Bike Routes Built",
-        hovermode="x unified",
-        format=".0f",
-        custom_data=["Class"],
+        custom_data=["Type", "Source"],
         hovertemplate="<br>".join([
-            "<b>%{y:.0f}</b> total miles of",
-            "<b>%{customdata[0]}</b> routes completed"
+            "<b>%{y:.0%}</b> of energy produced by",
+            "<i>%{customdata[1]}</i> was from",
+            "<i>%{customdata[0]}</i> sources"
                 ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
+        hovermode="x unified",
+        orientation=None,
+        format=".0%",
+        additional_formatting = dict(legend=dict(
                                         orientation="h",
                                         entrywidth=100,
                                         yanchor="bottom",
@@ -375,6 +285,7 @@ def plot_low_stress_bicycle(df):
                                     ))
     )
 
+# get data for transit ridership
 def get_data_transit():
     url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/131"
     # get data from map service
@@ -422,7 +333,7 @@ def get_data_transit():
     df["Transit Provider"] = df["Transit Provider"].str.replace("_", " ")
     return df
 
-# tranit ridership line plot
+# html/3.3.a_Transit_Ridership.html
 def plot_transit(df):
     trendline(
         df,
@@ -446,7 +357,7 @@ def plot_transit(df):
         custom_data=["Transit Provider"],
         hovertemplate="<br>".join([
             "<b>%{y:,.0f}</b> riders on the",
-            "<b>%{customdata[0]}</b> transit line"
+            "<i>%{customdata[0]}</i> transit line"
                 ])+"<extra></extra>",
         additional_formatting = dict(legend=dict(
                                         orientation="h",
@@ -458,6 +369,46 @@ def plot_transit(df):
                                     ))
     )
 
+# get data for vehicle miles traveled
+def get_data_vehicle_miles_traveled():
+    vmt_data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133"
+    )
+    vmt_data[["CA", "NV", "Total"]] = vmt_data[["CA", "NV", "Total"]].apply(
+        lambda x: x.str.replace(",", "").dropna().astype(int)
+    )
+    vmt_data_graph = vmt_data.melt(
+        id_vars="year", value_vars=["CA", "NV", "Total"], var_name="State", value_name="VMT"
+    )
+    vmt_data_graph = vmt_data_graph.query("year > 2015 & State=='Total'")
+    return vmt_data_graph
+
+# html/3.3.b_Vehicle_Miles_Traveled.html
+def plot_vehicle_miles_traveled(df):
+    trendline(
+        df,
+        path_html="html/3.3.b_Vehicle_Miles_Traveled.html",
+        div_id="3.3.b_Vehicle_Miles_Traveled",
+        x="year",
+        y="VMT",
+        color=None,
+        color_sequence=["#208385"],
+        orders=None,
+        sort="year",
+        y_title="Total VMT",
+        x_title="Year",
+        format=",.0f",
+        hovertemplate="%{y:,.0f} vehicle miles traveled",
+        markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x unified",
+        custom_data=None
+    )
+
+# get data for mode share
 def get_data_mode_share():
     modeshare_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136"
@@ -490,7 +441,8 @@ def get_data_mode_share():
 
     return modeshare_data_grouped
 
-
+# html\3.3.d_Mode_Share_1.html
+# html\3.3.d_Mode_Share_2.html
 def plot_mode_share(df):
     # Make a list of seasons for custom sorting
     x_order = df.sort_values("Year_Season")["Year_Season"].unique()
@@ -811,41 +763,95 @@ def plot_mode_share(df):
         div_id=div_id,
     )
 
-
-def get_data_vehicle_miles_traveled():
-    vmt_data = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133"
+# get data for low stress bicycle
+def get_data_low_stress_bicycle():
+    sdf_bikelane = get_fs_data_spatial(
+        "https://maps.trpa.org/server/rest/services/Transportation/MapServer/3"
     )
-    vmt_data[["CA", "NV", "Total"]] = vmt_data[["CA", "NV", "Total"]].apply(
-        lambda x: x.str.replace(",", "").dropna().astype(int)
+    # recalc miles field from shape length
+    sdf_bikelane.MILES = sdf_bikelane["Shape.STLength()"] / 1609.34
+    # filter for CLASS = 1 2 or 3
+    filtered_sdf_bikelane = sdf_bikelane[sdf_bikelane["CLASS"].isin(["1", "2", "3"])]
+    # fix bad values
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        ["before 2010", " before 2010"], "2010"
     )
-    vmt_data_graph = vmt_data.melt(
-        id_vars="year", value_vars=["CA", "NV", "Total"], var_name="State", value_name="VMT"
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        ["before 2006", "Before 2006", "BEFORE 2006"], "2006"
     )
-    vmt_data_graph = vmt_data_graph.query("year > 2015 & State=='Total'")
-    return vmt_data_graph
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        [" 2014"], "2014"
+    )
+    filtered_sdf_bikelane.loc[:, "YR_OF_CONS"] = filtered_sdf_bikelane.loc[:, "YR_OF_CONS"].replace(
+        ["2007 (1A) 2008 (1B)"], "2008"
+    )
+    # drop rows with <NA> values
+    filtered_sdf_bikelane = filtered_sdf_bikelane.dropna(subset=["YR_OF_CONS"])
+    # drop rows with 'i dont know' or 'UNKNOWN' values
+    filtered_sdf_bikelane = filtered_sdf_bikelane[
+        ~filtered_sdf_bikelane["YR_OF_CONS"].isin(["i dont know", "UNKNOWN"])
+    ]
+    # rename columns
+    df = filtered_sdf_bikelane.rename(
+        columns={"CLASS": "Class", "YR_OF_CONS": "Year", "MILES": "Miles"}
+    )
+    # Create a DataFrame with all possible combinations of 'Type' and 'Year'
+    df_all = pd.DataFrame(
+        {
+            "Class": np.repeat(df["Class"].unique(), df["Year"].nunique()),
+            "Year": df["Year"].unique().tolist() * df["Class"].nunique(),
+        }
+    )
+    # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
+    df = pd.merge(df_all, df, on=["Class", "Year"], how="left")
+    # add 2005 to the Year field for Class 1 2, and 3
+    dict = {"Class": ["1", "2", "3"], "Year": ["2005", "2005", "2005"], "Miles": [0, 0, 0]}
+    df2 = pd.DataFrame(dict)
+    df = pd.concat([df, df2], ignore_index=True)
 
+    # cast Year as integer
+    df["Year"] = df["Year"].astype(int)
+    # cast Class as text
+    df["Class"] = df["Class"].astype(str)
+    # add the word "Class" to the beginning of the Class field
+    df["Class"] = "Class " + df["Class"]
+    # sort by year and miles
+    df.sort_values(["Year", "Miles"], inplace=True)
+    # Replace NaN values in 'MILES' with 0
+    df["Miles"] = df["Miles"].fillna(0)
+    # create grouped dataframe
+    df = df.groupby(["Year", "Class"])["Miles"].sum().reset_index()
+    # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
+    df["Total Miles"] = df.sort_values("Year").groupby("Class")["Miles"].cumsum()
+    df["Year"] = df["Year"].astype(str)
+    return df
 
-def plot_vehicle_miles_traveled(df):
-    trendline(
+# html/3.3.f_Low_Stress_Bicycle.html
+def plot_low_stress_bicycle(df):
+    stacked_area(
         df,
-        path_html="html/3.3.b_Vehicle_Miles_Traveled.html",
-        div_id="3.3.b_Vehicle_Miles_Traveled",
-        x="year",
-        y="VMT",
-        color=None,
-        color_sequence=["#208385"],
-        orders=None,
-        sort="year",
-        y_title="Total VMT",
+        path_html="html/3.3.f_Low_Stress_Bicycle.html",
+        div_id="3.3.f_Low_Stress_Bicycle",
+        x="Year",
+        y="Total Miles",
+        color="Class",
+        line_group="Class",
+        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         x_title="Year",
-        format=",.0f",
-        hovertemplate="%{y:,.0f} vehicle miles traveled",
-        markers=True,
-        hover_data=None,
-        tickvals=None,
-        ticktext=None,
-        tickangle=None,
+        y_title="Total Miles of Bike Routes Built",
         hovermode="x unified",
-        custom_data=None
+        format=".0f",
+        custom_data=["Class"],
+        hovertemplate="<br>".join([
+            "<b>%{y:.0f}</b> total miles of",
+            "<i>%{customdata[0]}</i> routes completed"
+                ])+"<extra></extra>",
+        additional_formatting=dict(legend=dict(
+                                        orientation="h",
+                                        entrywidth=100,
+                                        yanchor="bottom",
+                                        y=1.05,
+                                        xanchor="right",
+                                        x=0.95,
+                                    ))
     )

@@ -2,6 +2,8 @@ from pathlib import Path
 import pandas as pd
 import plotly.express as px
 from arcgis.features import FeatureLayer
+import pytz
+from datetime import datetime
 
 # Reads in csv file
 def read_file(path_file):
@@ -43,6 +45,10 @@ def get_fs_data_spatial_query(service_url, query_params):
     feature_layer = FeatureLayer(service_url)
     query_result = feature_layer.query(query_params).sdf
     return query_result
+
+# Function to convert Unix timestamp to UTC datetime
+def convert_to_utc(timestamp):
+    return datetime.utcfromtimestamp(timestamp // 1000).replace(tzinfo=pytz.utc)
 
 # Trendline
 def trendline(
