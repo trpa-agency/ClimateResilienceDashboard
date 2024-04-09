@@ -49,14 +49,16 @@
         "esri/widgets/Expand",
         "esri/widgets/Home",
         "esri/widgets/Legend",
-        "esri/widgets/Fullscreen"
+        "esri/widgets/Fullscreen",
+        "esri/widgets/Bookmarks"
       ], function(
         MapView,
         WebMap,
         Expand,
         Home,
         Legend,
-        Fullscreen
+        Fullscreen,
+        Bookmarks
       ) {
           
         var map = new WebMap({portalItem: {id: "144279ee395a42b6b74b72adb4c1b339"}});
@@ -64,8 +66,8 @@
         var view = new MapView({
               map: map,  // The WebMap instance created above
               container: "viewDiv",
-              center: [-120.01,39.01],
-              zoom: 8
+              center: [-119.941223, 38.964068],
+              zoom: 12
             });
         
           
@@ -105,6 +107,19 @@
         // Create a Home Button
         var homeWidget = new Home({view: view});
         view.ui.add(homeWidget, "top-left");
+
+        // Create a Bookmarks widget
+        const bookmarks = new Bookmarks({
+          view: view,
+          editingEnabled: false
+        });
+        const bkExpand = new Expand({
+          view: view,
+          content: bookmarks,
+          expanded: false
+        });
+        view.ui.add(bkExpand, "top-right");
+
 
         // Disable scroll on zoom
         view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
