@@ -75,22 +75,13 @@
         Fullscreen,
         relationshipRendererCreator
       ) {
-          {
-        esriConfig.portalUrl = "https://maps.trpa.org/portal/";
-            };
-        
-        var map = new WebMap({
-              portalItem: { // autocasts as new PortalItem()
-                // basemap webmap to use
-                id: "e1043a721b3943a6bba5f87ea468ecbb"
-              }
-            });
+        var map = new WebMap({portalItem: {id: "5e4caf7df3de45478aed694ad0d7d873"}});  
 
         var view = new MapView({
               map: map,  // The WebMap instance created above
               container: "viewDiv",
               center: [-120.01,39.01],
-              zoom: 10.5
+              zoom: 9
             });
           
         // move zoom buttons to top left
@@ -175,7 +166,7 @@
             expandIconClass: "esri-icon-layers",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
             expandTooltip: "Legend",
             view: view,
-//            expanded: true,
+            expanded: true,
             autoCollapse: true,
             content: legend.domNode,
             group: "top-right"
@@ -183,11 +174,13 @@
 
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
+        
+        // Create a Home Button
+        var homeWidget = new Home({view: view});
+        view.ui.add(homeWidget, "top-left");
 
-        // Createa Home Button
-        var homeWidget = new Home({
-            view: view
-        });
+        // Disable scroll on zoom
+        view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
 
       });
     
