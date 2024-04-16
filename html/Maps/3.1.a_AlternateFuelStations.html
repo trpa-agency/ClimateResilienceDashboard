@@ -58,9 +58,9 @@
         Legend,
         Fullscreen
       ) {
-          
+        // Create a WebMap instance and set the portal item id to load
         var map = new WebMap({portalItem: {id: "bfec077e161d48c192f49b34827cfe3e"}});
-
+        // Create a MapView instance (for 2D viewing) and set the map property to reference the WebMap instance
         var view = new MapView({
               map: map,  // The WebMap instance created above
               container: "viewDiv",
@@ -68,7 +68,6 @@
               zoom: 8
             });
         
-          
         // move zoom buttons to top left
         view.ui.move("zoom", "top-left");
         
@@ -76,22 +75,19 @@
         var fullscreen = new Fullscreen({view: view});
         view.ui.add(fullscreen, "top-left");
 
-        // Add map item to the legend
+        // Add map items to the legend
         view.when(function() {
-          var featureLayer = map.layers.getItemAt(2);
-          var featureLayer2 = map.layers.getItemAt(1);
-          var legend = new Legend({
+        // var featureLayer = map.layers.getItemAt(2);
+        var featureLayer = map.layers.getItemAt(1);
+        var legend = new Legend({
             view: view,
-            layerInfos: [
-              {
-                layer: featureLayer
-              },
-              {
-                layer: featureLayer2
-              }
-            ]
+            layerInfos: [{
+            layer: featureLayer
+          }]
         });
 
+        // add legend to the top right corner of the view
+        view.ui.add(legend, "top-right");
 
         // create legend card
         view.ui.add(legend, "top-right");
@@ -115,11 +111,8 @@
 
         // Disable scroll on zoom
         view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
-
-        
       });
     });
-
 	</script>
   </head>
   <body>
