@@ -2,8 +2,6 @@ exclude: |
   (?x)^(
     docs|node_modules|.git|.tox|
     data_engineering.ipynb|
-    lake_level.py|
-    lake_temperature.py|
     html/Maps/.*
   )$
 default_stages: [commit]
