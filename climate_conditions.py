@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import requests
 from meteostat import Daily, Point
 
-from utils import get_fs_data, read_file, convert_to_utc, scatterplot, stackedbar, trendline
+from utils import convert_to_utc, get_fs_data, read_file, scatterplot, stackedbar, trendline
 
 
 # get Greenhouse Gas data
