@@ -16,7 +16,12 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-      }
+      }/* Adjust the width of Legend and LayerList containers */
+      /* Adjust the width of Legend and LayerList containers */
+    .esri-expand__content-pane.esri-widget, /* for LayerList */
+    .esri-expand__content-pane.esri-legend.esri-widget { /* for Legend */
+      width: 25px; /* You can adjust this width as needed */
+    }
     </style>
 
     <script src="https://js.arcgis.com/4.29/"></script>
@@ -37,7 +42,9 @@
         // Add the map to a MapView
         const view = new MapView({
           container: "viewDiv",
-          map: map
+          map: map,
+          center: [-120.01,39.01],
+          zoom: 9
         });
 
         // Add a legend instance to the panel of a
@@ -69,6 +76,8 @@
         // Disable scroll on zoom
         // create legend card
         view.ui.add(legend, "bottom-left");
+        layerList.container.style.width = "225px"; // Adjust width for LayerList
+        legend.container.style.width = "175px"; // Adjust width for Legend
         view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
         
       });
