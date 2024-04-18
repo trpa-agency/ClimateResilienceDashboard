@@ -25,8 +25,9 @@
       require(["esri/WebMap", 
         "esri/views/MapView", 
         "esri/widgets/LayerList",
-        "esri/widgets/Fullscreen"],
-      (WebMap, MapView, LayerList, Fullscreen) => {
+        "esri/widgets/Fullscreen",
+        "esri/widgets/Legend"],
+      (WebMap, MapView, LayerList, Fullscreen,Legend) => {
         const map = new WebMap({
           portalItem: {
             id: "76703565932a4b6f9167e013d752a550"
@@ -49,7 +50,7 @@
               // Don't show legend twice
               item.panel = {
                 content: "legend",
-                open: true
+                open: false
               };
             } else if (item.layer.type === "group") {
               item.open = true;
@@ -57,12 +58,17 @@
           }
           
         });
+        const legend = new Legend({
+            view: view
+          })
         // add fullscreen button to top left
         var fullscreen = new Fullscreen({view: view});
         view.ui.add(fullscreen, "top-left");
         // add layer list to top right
         view.ui.add(layerList, "top-right");
         // Disable scroll on zoom
+        // create legend card
+        view.ui.add(legend, "bottom-left");
         view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
         
       });
