@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -82,48 +84,41 @@ def plot_household_income(df):
     )
 
 
-# def get_data_median_home_price():
-#     price17 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2017.csv"
-#     )
-#     price18 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2018.csv"
-#     )
-#     price19 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2019.csv"
-#     )
-#     price20 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2020.csv"
-#     )
-#     price21 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2021.csv"
-#     )
-#     price22 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2022.csv"
-#     )
-#     price23_24 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2023to2024.csv"
-#     )
-#     data = pd.concat(
-#         [price17, price18, price19, price20, price21, price22, price23_24], ignore_index=True
-#     )
-#     data = data[
-#         (data["City"] != "Truckee")
-#         & (
-#             data["Purchase Date"]
-#             != "The information contained in this report is subject to the license restrictions and all other terms contained in PropertyRadar.com's User Agreement."
-#         )
-#     ]
-#     data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
-#     data.drop_duplicates(inplace=True)
-#     data = data[data["Purchase Date"].dt.year >= 2017]
-#     data["year"] = data["Purchase Date"].dt.year
-#     data["month"] = data["Purchase Date"].dt.month
-#     df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
-#     df["Month"] = df["year"].astype(int).astype(str) + "-" + df["month"].astype(int).astype(str)
-#     df = df.dropna()
-#     df.to_csv("data/property_radar.csv")
-#     return df
+def calculate_data_median_home_price(start_date, end_date):
+    property_files = (
+        Path("~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/")
+        .expanduser()
+        .glob("Tahoe_PropertyRadar_*.csv")
+    )
+    data = pd.concat(
+        [read_file(file) for file in property_files], ignore_index=True
+    ).drop_duplicates()
+
+    data = data[
+        (data["City"] != "TRUCKEE")  # NOTE: Should probably be inclusion by tract ID
+        & (data["Purchase Type"] == "Market")
+        & (data["Lot Acres"] > 0)
+        & (
+            data["Purchase Date"]
+            != "The information contained in this report is subject to the license restrictions and all other terms contained in PropertyRadar.com's User Agreement."
+        )
+    ]
+    data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
+    data = data[
+        (data["Purchase Date"] >= pd.to_datetime(start_date))
+        & (data["Purchase Date"] <= pd.to_datetime(end_date))
+    ]
+    data["year"] = data["Purchase Date"].dt.year
+    data["month"] = data["Purchase Date"].dt.month
+    data.to_csv("data/property_radar_all.csv", index=False)
+    df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
+    df["month_year"] = (
+        df["year"].astype(int).astype(str) + "-" + df["month"].astype(int).astype(str)
+    )
+    df = df.dropna()
+    df.to_csv("data/property_radar.csv", index=False)
+    return df
+
 
 # get data for median home price
 def get_data_median_home_price():
