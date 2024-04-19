@@ -1,9 +1,10 @@
+from datetime import datetime
 from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
-from arcgis.features import FeatureLayer
 import pytz
-from datetime import datetime
+from arcgis.features import FeatureLayer
 
 
 # Reads in csv file
