@@ -61,12 +61,14 @@
               };
             } else if (item.layer.type === "group") {
               item.open = true;
+              
             }
           }
           
         });
         const legend = new Legend({
-            view: view
+            view: view,
+        title: null
           })
         // add fullscreen button to top left
         var fullscreen = new Fullscreen({view: view});
