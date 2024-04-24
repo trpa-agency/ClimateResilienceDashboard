@@ -88,6 +88,12 @@ def plot_affordable_units(df):
 
 # get data for home heating
 def get_data_home_heating():
+    heating_groupings = {'Utility gas':'Gas',
+                         'Bottled, tank, or LP gas':'Gas',
+                         'Electricity':'Electric',
+                         'Fuel oil, kerosene, etc.':'Gas',
+                         'Wood':'Wood',
+                         'Solar energy':'Solar'}
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
@@ -100,15 +106,13 @@ def get_data_home_heating():
         .loc[:, ["variable_name", "value", "Geography", "year_sample"]]
         .rename(columns={"year_sample": "Year", "variable_name": "Energy Source"})
     )
-    total = data[data["variable_name"] == "Total Heating Methods"].loc[
-        :, ["value", "Geography", "year_sample"]
-    ]
-    df = val.merge(
-        total,
-        left_on=["Geography", "Year"],
-        right_on=["Geography", "year_sample"],
-        suffixes=("", "_total"),
-    )
+    #drop rows in val that are not in heating_groupings
+    df = val[val["Energy Source"].isin(heating_groupings.keys())]
+    #replace engery source with groupings in heating_groupings
+    df["Energy Source"] = df["Energy Source"].replace(heating_groupings)
+    df = df.groupby(["Geography", "Year", "Energy Source"])['value'].sum().reset_index()
+    #populate a column called value total the the totals for each tear and geography
+    df['value_total'] = df.groupby(['Geography', 'Year'])['value'].transform('sum')
     df["Year"] = df["Year"].astype("str")
     df["share"] = df["value"] / df["value_total"]
     return df
