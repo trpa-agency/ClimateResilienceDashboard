@@ -10,3 +10,4 @@ __pycache__/
 
 # Purple Air
 data/PurpleAir/all_sensors*
+property_radar_all.csv
