@@ -286,52 +286,79 @@ def plot_energy_mix(df):
     )
 
 # get data for transit ridership
+
 def get_data_transit():
-    url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/131"
-    # get data from map service
-    data = get_fs_data(url)
-    # drop ObjectID
-    data = data.drop(columns=["OBJECTID"])
-    # stack data by month
-    data = data.melt(id_vars=["MONTH"], var_name="Name", value_name="Ridership")
-    # create Year field from last two characters of month but add 20 prefix
-    data["Year"] = "20" + data["MONTH"].str[-2:]
-    # change Name column to Transit Provider
-    data = data.rename(columns={"Name": "Transit Provider"})
-    # strip the last three characters from month
-    data["Month"] = data["MONTH"].str[:-3]
-    # drop MONTH
-    data = data.drop(columns=["MONTH"])
-    # make the values in Month the real names of the months
-    data["Month"] = data["Month"].replace(
-        ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ],
-    )
-    # create a Date type field of Month and Year
-    data["Date"] = data["Month"] + " " + data["Year"]
-    # convert Date to datetime
-    data["Date"] = pd.to_datetime(data["Date"], format="%B %Y")
-    df = data.sort_values("Date")
-    # drop Name = Total
-    df = df.loc[df["Transit Provider"] != "Total"]
-    # drop Name IN _Paratransit
-    df = df.loc[~df["Transit Provider"].str.contains("_Paratransit")]
-    # drop _ in Name values
-    df["Transit Provider"] = df["Transit Provider"].str.replace("_", " ")
+    url = "https://www.laketahoeinfo.org/WebServices/GetTransitMonitoringData/CSV/e17aeb86-85e3-4260-83fd-a2b32501c476"
+    
+    dfTransit = pd.read_csv(url)
+    dfTransit['Month'] = pd.to_datetime(dfTransit['Month'])
+    dfTransit['Month'] = dfTransit['Month'].dt.strftime('%Y-%m')
+    # filter out rows where RouteType is not Paratransit, Commuter, or Seasonal Fixed
+    df = dfTransit.loc[~dfTransit['RouteType'].isin(['Paratransit', 'Commuter', 'Seasonal Fixed Route'])]
+    # df = dfTransit.loc[dfTransit['RouteType'] != 'Paratransit']
+
+    # replace transit operator values with abreviations
+    df['TransitOperator'] = df['TransitOperator'].replace(
+        ['Tahoe Transportation District',
+       'Tahoe Truckee Area Regional Transit',
+       'South Shore Transportation Management Association'],
+       ["TTD", "TART", "SSTMA"])
+    # route name = route type + transit operator
+    df['RouteName'] = df['RouteType'] + ' - ' + df['TransitOperator']
+    # group by RouteType, TransitOperator, and Month with sum of MonthlyRidership
+    df = df.groupby(['RouteName', 'Month'])['MonthlyRidership'].sum().reset_index()
+    # rename columns to Date, Name, Ridership
+    df.rename(columns={'Month':'Date', 'RouteName':'Name', 'MonthlyRidership':'Ridership'}, inplace=True)
+    # sort by Date
+    df = df.sort_values('Date')
     return df
+
+# def get_data_transit():
+#     url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/131"
+#     # get data from map service
+#     data = get_fs_data(url)
+#     # drop ObjectID
+#     data = data.drop(columns=["OBJECTID"])
+#     # stack data by month
+#     data = data.melt(id_vars=["MONTH"], var_name="Name", value_name="Ridership")
+#     # create Year field from last two characters of month but add 20 prefix
+#     data["Year"] = "20" + data["MONTH"].str[-2:]
+#     # change Name column to Transit Provider
+#     data = data.rename(columns={"Name": "Transit Provider"})
+#     # strip the last three characters from month
+#     data["Month"] = data["MONTH"].str[:-3]
+#     # drop MONTH
+#     data = data.drop(columns=["MONTH"])
+#     # make the values in Month the real names of the months
+#     data["Month"] = data["Month"].replace(
+#         ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+#         [
+#             "January",
+#             "February",
+#             "March",
+#             "April",
+#             "May",
+#             "June",
+#             "July",
+#             "August",
+#             "September",
+#             "October",
+#             "November",
+#             "December",
+#         ],
+#     )
+#     # create a Date type field of Month and Year
+#     data["Date"] = data["Month"] + " " + data["Year"]
+#     # convert Date to datetime
+#     data["Date"] = pd.to_datetime(data["Date"], format="%B %Y")
+#     df = data.sort_values("Date")
+#     # drop Name = Total
+#     df = df.loc[df["Transit Provider"] != "Total"]
+#     # drop Name IN _Paratransit
+#     df = df.loc[~df["Transit Provider"].str.contains("_Paratransit")]
+#     # drop _ in Name values
+#     df["Transit Provider"] = df["Transit Provider"].str.replace("_", " ")
+#     return df
 
 # html/3.3.a_Transit_Ridership.html
 def plot_transit(df):
@@ -341,7 +368,7 @@ def plot_transit(df):
         div_id="3.3.a_Transit_Ridership",
         x="Date",
         y="Ridership",
-        color="Transit Provider",
+        color="Name",
         color_sequence=["#023f64", "#7ebfb5", "#a48352", "#FC9A62"],
         sort="Date",
         orders=None,
@@ -354,14 +381,15 @@ def plot_transit(df):
         tickangle=None,
         hovermode="x unified",
         format=",.0f",
-        custom_data=["Transit Provider"],
+        custom_data=["Name"],
         hovertemplate="<br>".join([
-            "<b>%{y:,.0f}</b> riders on the",
-            "<i>%{customdata[0]}</i> transit line"
+            "<b>%{y:,.0f}</b> riders on",
+            "<i>%{customdata[0]}</i> lines"
                 ])+"<extra></extra>",
         additional_formatting = dict(legend=dict(
+                                        title="Lake Tahoe Monthly Transit Ridership",
                                         orientation="h",
-                                        entrywidth=100,
+                                        entrywidth=120,
                                         yanchor="bottom",
                                         y=1.05,
                                         xanchor="right",
@@ -369,7 +397,7 @@ def plot_transit(df):
                                     ))
     )
 
-# get data for vehicle miles traveled
+# get data f    or vehicle miles traveled   
 def get_data_vehicle_miles_traveled():
     vmt_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133"
