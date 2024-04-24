@@ -310,7 +310,7 @@ def plot_energy_mix(df):
 # get data for transit ridership
 def get_data_transit():
     url = "https://www.laketahoeinfo.org/WebServices/GetTransitMonitoringData/CSV/e17aeb86-85e3-4260-83fd-a2b32501c476"
-    
+
     dfTransit = pd.read_csv(url)
     dfTransit['Month'] = pd.to_datetime(dfTransit['Month'])
     dfTransit['Month'] = dfTransit['Month'].dt.strftime('%Y-%m')
@@ -371,7 +371,7 @@ def plot_transit(df):
                                     ))
     )
 
-# get data for vehicle miles traveled   
+# get data for vehicle miles traveled
 def get_data_vehicle_miles_traveled():
     vmt_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133"
