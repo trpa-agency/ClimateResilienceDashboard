@@ -306,7 +306,6 @@ def plot_energy_mix(df):
         ),
     )
 
-
 # get data for transit ridership
 def get_data_transit():
     url = "https://www.laketahoeinfo.org/WebServices/GetTransitMonitoringData/CSV/e17aeb86-85e3-4260-83fd-a2b32501c476"
@@ -361,7 +360,7 @@ def plot_transit(df):
             "<i>%{customdata[0]}</i> lines"
                 ])+"<extra></extra>",
         additional_formatting = dict(legend=dict(
-                                        title="Lake Tahoe Monthly Transit Ridership",
+                                        title="Transit Ridership",
                                         orientation="h",
                                         entrywidth=120,
                                         yanchor="bottom",
@@ -410,7 +409,6 @@ def plot_vehicle_miles_traveled(df):
         hovermode="x unified",
         custom_data=None,
     )
-
 
 # get data for mode share
 def get_data_mode_share():
