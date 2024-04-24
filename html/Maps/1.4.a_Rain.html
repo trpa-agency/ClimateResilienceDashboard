@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Climate Resilience Dashboard - Tree Mortality</title>
+    <title>Climate Resilience Dashboard - Precipitation</title>
     <style>
       html,
       body,
@@ -59,13 +59,13 @@
         Fullscreen
       ) {
           
-        var map = new WebMap({portalItem: {id: "79882a5e850144fb905e08fec4622139"}});
+        var map = new WebMap({portalItem: {id: "0dfd73dcc4154c36af567a68577ee7e9"}});
 
         var view = new MapView({
               map: map,  // The WebMap instance created above
               container: "viewDiv",
-              center: [-120.199316, 39.094285],
-              zoom: 11
+              center: [-120.01,39.01],
+              zoom: 8
             });
         
           
@@ -79,11 +79,17 @@
         // Add map item to the legend
         view.when(function() {
           var featureLayer = map.layers.getItemAt(1);
+          var featureLayer2 = map.layers.getItemAt(0);
           var legend = new Legend({
             view: view,
-            layerInfos: [{
-            layer: featureLayer
-          }]
+            layerInfos: [
+              {
+                layer: featureLayer
+              },
+              {
+                layer: featureLayer2
+              }
+            ]
         });
 
         // create legend card

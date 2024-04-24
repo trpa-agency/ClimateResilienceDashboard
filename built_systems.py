@@ -12,6 +12,7 @@ from utils import (
     trendline,
 )
 
+
 # get data for affordable units
 def get_data_affordable_units():
     # parcel development history layer
@@ -52,6 +53,7 @@ def get_data_affordable_units():
     df["Total Residential Units"] = df["Total Residential Units"].astype(int)
     return df
 
+
 # html\3.1.a_Affordable_Units.html
 def plot_affordable_units(df):
     stackedbar(
@@ -71,15 +73,18 @@ def plot_affordable_units(df):
         hovertemplate="%{y:.0f}",
         hovermode="x unified",
         orientation=None,
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
+
 
 # get data for home heating
 def get_data_home_heating():
@@ -107,6 +112,7 @@ def get_data_home_heating():
     df["Year"] = df["Year"].astype("str")
     df["share"] = df["value"] / df["value_total"]
     return df
+
 
 # html\3.1.b_HomeHeatingFuels.html
 def plot_home_heating(df):
@@ -138,15 +144,18 @@ def plot_home_heating(df):
         format=".0%",
         custom_data=None,
         facet_row=None,
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=150,
-                                yanchor="bottom",
-                                y=1.2,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=150,
+                yanchor="bottom",
+                y=1.2,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
+
 
 # get data for deed restricted units
 def get_data_deed_restricted():
@@ -185,6 +194,7 @@ def get_data_deed_restricted():
     df["Cumulative Count"] = df.sort_values("Year").groupby("Type")["Count"].cumsum()
     return df
 
+
 # html\3.1.c_Deed_Restricted_Units_v1.html
 # html\3.1.c_Deed_Restricted_Units_v2.html
 def plot_data_deed_restricted(df):
@@ -209,15 +219,17 @@ def plot_data_deed_restricted(df):
         tickangle=None,
         hovermode="x unified",
         custom_data=None,
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
-                )
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
+    )
     stacked_area(
         df,
         path_html="html/3.1.c_Deed_Restricted_Units_v2.html",
@@ -232,23 +244,27 @@ def plot_data_deed_restricted(df):
         hovermode="x unified",
         format=",.0f",
         custom_data=["Type"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0f}</b> parcels with a",
-            "<b>%{customdata[0]}</b> deed restriction"
-                ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0f}</b> parcels with a", "<b>%{customdata[0]}</b> deed restriction"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
+
 
 # get data for energy mix
 def get_data_energy_mix():
     return read_file("data/EnergyMix_long.csv")
+
 
 # html/3.2.a_EnergyMix.html
 def plot_energy_mix(df):
@@ -267,26 +283,31 @@ def plot_energy_mix(df):
         y_title="Share of Total Energy Produced",
         x_title="Year",
         custom_data=["Type", "Source"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0%}</b> of energy produced by",
-            "<i>%{customdata[1]}</i> was from",
-            "<i>%{customdata[0]}</i> sources"
-                ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            [
+                "<b>%{y:.0%}</b> of energy produced by",
+                "<i>%{customdata[1]}</i> was from",
+                "<i>%{customdata[0]}</i> sources",
+            ]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=".0%",
-        additional_formatting = dict(legend=dict(
-                                        orientation="h",
-                                        entrywidth=100,
-                                        yanchor="bottom",
-                                        y=1.05,
-                                        xanchor="right",
-                                        x=0.95,
-                                    ))
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
 
-# get data for transit ridership
 
+# get data for transit ridership
 def get_data_transit():
     url = "https://www.laketahoeinfo.org/WebServices/GetTransitMonitoringData/CSV/e17aeb86-85e3-4260-83fd-a2b32501c476"
     
@@ -312,53 +333,6 @@ def get_data_transit():
     # sort by Date
     df = df.sort_values('Date')
     return df
-
-# def get_data_transit():
-#     url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/131"
-#     # get data from map service
-#     data = get_fs_data(url)
-#     # drop ObjectID
-#     data = data.drop(columns=["OBJECTID"])
-#     # stack data by month
-#     data = data.melt(id_vars=["MONTH"], var_name="Name", value_name="Ridership")
-#     # create Year field from last two characters of month but add 20 prefix
-#     data["Year"] = "20" + data["MONTH"].str[-2:]
-#     # change Name column to Transit Provider
-#     data = data.rename(columns={"Name": "Transit Provider"})
-#     # strip the last three characters from month
-#     data["Month"] = data["MONTH"].str[:-3]
-#     # drop MONTH
-#     data = data.drop(columns=["MONTH"])
-#     # make the values in Month the real names of the months
-#     data["Month"] = data["Month"].replace(
-#         ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-#         [
-#             "January",
-#             "February",
-#             "March",
-#             "April",
-#             "May",
-#             "June",
-#             "July",
-#             "August",
-#             "September",
-#             "October",
-#             "November",
-#             "December",
-#         ],
-#     )
-#     # create a Date type field of Month and Year
-#     data["Date"] = data["Month"] + " " + data["Year"]
-#     # convert Date to datetime
-#     data["Date"] = pd.to_datetime(data["Date"], format="%B %Y")
-#     df = data.sort_values("Date")
-#     # drop Name = Total
-#     df = df.loc[df["Transit Provider"] != "Total"]
-#     # drop Name IN _Paratransit
-#     df = df.loc[~df["Transit Provider"].str.contains("_Paratransit")]
-#     # drop _ in Name values
-#     df["Transit Provider"] = df["Transit Provider"].str.replace("_", " ")
-#     return df
 
 # html/3.3.a_Transit_Ridership.html
 def plot_transit(df):
@@ -397,7 +371,7 @@ def plot_transit(df):
                                     ))
     )
 
-# get data f    or vehicle miles traveled   
+# get data for vehicle miles traveled   
 def get_data_vehicle_miles_traveled():
     vmt_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133"
@@ -410,6 +384,7 @@ def get_data_vehicle_miles_traveled():
     )
     vmt_data_graph = vmt_data_graph.query("year > 2015 & State=='Total'")
     return vmt_data_graph
+
 
 # html/3.3.b_Vehicle_Miles_Traveled.html
 def plot_vehicle_miles_traveled(df):
@@ -433,8 +408,9 @@ def plot_vehicle_miles_traveled(df):
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
-        custom_data=None
+        custom_data=None,
     )
+
 
 # get data for mode share
 def get_data_mode_share():
@@ -468,6 +444,7 @@ def get_data_mode_share():
     )
 
     return modeshare_data_grouped
+
 
 # html\3.3.d_Mode_Share_1.html
 # html\3.3.d_Mode_Share_2.html
@@ -791,6 +768,7 @@ def plot_mode_share(df):
         div_id=div_id,
     )
 
+
 # get data for low stress bicycle
 def get_data_low_stress_bicycle():
     sdf_bikelane = get_fs_data_spatial(
@@ -854,6 +832,7 @@ def get_data_low_stress_bicycle():
     df["Year"] = df["Year"].astype(str)
     return df
 
+
 # html/3.3.f_Low_Stress_Bicycle.html
 def plot_low_stress_bicycle(df):
     stacked_area(
@@ -870,16 +849,18 @@ def plot_low_stress_bicycle(df):
         hovermode="x unified",
         format=".0f",
         custom_data=["Class"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0f}</b> total miles of",
-            "<i>%{customdata[0]}</i> routes completed"
-                ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
-                                        orientation="h",
-                                        entrywidth=100,
-                                        yanchor="bottom",
-                                        y=1.05,
-                                        xanchor="right",
-                                        x=0.95,
-                                    ))
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0f}</b> total miles of", "<i>%{customdata[0]}</i> routes completed"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )

@@ -1,9 +1,12 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import pydeck
 
 from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline
+
 
 # get data for household income
 def get_data_household_income():
@@ -15,6 +18,7 @@ def get_data_household_income():
     df["Geography"] = df["Geography"].replace({"Basin": "Lake Tahoe Region"})
     df = df.rename(columns={"year_sample": "Year"})
     return df
+
 
 # html\4.1.a_Household_Income_v1.html
 def plot_household_income(df):
@@ -31,20 +35,22 @@ def plot_household_income(df):
         y_title="Median Household Income ($)",
         x_title="Year",
         custom_data=["Geography"],
-        hovertemplate="<br>".join([
-            "<b>$%{y:,.0f}</b> is the median income of",
-            "<i>%{customdata[0]}</i> residents"
-                ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>$%{y:,.0f}</b> is the median income of", "<i>%{customdata[0]}</i> residents"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         format="$,.0f",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
     trendline(
         df,
@@ -66,76 +72,74 @@ def plot_household_income(df):
         hovermode="x unified",
         custom_data=["Geography"],
         format="$,.0f",
-        hovertemplate="<br>".join([
-            "<b>$%{y:,.0f}</b> is the median income of",
-            "<i>%{customdata[0]}</i> residents"
-                ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=120,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
-
+        hovertemplate="<br>".join(
+            ["<b>$%{y:,.0f}</b> is the median income of", "<i>%{customdata[0]}</i> residents"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=120,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
 
 
-# def get_data_median_home_price():
-#     price17 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2017.csv"
-#     )
-#     price18 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2018.csv"
-#     )
-#     price19 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2019.csv"
-#     )
-#     price20 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2020.csv"
-#     )
-#     price21 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2021.csv"
-#     )
-#     price22 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2022.csv"
-#     )
-#     price23_24 = read_file(
-#         "~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/Tahoe_PropertyRadar_2023to2024.csv"
-#     )
-#     data = pd.concat(
-#         [price17, price18, price19, price20, price21, price22, price23_24], ignore_index=True
-#     )
-#     data = data[
-#         (data["City"] != "Truckee")
-#         & (
-#             data["Purchase Date"]
-#             != "The information contained in this report is subject to the license restrictions and all other terms contained in PropertyRadar.com's User Agreement."
-#         )
-#     ]
-#     data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
-#     data.drop_duplicates(inplace=True)
-#     data = data[data["Purchase Date"].dt.year >= 2017]
-#     data["year"] = data["Purchase Date"].dt.year
-#     data["month"] = data["Purchase Date"].dt.month
-#     df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
-#     df["Month"] = df["year"].astype(int).astype(str) + "-" + df["month"].astype(int).astype(str)
-#     df = df.dropna()
-#     df.to_csv("data/property_radar.csv")
-#     return df
+def calculate_data_median_home_price(start_date, end_date):
+    property_files = (
+        Path("~/Dropbox (ECONW)/25594 TRPA Climate Dashboard/Data/PropertyRadar/")
+        .expanduser()
+        .glob("Tahoe_PropertyRadar_*.csv")
+    )
+    data = pd.concat(
+        [read_file(file) for file in property_files], ignore_index=True
+    ).drop_duplicates()
+
+    data = data[
+        (data["City"] != "TRUCKEE")  # NOTE: Should probably be inclusion by tract ID
+        & (data["Purchase Type"] == "Market")
+        & (data["Lot Acres"] > 0)
+        & (
+            data["Purchase Date"]
+            != "The information contained in this report is subject to the license restrictions and all other terms contained in PropertyRadar.com's User Agreement."
+        )
+    ]
+    data["Purchase Date"] = pd.to_datetime(data["Purchase Date"])
+    data = data[
+        (data["Purchase Date"] >= pd.to_datetime(start_date))
+        & (data["Purchase Date"] <= pd.to_datetime(end_date))
+    ]
+    data["year"] = data["Purchase Date"].dt.year
+    data["month"] = data["Purchase Date"].dt.month
+    data.to_csv("data/property_radar_all.csv", index=False)
+    df = data.groupby(["year", "month"])["Purchase Amt"].median().reset_index()
+    df["month_year"] = (
+        df["year"].astype(int).astype(str) + "-" + df["month"].astype(int).astype(str)
+    )
+    df = df.dropna()
+    df.to_csv("data/property_radar.csv", index=False)
+    return df
+
+
 
 # get data for median home price
 def get_data_median_home_price():
-    url="https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/147"
+    url = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/147"
     data = get_fs_data(url)
     # convert month and year to datetime
     data["month_year"] = pd.to_datetime(data["month_year"])
     data["year"] = data["month_year"].dt.year
     data["month"] = data["month_year"].dt.month
     # rename columns
-    df = data.rename(columns={"Purchase_Amt": "Purchase Amount", "month_year": "Month","year":"Year"})
+    df = data.rename(
+        columns={"Purchase_Amt": "Purchase Amount", "month_year": "Month", "year": "Year"}
+    )
     return df
+
 
 # html\4.1.b_Median_Sale_Prices.html
 def plot_median_home_price(df):
@@ -148,7 +152,7 @@ def plot_median_home_price(df):
         color=None,
         color_sequence=["#208385"],
         orders=None,
-        sort=['Year',"month"],
+        sort=["Year", "month"],
         x_title="Sale Date",
         y_title="Median Sale Price ($)",
         markers=True,
@@ -159,12 +163,11 @@ def plot_median_home_price(df):
         hovermode="x unified",
         custom_data=None,
         format="$,.0f",
-        hovertemplate="<br>".join([
-            "<b>$%{y:,.0f}</b> was the",
-            "<i>median sales price</i>"
-                ])+"<extra></extra>",
-        additional_formatting=None
+        hovertemplate="<br>".join(["<b>$%{y:,.0f}</b> was the", "<i>median sales price</i>"])
+        + "<extra></extra>",
+        additional_formatting=None,
     )
+
 
 # get data for rent prices
 def get_data_rent_prices():
@@ -183,6 +186,7 @@ def get_data_rent_prices():
     # df = df[df["Period"]!="2024Q1QTD"]
     # df['date'] = pd.PeriodIndex(df['Period'], freq='Q').strftime('%Y%Q')
     return df
+
 
 # html\4.1.b_Rent_Prices.html
 def plot_rent_prices(df):
@@ -208,19 +212,25 @@ def plot_rent_prices(df):
         hover_data=None,
         custom_data=["Geography", "Quarter", "Year"],
         # hovertemplate="<b>%{customdata[0]} Q%{customdata[1]}</b>: %{y}",
-        hovertemplate="<br>".join([
-            "<b>$%{y:,.0f}</b> was the <i>median rent price</i> in ",
-            "<i>%{customdata[0]}</i> during <i>Q%{customdata[1]}</i> of <i>%{customdata[2]}</i>"
-                ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=70,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
-     )
+        hovertemplate="<br>".join(
+            [
+                "<b>$%{y:,.0f}</b> was the <i>median rent price</i> in ",
+                "<i>%{customdata[0]}</i> during <i>Q%{customdata[1]}</i> of <i>%{customdata[2]}</i>",
+            ]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=70,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
+    )
+
 
 # get tenure by age data
 def get_data_tenure_by_age():
@@ -269,6 +279,7 @@ def get_data_tenure_by_age():
     df["share"] = df["value"] / df["value_total"]
     return df
 
+
 # html\4.1.c_TenureByAge.html
 def plot_tenure_by_age(df):
     stackedbar(
@@ -311,15 +322,18 @@ def plot_tenure_by_age(df):
         format=".0%",
         custom_data=None,
         hovertemplate="%{y:.0%}",
-        additional_formatting= dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
+
 
 # get tenure by race data
 def get_data_tenure_by_race():
@@ -366,6 +380,7 @@ def get_data_tenure_by_race():
     df["share"] = df["value"] / df["value_total"]
     return df
 
+
 # html\4.1.c_TenureByRace.html
 def plot_tenure_by_race(df):
     stackedbar(
@@ -388,15 +403,18 @@ def plot_tenure_by_race(df):
         format=".0%",
         custom_data=None,
         hovertemplate="%{y:.0%}",
-        additional_formatting= dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
+
 
 # get commute patterns data
 def get_data_commute_patterns():
@@ -414,6 +432,7 @@ def get_data_commute_patterns():
         * 100
     )
     return processed_df
+
 
 # html\4.1.d_commuter_patterns.html
 def plot_commute_patterns(df):
@@ -453,6 +472,7 @@ def plot_commute_patterns(df):
         div_id=div_id,
     )
 
+
 # get commute origin data
 def get_data_commute_origin():
     data = get_fs_data(
@@ -478,6 +498,7 @@ def get_data_commute_origin():
         top_commutes_outside_basin["Year"] == 2021
     ]
     return top_commutes_outside_basin_2021
+
 
 # html\4.1.d_commuter_percentage.html
 def plot_commute_origin(df):
@@ -507,6 +528,7 @@ def plot_commute_origin(df):
 
     r.to_html("html/4.1.d_commuter_patterns.html")
 
+
 # get TOT data
 def get_data_tot_collected():
     df = get_fs_data(
@@ -532,6 +554,7 @@ def get_data_tot_collected():
     df_grouped = df_grouped[~df_grouped["FY_Formatted"].isin(drop_year)]
     return df_grouped
 
+
 # html\4.2.a_TOT_Collected.html
 def plot_tot_collected(df):
     stackedbar(
@@ -542,7 +565,7 @@ def plot_tot_collected(df):
         y="TOT_Collected",
         facet=None,
         color="Jurisdiction",
-        color_sequence= ["#484a47","#5c6d70","#a37774","#e88873","#e0ac9d"],
+        color_sequence=["#484a47", "#5c6d70", "#a37774", "#e88873", "#e0ac9d"],
         orders=None,
         y_title="Total TOT Collected",
         x_title="Fiscal Year",
@@ -550,19 +573,22 @@ def plot_tot_collected(df):
         orientation="v",
         format="$,.0f",
         custom_data=["Jurisdiction"],
-        hovertemplate="<br>".join([
-            "<b>$%{y:,.0f}</b> of TOT collected in",
-            "<i>%{customdata[0]}</i>"
-                ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        hovertemplate="<br>".join(
+            ["<b>$%{y:,.0f}</b> of TOT collected in", "<i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
+
 
 # get race and ethinicity data
 def get_data_race_ethnicity():
@@ -607,6 +633,7 @@ def get_data_race_ethnicity():
     df = df.sort_values("Year")
     return df
 
+
 # html\4.4.a_RaceEthnicity_v1.html
 # html\4.4.a_RaceEthnicity_v2.html
 def plot_race_ethnicity(df):
@@ -635,18 +662,20 @@ def plot_race_ethnicity(df):
         orientation=None,
         format=".0%",
         custom_data=["Race"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.1%}</b> of the population is",
-            "<i>%{customdata[0]}</i>"
-                ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=1,
-                            ))
+        hovertemplate="<br>".join(
+            ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+        ),
     )
     groupedbar_percent(
         df,
@@ -672,16 +701,18 @@ def plot_race_ethnicity(df):
         hovermode="x unified",
         format=".0%",
         custom_data=["Race"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.1%}</b> of the population is",
-            "<i>%{customdata[0]}</i>"
-                ])+"<extra></extra>",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=100,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=1,
-                            ))
+        hovertemplate="<br>".join(
+            ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+        ),
     )

@@ -11,8 +11,8 @@ def get_data_forest_fuel():
     df = data[data["PMSubcategoryName1"] == "Treatment Zone"]
     df = df.rename(
         columns={
-            "IndicatorProjectYear" : "Year",
-            "PMSubcategoryOption1" : "Treatment Zone",
+            "IndicatorProjectYear": "Year",
+            "PMSubcategoryOption1": "Treatment Zone",
             "IndicatorProjectValue": "Acres",
         }
     )
@@ -58,10 +58,10 @@ def plot_forest_fuel(df):
         y_title="Acres Treated",
         x_title="Year",
         custom_data=["Treatment Zone"],
-        hovertemplate="<br>".join([
-        "<b>%{y:,.0f} acres</b> of forest health treatment",
-        "in the <i>%{customdata[0]}</i>"
-            ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>%{y:,.0f} acres</b> of forest health treatment", "in the <i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -92,10 +92,8 @@ def plot_old_growth_forest(df):
         y_title="Acres",
         x_title="Seral Stage",
         custom_data=["SeralStage"],
-        hovertemplate="<br>".join([
-        "<b>%{y:,.0f}</b> acres of",
-        "<i>%{customdata[0]}</i> forest"
-            ])+"<extra></extra>",
+        hovertemplate="<br>".join(["<b>%{y:,.0f}</b> acres of", "<i>%{customdata[0]}</i> forest"])
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -114,10 +112,10 @@ def plot_old_growth_forest(df):
         y_title="Acres",
         x_title="Structure",
         custom_data=["SpatialVar"],
-        hovertemplate="<br>".join([
-        "<b>%{y:,.0f}</b> acres of",
-        "<i>%{customdata[0]}</i> old growth forest"
-            ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>%{y:,.0f}</b> acres of", "<i>%{customdata[0]}</i> old growth forest"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -136,10 +134,10 @@ def plot_old_growth_forest(df):
         y_title="Acres",
         x_title="Vegetation Type",
         custom_data=["TRPA_VegType"],
-        hovertemplate="<br>".join([
-        "<b>%{y:,.0f}</b> acres of",
-        "<i>%{customdata[0]}</i> old growth forest"
-            ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>%{y:,.0f}</b> acres of", "<i>%{customdata[0]}</i> old growth forest"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
@@ -151,11 +149,16 @@ def get_probability_of_high_severity_fire():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/129"
     )
     df = highseverity.groupby(["Name", "gridcode"])["Acres"].sum().reset_index()
-    df["Probability"] = np.where(df["gridcode"] == 1, "High Severity Fire", "Low to Moderate Severity Fire")
+    df["Probability"] = np.where(
+        df["gridcode"] == 1, "High Severity Fire", "Low to Moderate Severity Fire"
+    )
 
     # standardize values to "Wilderness"
-    df.loc[df["Name"].isin(
-        ["Desolation Wilderness", "Mt. Rose Wilderness", "Granite Chief Wilderness"])] = "Wilderness"
+    df.loc[
+        df["Name"].isin(
+            ["Desolation Wilderness", "Mt. Rose Wilderness", "Granite Chief Wilderness"]
+        )
+    ] = "Wilderness"
 
     total = df.groupby("Name")["Acres"].sum().reset_index()
 
@@ -202,13 +205,13 @@ def plot_probability_of_high_severity_fire(df):
         y_title="",
         x_title="Forest Management Zone",
         custom_data=["Probability"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0%}</b> of the forested area is",
-            "likely to burn as <i>%{customdata[0]}</i>"
-                ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0%}</b> of the forested area is", "likely to burn as <i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
-        format=".0%"
+        format=".0%",
     )
 
 
@@ -269,6 +272,7 @@ def plot_aquatic_species(df):
         hovermode="x",
     )
 
+
 def plot_aquatic_species_bar(df):
     stackedbar(
         df,
@@ -283,14 +287,15 @@ def plot_aquatic_species_bar(df):
         x_title="Year",
         y_title="Acres",
         custom_data=["Invasive Species Type"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0f} acres</b> of",
-            "<i>%{customdata[0]}</i> invasive species treated"
-                ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0f} acres</b> of", "<i>%{customdata[0]}</i> invasive species treated"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
-        format=",.0f"
+        format=",.0f",
     )
+
 
 def get_data_restored_wetlands_meadows():
     eipSEZRestored = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/9"
@@ -324,18 +329,18 @@ def plot_restored_wetlands_meadows(df):
         y_title="Acres",
         format=",.0f",
         custom_data=["Action Performed"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0f}</b> acres of",
-            "wetlands and meadows <i>%{customdata[0]}</i>"
-                ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0f}</b> acres of", "wetlands and meadows <i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
         markers=True,
         hover_data=None,
         tickvals=None,
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
-
     )
+
 
 def plot_restored_wetlands_meadows_bar(df):
     stackedbar(
@@ -351,23 +356,25 @@ def plot_restored_wetlands_meadows_bar(df):
         y_title="Acres",
         facet=None,
         custom_data=["Action Performed"],
-        hovertemplate="<br>".join([
-            "<b>%{y:.0f} acres</b> of wetlands and meadows",
-            "<i>%{customdata[0]}</i>"
-                ])+"<extra></extra>",
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0f} acres</b> of wetlands and meadows", "<i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=120,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
-
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=120,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
+
 
 def get_data_bmp():
     # BMP map service from BMP database
@@ -426,7 +433,7 @@ def plot_bmp(df):
                 xanchor="right",
                 x=0.95,
             )
-        )
+        ),
     )
 
 
@@ -454,7 +461,9 @@ def get_areawide_data():
         ["Active", "Constructed"], "Completed"
     )
     # create cumulative sum of acres of status - completed
-    sdf_impervious_hard_summary["Total Acres Treated"] = sdf_impervious_hard_summary["Acres"].cumsum()
+    sdf_impervious_hard_summary["Total Acres Treated"] = sdf_impervious_hard_summary[
+        "Acres"
+    ].cumsum()
     # subtract area covereed by cumulatve sum from total acres
     sdf_impervious_hard_summary["Total Acres Untreated"] = (
         total_acres - sdf_impervious_hard_summary["Total Acres Treated"]
@@ -486,78 +495,86 @@ def plot_areawide(df):
         #         ]) +"<extra></extra>",
         custom_data=None,
         hovertemplate="%{y:,.0f}",
-        additional_formatting=dict(legend=dict(
-                                orientation="h",
-                                entrywidth=130,
-                                yanchor="bottom",
-                                y=1.05,
-                                xanchor="right",
-                                x=0.95,
-                            ))
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=130,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
 
+
 def get_veg():
-    dfVeg = get_fs_data(
-        "https://maps.trpa.org/server/rest/services/LTInfo_Monitoring/MapServer/91"
-        )
+    dfVeg = get_fs_data("https://maps.trpa.org/server/rest/services/LTInfo_Monitoring/MapServer/91")
     # selecvegetation
-    df = dfVeg.loc[(dfVeg['Development']=='Undeveloped')]
+    df = dfVeg.loc[(dfVeg["Development"] == "Undeveloped")]
 
     # change name SUM_Acres to Acres
-    df = df.rename(columns={'SUM_Acres':'Acres'})
+    df = df.rename(columns={"SUM_Acres": "Acres"})
     # create pivot table
-    table = pd.pivot_table(df, values=['Acres'], index=['TRPA_VegType'],
-                            aggfunc=np.sum)
+    table = pd.pivot_table(df, values=["Acres"], index=["TRPA_VegType"], aggfunc=np.sum)
     # flatten the pivot table
     flattened = pd.DataFrame(table.to_records())
-    flattened.columns = [hdr.replace("('Acres', '", '').replace("')", "") \
-                        for hdr in flattened.columns]
+    flattened.columns = [
+        hdr.replace("('Acres', '", "").replace("')", "") for hdr in flattened.columns
+    ]
     df = flattened
-    df['TRPA_VegType'].replace('', np.nan, inplace=True)
-    df = df.dropna(subset=['TRPA_VegType'])
-    df['TotalAcres']= 171438.19 # total acres of undisturbed vegetation
-    df['VegPercent'] = (df['Acres']/df['TotalAcres'])*100
+    df["TRPA_VegType"].replace("", np.nan, inplace=True)
+    df = df.dropna(subset=["TRPA_VegType"])
+    df["TotalAcres"] = 171438.19  # total acres of undisturbed vegetation
+    df["VegPercent"] = (df["Acres"] / df["TotalAcres"]) * 100
     return df
+
 
 def plot_veg(df):
     df,
-    path_html="html/2.1.b_VegetationType.html"
-    div_id="2.1.b_VegetationType"
-    x="TRPA_VegType"
-    y="VegPercent"
-    facet=None
-    color='TRPA_VegType'
-    color_sequence= ['#9ed7c2','#cdf57a','#b4d79e',
-        '#ff0000', '#a5f57a','#00a820','#df73ff',
-        '#3e72b0','#2f3f56', '#a8a800']
-    orders=None
-    y_title="Acres",
-    x_title="Vegetatoin Type",
-    hovertemplate="%{y:,.0f}",
-    hovermode="x unified"
-    orientation=None
-    format=",.0f"
-    custom_data=['Acres','TotalAcres']
+    path_html = "html/2.1.b_VegetationType.html"
+    div_id = "2.1.b_VegetationType"
+    x = "TRPA_VegType"
+    y = "VegPercent"
+    facet = None
+    color = "TRPA_VegType"
+    color_sequence = [
+        "#9ed7c2",
+        "#cdf57a",
+        "#b4d79e",
+        "#ff0000",
+        "#a5f57a",
+        "#00a820",
+        "#df73ff",
+        "#3e72b0",
+        "#2f3f56",
+        "#a8a800",
+    ]
+    orders = None
+    y_title = ("Acres",)
+    x_title = ("Vegetatoin Type",)
+    hovertemplate = ("%{y:,.0f}",)
+    hovermode = "x unified"
+    orientation = None
+    format = ",.0f"
+    custom_data = ["Acres", "TotalAcres"]
 
     additional_formatting = dict(
-                                # title="Vegetation Type % Abundance",
-                                hovermode="x unified",
-                                barmode = 'overlay',
-                                xaxis = dict(
-                                    tickmode = 'linear',
-                                    title_text='Vegetation Type'
-                                ),
-                                yaxis = dict(
-                                    tickmode = 'linear',
-                                    tick0 = 0,
-                                    dtick = 10,
-                                    ticksuffix='%',
-                                    range=[0, 60],
-                                    title_text='% of undisturbed vegetation'
-                                ),
-                                # turn off legend
-                                showlegend=False
-                            )
+        # title="Vegetation Type % Abundance",
+        hovermode="x unified",
+        barmode="overlay",
+        xaxis=dict(tickmode="linear", title_text="Vegetation Type"),
+        yaxis=dict(
+            tickmode="linear",
+            tick0=0,
+            dtick=10,
+            ticksuffix="%",
+            range=[0, 60],
+            title_text="% of undisturbed vegetation",
+        ),
+        # turn off legend
+        showlegend=False,
+    )
 
     config = {"displayModeBar": False}
     # create the plot
@@ -572,17 +589,19 @@ def plot_veg(df):
         color_discrete_sequence=color_sequence,
         category_orders=orders,
         orientation=orientation,
-        custom_data=custom_data
-        )
+        custom_data=custom_data,
+    )
 
     fig.update_traces(
-        name='',
-        hovertemplate="<br>".join([
-            "<b>%{y:.1f}%</b> or <i>%{customdata[0]:,.0f}</i> acres",
-            "of the total undisturbed vegetation",
-            "(%{customdata[1]:,.0f} acres)"
-            ])
-        )
+        name="",
+        hovertemplate="<br>".join(
+            [
+                "<b>%{y:.1f}%</b> or <i>%{customdata[0]:,.0f}</i> acres",
+                "of the total undisturbed vegetation",
+                "(%{customdata[1]:,.0f} acres)",
+            ]
+        ),
+    )
 
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 
@@ -601,7 +620,7 @@ def plot_veg(df):
             y=1,
             xanchor="right",
             x=1,
-        )
+        ),
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     fig.update_xaxes(tickformat=".0f")

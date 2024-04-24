@@ -1,9 +1,11 @@
+from datetime import datetime
 from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
-from arcgis.features import FeatureLayer
 import pytz
-from datetime import datetime
+from arcgis.features import FeatureLayer
+
 
 # Reads in csv file
 def read_file(path_file):
@@ -11,6 +13,7 @@ def read_file(path_file):
     p.expanduser()
     data = pd.read_csv(p)
     return data
+
 
 # Gets data with query from the TRPA server
 def get_fs_data_query(service_url, query_params):
@@ -23,6 +26,7 @@ def get_fs_data_query(service_url, query_params):
     # return data frame
     return all_data
 
+
 # Gets data from the TRPA server
 def get_fs_data(service_url):
     feature_layer = FeatureLayer(service_url)
@@ -34,11 +38,13 @@ def get_fs_data(service_url):
     # return data frame
     return all_data
 
+
 # Gets spatially enabled dataframe from TRPA server
 def get_fs_data_spatial(service_url):
     feature_layer = FeatureLayer(service_url)
     query_result = feature_layer.query().sdf
     return query_result
+
 
 # Gets spatially enabled dataframe with query
 def get_fs_data_spatial_query(service_url, query_params):
@@ -46,9 +52,11 @@ def get_fs_data_spatial_query(service_url, query_params):
     query_result = feature_layer.query(query_params).sdf
     return query_result
 
+
 # Function to convert Unix timestamp to UTC datetime
 def convert_to_utc(timestamp):
     return datetime.utcfromtimestamp(timestamp // 1000).replace(tzinfo=pytz.utc)
+
 
 # Trendline
 def trendline(
@@ -85,7 +93,7 @@ def trendline(
         category_orders=orders,
         markers=markers,
         hover_data=hover_data,
-        custom_data=custom_data
+        custom_data=custom_data,
     )
     fig.update_layout(
         yaxis=dict(title=y_title),
@@ -93,7 +101,7 @@ def trendline(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None
+        legend_title=None,
     )
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
@@ -109,6 +117,7 @@ def trendline(
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
 
 # Stacked Percent Bar chart
 def stackedbar(
@@ -126,7 +135,7 @@ def stackedbar(
     hovertemplate,
     hovermode,
     format,
-    name = None,
+    name=None,
     additional_formatting=None,
     orientation=None,
     facet=None,
@@ -144,7 +153,7 @@ def stackedbar(
         color_discrete_sequence=color_sequence,
         category_orders=orders,
         orientation=orientation,
-        custom_data=custom_data
+        custom_data=custom_data,
     )
 
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
@@ -155,12 +164,16 @@ def stackedbar(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None
+        legend_title=None,
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
-    fig.update_yaxes(col=2,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
-    fig.update_yaxes(col=3,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
+    fig.update_yaxes(
+        col=2, row=1, showticklabels=False, tickfont=dict(color="rgba(0,0,0,0)"), title=None
+    )
+    fig.update_yaxes(
+        col=3, row=1, showticklabels=False, tickfont=dict(color="rgba(0,0,0,0)"), title=None
+    )
     fig.update_xaxes(tickformat=".0f")
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_layout(additional_formatting)
@@ -171,6 +184,7 @@ def stackedbar(
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
 
 # Grouped Percent Bar chart
 def groupedbar_percent(
@@ -201,7 +215,7 @@ def groupedbar_percent(
         facet_col=facet,
         color_discrete_sequence=color_sequence,
         category_orders=orders,
-        custom_data=custom_data
+        custom_data=custom_data,
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update_layout(
@@ -222,8 +236,12 @@ def groupedbar_percent(
         ),
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
-    fig.update_yaxes(col=2,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
-    fig.update_yaxes(col=3,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
+    fig.update_yaxes(
+        col=2, row=1, showticklabels=False, tickfont=dict(color="rgba(0,0,0,0)"), title=None
+    )
+    fig.update_yaxes(
+        col=3, row=1, showticklabels=False, tickfont=dict(color="rgba(0,0,0,0)"), title=None
+    )
     # fig.update_yaxes(col=4,row=1, showticklabels=False,tickfont = dict(color = 'rgba(0,0,0,0)'), title=None)
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_layout(additional_formatting)
@@ -252,7 +270,7 @@ def scatterplot(
     legend_number,
     legend_otherline,
     custom_data=None,
-    additional_formatting=None
+    additional_formatting=None,
 ):
     config = {"displayModeBar": False}
     fig = px.scatter(
@@ -287,6 +305,7 @@ def scatterplot(
         div_id=div_id,
     )
 
+
 # Stacked Area Chart
 def stacked_area(
     df,
@@ -303,7 +322,7 @@ def stacked_area(
     format,
     hovertemplate,
     custom_data=None,
-    additional_formatting=None
+    additional_formatting=None,
 ):
     fig = px.area(
         df,
@@ -312,7 +331,7 @@ def stacked_area(
         color=color,
         line_group=line_group,
         color_discrete_sequence=color_sequence,
-        custom_data=custom_data
+        custom_data=custom_data,
     )
     fig.update_layout(
         yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
@@ -320,7 +339,7 @@ def stacked_area(
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None
+        legend_title=None,
     )
     fig.update_traces(hovertemplate=hovertemplate)
     config = {"displayModeBar": False}
