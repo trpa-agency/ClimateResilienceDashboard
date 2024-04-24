@@ -43,6 +43,19 @@ def plot_greenhouse_gas(df):
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
+        additional_formatting=dict(
+                                # title="Green House Gas Inventory",
+                                legend_title_text="Green House Gas Inventory",
+                                legend=dict(
+                                orientation="h",
+                                entrywidth=120,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=1,
+                            )
+                            )
+
     )
 
 
@@ -150,11 +163,8 @@ def get_fire_data():
 
 
 # html/1.2.a_Purple_Air_v2.html
-def plot_purple_air_fire(df):
-    # get purple air data
-    dfAir = get_data_purple_air_TRPA()
-    # get fire data
-    dfFire = get_fire_data()
+def plot_purple_air_fire(dfAir,dfFire):
+
     # creat a plotly express line chart
     fig = px.line(dfAir, x="Date", y="PM 2.5 (ug/m3)", title="Purple Air PM2.5")
 
@@ -186,25 +196,24 @@ def plot_purple_air_fire(df):
     fig.update_traces(marker=dict(size=12))
 
     # label points by FIRE_NAME
-    for i, txt in enumerate(df["Fire"]):
-        fig.add_annotation(
-            x=df["Date"].iloc[i],
-            y=df["PM 2.5 (ug/m3)"].iloc[i],
-            text=txt + " FIRE",
-            showarrow=True,
-            align="center",
-            arrowhead=1,
-            # arrowsize=1,
-            # arrowwidth=2,
-            arrowcolor="#636363",
-            ax=10,
-            ay=-20,
-            bordercolor="#c7c7c7",
-            borderwidth=1,
-            borderpad=2,
-            bgcolor="#ff7f0e",
-            opacity=0.8,
-        )
+    for i, txt in enumerate(dfFire['Fire']):
+        fig.add_annotation(x=dfFire['Date'].iloc[i], y=dfFire['PM 2.5 (ug/m3)'].iloc[i],
+                                text=txt+" FIRE",
+                                showarrow=True,
+                                align="center",
+                                arrowhead=1,
+                                # arrowsize=1,
+                                # arrowwidth=2,
+                                arrowcolor="#636363",
+                                ax=10,
+                                ay=-20,
+                                bordercolor="#c7c7c7",
+                                borderwidth=1,
+                                borderpad=2,
+                                bgcolor="#ff7f0e",
+                                opacity=0.8
+                                )
+
 
     # plot variables
     path_html = "html/1.2.a_Purple_Air_v2.html"
