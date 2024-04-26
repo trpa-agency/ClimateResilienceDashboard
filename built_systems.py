@@ -845,7 +845,7 @@ def plot_low_stress_bicycle(df):
         line_group="Class",
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         x_title="Year",
-        y_title="Total Miles of Bike Routes Built",
+        y_title="Miles",
         hovermode="x unified",
         format=".0f",
         custom_data=["Class"],
@@ -854,6 +854,8 @@ def plot_low_stress_bicycle(df):
         )
         + "<extra></extra>",
         additional_formatting=dict(
+            title = "Total Miles of Bike Routes Built",
+            # legend_title="Total Miles of Bike Routes Built",
             legend=dict(
                 orientation="h",
                 entrywidth=100,
