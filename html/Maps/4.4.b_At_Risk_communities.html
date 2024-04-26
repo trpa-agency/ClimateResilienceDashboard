@@ -75,11 +75,11 @@
         view.ui.add(fullscreen, "top-left");
         // add layer list to top right
         view.ui.add(layerList, "top-right");
-        // Disable scroll on zoom
         // create legend card
         view.ui.add(legend, "bottom-left");
         layerList.container.style.width = "225px"; // Adjust width for LayerList
         legend.container.style.width = "175px"; // Adjust width for Legend
+        // Disable scroll on zoom
         view.on("mouse-wheel", function(evt) {evt.stopPropagation(); });
         
       });

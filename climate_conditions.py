@@ -43,8 +43,20 @@ def plot_greenhouse_gas(df):
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
-    )
+        additional_formatting=dict(
+                                # title="Green House Gas Inventory",
+                                legend_title_text="Green House Gas Inventory",
+                                legend=dict(
+                                orientation="h",
+                                entrywidth=120,
+                                yanchor="bottom",
+                                y=1.05,
+                                xanchor="right",
+                                x=1,
+                            )
+                            )
 
+    )
 
 # get purple air data from CSV
 def get_data_purple_air():
@@ -150,85 +162,89 @@ def get_fire_data():
 
 
 # html/1.2.a_Purple_Air_v2.html
-def plot_purple_air_fire(df):
-    # get purple air data
-    dfAir = get_data_purple_air_TRPA()
-    # get fire data
-    dfFire = get_fire_data()
+def plot_purple_air_fire(dfAir,dfFire):
     # creat a plotly express line chart
-    fig = px.line(dfAir, x="Date", y="PM 2.5 (ug/m3)", title="Purple Air PM2.5")
+    fig = px.line(dfAir, 
+                    x="Date", 
+                    y="PM 2.5 (ug/m3)", 
+                    title='Purple Air PM2.5'
+                                )
 
-    fig.update_layout(
-        hovertemplate="<br>".join(["<b>%{y:,.0f}</b> AQI", "<i>seven day rolling average</i>"])
-        + "<extra></extra>"
+    fig.update_traces(hovertemplate="<br>".join([
+                        "<b>%{y:,.0f} AQI</b>",
+                        "<i>seven day rolling average</i>"
+                            ])+"<extra></extra>"
     )
 
     # add scatter trace to figure of points of dfMerge by date and mean_pm25
-    fig.add_trace(
-        go.Scatter(
-            x=dfFire["Date"],
-            y=dfFire["PM 2.5 (ug/m3)"],
-            mode="markers",
-            name="Fire Start Date",
-            customdata=dfFire[["Fire", "Acres"]],
-            hovertemplate="<br>".join(
-                [
-                    "<b>%{customdata[0]}</b> fire started",
-                    "<i>%{x}</i> and burned",
-                    "<i>%{customdata[1]:,.0f} acres</i>",
-                ]
-            )
-            + "<extra></extra>",
-        )
-    )
-
+    fig.add_trace(go.Scatter(x=dfFire['Date'], 
+                            y=dfFire['PM 2.5 (ug/m3)'], 
+                            mode='markers',
+                            name='Fire Start Date', 
+                            customdata=df[["Fire", "Acres"]],
+                            hovertemplate="<br>".join([
+                                            "<b>%{customdata[0]} FIRE</b> started",
+                                            "<i>%{x}</i> and burned",
+                                            "<i>%{customdata[1]:,.0f} acres</i>"
+                                                ])+"<extra></extra>"
+                                                ))
+                            
     # make the scatter plot markers larger
     fig.update_traces(marker=dict(size=12))
 
     # label points by FIRE_NAME
-    for i, txt in enumerate(df["Fire"]):
-        fig.add_annotation(
-            x=df["Date"].iloc[i],
-            y=df["PM 2.5 (ug/m3)"].iloc[i],
-            text=txt + " FIRE",
-            showarrow=True,
-            align="center",
-            arrowhead=1,
-            # arrowsize=1,
-            # arrowwidth=2,
-            arrowcolor="#636363",
-            ax=10,
-            ay=-20,
-            bordercolor="#c7c7c7",
-            borderwidth=1,
-            borderpad=2,
-            bgcolor="#ff7f0e",
-            opacity=0.8,
-        )
+    for i, txt in enumerate(dfFire['Fire']):
+        fig.add_annotation(x=dfFire['Date'].iloc[i], y=dfFire['PM 2.5 (ug/m3)'].iloc[i], 
+                                text=txt+" FIRE", 
+                                showarrow=True, 
+                                align="center",
+                                arrowhead=1,
+                                # arrowsize=1,
+                                # arrowwidth=2,
+                                arrowcolor="#636363",
+                                ax=10,
+                                ay=-20,
+                                bordercolor="#c7c7c7",
+                                borderwidth=1,
+                                borderpad=2,
+                                bgcolor="#ff7f0e",
+                                opacity=0.8
+                                )
 
     # plot variables
-    path_html = "html/1.2.a_Purple_Air_v2.html"
-    div_id = "1.2.a_Purple_Air_v2"
-    x = "time_stamp"
-    y = "moving_avg"
-    color = "#FF5733"
-    color_sequence = ["#023f64"]
-    sort = "time_stamp"
-    orders = None
-    x_title = "Date"
-    y_title = "AQI (rolling average)"
-    format = ",.0f"
-    hovermode = "x unified"
+    path_html="html/1.2.a_Purple_Air_v2.html"
+    div_id="1.2.a_Purple_Air_v2"
+    x="time_stamp"
+    y="moving_avg"
+    color="#FF5733"
+    color_sequence=["#023f64"]
+    sort="time_stamp"
+    orders=None
+    x_title="Date"
+    y_title="Air Quality Index"
+    format=",.0f"
+    # hovertemplate="%{y:,.0f}"
+    hovermode="x unified"
     config = {"displayModeBar": False}
 
     fig.update_layout(
-        yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title, showgrid=False),
-        hovermode=hovermode,
-        template="plotly_white",
-        dragmode=False,
-        showlegend=False,
-    )
+            margin=dict(t=20),
+            yaxis=dict(title=y_title),
+            xaxis=dict(title=x_title, showgrid=False),
+            hovermode=hovermode,
+            template="plotly_white",
+            dragmode=False,
+            showlegend=False,
+            # title_font_family="Bell Topo Sans",
+            title_font_color="black",
+            title=dict(text="Air Quality Index and Significant Fire Events", 
+                        x=0.05, 
+                        y=0.95,
+                        xanchor="left",
+                        yanchor="top",
+                        font=dict(size=16), 
+                        automargin=True)
+        )
 
     # fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
@@ -238,7 +254,12 @@ def plot_purple_air_fire(df):
     # set color of line
     fig.update_traces(line=dict(color=color_sequence[0]))
 
-    fig.write_html(config=config, file=path_html, include_plotlyjs="directory", div_id=div_id)
+    fig.write_html(
+            config=config,
+            file=path_html,
+            include_plotlyjs="directory",
+            div_id=div_id
+    )
 
 
 def plot_purple_air(df):
@@ -346,12 +367,25 @@ def plot_air_quality(df):
         y2="Threshold_Value",
         color="Site",
         color_sequence=["#FC9A62", "#F9C63E", "#632E5A", "#A48352", "#BCEDB8"],
-        y_title="Highest 8-Hour Average Concentration of CO (ppm)",
+        y_title="CO (ppm)",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=5,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                        title="Highest 8-Hour Average Concentration of Carbon Monoxide",
+                        # legend_title_text="Highest 8-Hour Average Concentration of Carbon Monoxide",
+                        legend=dict(
+                        orientation="h",
+                        entrywidth=190,
+                        yanchor="bottom",
+                        y=0.95,
+                        xanchor="right",
+                        x=1,
+                    )
+                    ),
+
     )
     # html\1.2.a_Air_Quality_O3.html
     o3 = df[df["Pollutant"] == "O3"]
@@ -374,12 +408,24 @@ def plot_air_quality(df):
             "#749099",
             "#A48794",
         ],
-        y_title="Highest 1-Hour Average Concentration of Ozone (ppm)",
+        y_title="Ozone (ppm)",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=10,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                # title="Carbon Monoxide",
+                legend_title_text="Highest 1-Hour Average Concentration",
+                legend=dict(
+                orientation="h",
+                entrywidth=190,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+            ),
     )
     # PM10
     pm10 = df[(df["Pollutant"] == "PM10") & (df["Statistic"] == "HIGH 24 HR")]
@@ -392,12 +438,24 @@ def plot_air_quality(df):
         y2="Threshold_Value",
         color="Site",
         color_sequence=["#FC9A62"],
-        y_title="Highest 24-Hour Average Concentration of PM10",
+        y_title="PM10",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                # title="Carbon Monoxide",
+                legend_title_text="Highest 24-Hour Average Concentration",
+                legend=dict(
+                orientation="h",
+                entrywidth=190,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+            ),
     )
     # PM2.5
     pm25 = df[df["Pollutant"] == "PM2.5"]
@@ -410,12 +468,24 @@ def plot_air_quality(df):
         y2="Threshold_Value",
         color="Site",
         color_sequence=["#FC9A62"],
-        y_title="3 Year 24-Hour Average Concentration of PM2.5",
+        y_title="PM2.5",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                # title="Carbon Monoxide",
+                legend_title_text="3 Year 24-Hour Average Concentration",
+                legend=dict(
+                orientation="h",
+                entrywidth=190,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+            ),
     )
 
 
