@@ -525,7 +525,6 @@ def plot_mode_share(df):
     modeshare_data_non_car_list = ["Bicycle", "Walk", "Public Transit"]
     df["Mode"] = df["Mode"].replace(modeshare_data_non_car_list, "Non-Auto")
     modeshare_data_non_car = df.query('Mode=="Non-Auto"')
-    print(modeshare_data_non_car['Year_Season'].unique())
     # Group by year_season, source, source color and mode and sum percentage
     modeshare_data_non_car = (
         modeshare_data_non_car.groupby(["Year_Season", "Source", "Source Color", "Mode"])
@@ -791,9 +790,9 @@ def plot_mode_share(df):
         ]
     )
 
-    fig.update_layout(title_text="Modeshare by Source")
+    fig.update_layout(title_text="Transportation Modeshare", margin=dict(t=40))
     fig.update_xaxes(categoryorder="array", categoryarray=x_order)
-    fig.update_yaxes(title_text="Percentage of Modeshare", ticksuffix="%")
+    fig.update_yaxes(title_text="% Modeshare", ticksuffix="%")
     fig.write_html(
         config=config,
         file=path_html,
