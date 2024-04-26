@@ -136,7 +136,8 @@
         const legendExpand = new Expand({
           view: view,
           content: legend,
-          expanded: false
+          expanded: true,
+          autoCollapse: true,
         });
         // Add the widget to the top-right corner of the view
         view.ui.add(legendExpand, "top-right");
