@@ -164,9 +164,9 @@ def get_fire_data():
 # html/1.2.a_Purple_Air_v2.html
 def plot_purple_air_fire(dfAir,dfFire):
     # creat a plotly express line chart
-    fig = px.line(dfAir, 
-                    x="Date", 
-                    y="PM 2.5 (ug/m3)", 
+    fig = px.line(dfAir,
+                    x="Date",
+                    y="PM 2.5 (ug/m3)",
                     title='Purple Air PM2.5'
                                 )
 
@@ -177,10 +177,10 @@ def plot_purple_air_fire(dfAir,dfFire):
     )
 
     # add scatter trace to figure of points of dfMerge by date and mean_pm25
-    fig.add_trace(go.Scatter(x=dfFire['Date'], 
-                            y=dfFire['PM 2.5 (ug/m3)'], 
+    fig.add_trace(go.Scatter(x=dfFire['Date'],
+                            y=dfFire['PM 2.5 (ug/m3)'],
                             mode='markers',
-                            name='Fire Start Date', 
+                            name='Fire Start Date',
                             customdata=df[["Fire", "Acres"]],
                             hovertemplate="<br>".join([
                                             "<b>%{customdata[0]} FIRE</b> started",
@@ -188,15 +188,15 @@ def plot_purple_air_fire(dfAir,dfFire):
                                             "<i>%{customdata[1]:,.0f} acres</i>"
                                                 ])+"<extra></extra>"
                                                 ))
-                            
+
     # make the scatter plot markers larger
     fig.update_traces(marker=dict(size=12))
 
     # label points by FIRE_NAME
     for i, txt in enumerate(dfFire['Fire']):
-        fig.add_annotation(x=dfFire['Date'].iloc[i], y=dfFire['PM 2.5 (ug/m3)'].iloc[i], 
-                                text=txt+" FIRE", 
-                                showarrow=True, 
+        fig.add_annotation(x=dfFire['Date'].iloc[i], y=dfFire['PM 2.5 (ug/m3)'].iloc[i],
+                                text=txt+" FIRE",
+                                showarrow=True,
                                 align="center",
                                 arrowhead=1,
                                 # arrowsize=1,
@@ -237,12 +237,12 @@ def plot_purple_air_fire(dfAir,dfFire):
             showlegend=False,
             # title_font_family="Bell Topo Sans",
             title_font_color="black",
-            title=dict(text="Air Quality Index and Significant Fire Events", 
-                        x=0.05, 
+            title=dict(text="Air Quality Index and Significant Fire Events",
+                        x=0.05,
                         y=0.95,
                         xanchor="left",
                         yanchor="top",
-                        font=dict(size=16), 
+                        font=dict(size=16),
                         automargin=True)
         )
 
