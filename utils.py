@@ -352,8 +352,8 @@ def stacked_area(
         div_id=div_id,
     )
 
-def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequence, orders, 
-                              x_title, y_title, 
+def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequence, orders,
+                              x_title, y_title,
                               hovertemplate, hovermode,
                               title_text):
     """
