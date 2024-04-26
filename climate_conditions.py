@@ -58,7 +58,6 @@ def plot_greenhouse_gas(df):
 
     )
 
-
 # get purple air data from CSV
 def get_data_purple_air():
     df = read_file("data/daily_averaged_values.csv")
@@ -355,12 +354,25 @@ def plot_air_quality(df):
         y2="Threshold_Value",
         color="Site",
         color_sequence=["#FC9A62", "#F9C63E", "#632E5A", "#A48352", "#BCEDB8"],
-        y_title="Highest 8-Hour Average Concentration of CO (ppm)",
+        y_title="CO (ppm)",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=5,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                        title="Highest 8-Hour Average Concentration of Carbon Monoxide",
+                        # legend_title_text="Highest 8-Hour Average Concentration of Carbon Monoxide",
+                        legend=dict(
+                        orientation="h",
+                        entrywidth=190,
+                        yanchor="bottom",
+                        y=0.95,
+                        xanchor="right",
+                        x=1,
+                    )
+                    ),
+
     )
     # html\1.2.a_Air_Quality_O3.html
     o3 = df[df["Pollutant"] == "O3"]
@@ -383,12 +395,24 @@ def plot_air_quality(df):
             "#749099",
             "#A48794",
         ],
-        y_title="Highest 1-Hour Average Concentration of Ozone (ppm)",
+        y_title="Ozone (ppm)",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=10,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                # title="Carbon Monoxide",
+                legend_title_text="Highest 1-Hour Average Concentration",
+                legend=dict(
+                orientation="h",
+                entrywidth=190,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+            ),
     )
     # PM10
     pm10 = df[(df["Pollutant"] == "PM10") & (df["Statistic"] == "HIGH 24 HR")]
@@ -401,12 +425,24 @@ def plot_air_quality(df):
         y2="Threshold_Value",
         color="Site",
         color_sequence=["#FC9A62"],
-        y_title="Highest 24-Hour Average Concentration of PM10",
+        y_title="PM10",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                # title="Carbon Monoxide",
+                legend_title_text="Highest 24-Hour Average Concentration",
+                legend=dict(
+                orientation="h",
+                entrywidth=190,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+            ),
     )
     # PM2.5
     pm25 = df[df["Pollutant"] == "PM2.5"]
@@ -419,12 +455,24 @@ def plot_air_quality(df):
         y2="Threshold_Value",
         color="Site",
         color_sequence=["#FC9A62"],
-        y_title="3 Year 24-Hour Average Concentration of PM2.5",
+        y_title="PM2.5",
         x_title="Year",
         hovertemplate="%{y:.2f}",
         hovermode="x unified",
         legend_number=2,
         legend_otherline="Threshold",
+        additional_formatting=dict(
+                # title="Carbon Monoxide",
+                legend_title_text="3 Year 24-Hour Average Concentration",
+                legend=dict(
+                orientation="h",
+                entrywidth=190,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+            ),
     )
 
 

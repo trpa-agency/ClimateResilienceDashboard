@@ -392,14 +392,14 @@ def get_data_bmp():
     # set total developed parcels field
     bmpsCertByYear["Developed Parcels"] = parcelsDeveloped["OBJECTID"].count()
     # cumulative sum of BMPs installed per year
-    bmpsCertByYear["Total BMPs Installed"] = bmpsCertByYear["OBJECTID"].cumsum()
+    bmpsCertByYear["Developed Parcels with BMPs"] = bmpsCertByYear["OBJECTID"].cumsum()
     # BMPs installed per year compared to total developed parcels per year
     bmpsCertByYear["BMPs per Developed Parcel"] = (
-        bmpsCertByYear["Total BMPs Installed"] / bmpsCertByYear["Developed Parcels"]
+        bmpsCertByYear["Developed Parcels with BMPs"] / bmpsCertByYear["Developed Parcels"]
     ).round(2)
     # BMPs installed per year compared to total developed parcels per year but subtracting the BMPs installed from the total developed parcels
-    bmpsCertByYear["Developed Parcels without a BMP"] = (
-        bmpsCertByYear["Developed Parcels"] - bmpsCertByYear["Total BMPs Installed"]
+    bmpsCertByYear["Developed Parcels without BMPs"] = (
+        bmpsCertByYear["Developed Parcels"] - bmpsCertByYear["Developed Parcels with BMPs"]
     )
     # drop objectid
     df = bmpsCertByYear.drop(columns=["OBJECTID"])
@@ -412,12 +412,12 @@ def plot_bmp(df):
         path_html="html/2.3.b_BMP.html",
         div_id="2.3.b_BMP",
         x="Year",
-        y=["Total BMPs Installed", "Developed Parcels without a BMP"],
+        y=["Developed Parcels with BMPs", "Developed Parcels without BMPs"],
         facet=None,
         color=None,
         color_sequence=["#208385", "#808080"],
         orders=None,
-        y_title="Cumulative BMPs Installed",
+        y_title="Developed Parcels",
         x_title="Year",
         hovertemplate="%{y:,.0f}",
         hovermode="x unified",
@@ -427,7 +427,7 @@ def plot_bmp(df):
         additional_formatting=dict(
             legend=dict(
                 orientation="h",
-                entrywidth=120,
+                entrywidth=190,
                 yanchor="bottom",
                 y=1.05,
                 xanchor="right",
