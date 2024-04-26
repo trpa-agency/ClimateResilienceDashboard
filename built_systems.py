@@ -492,7 +492,7 @@ def plot_mode_share(df):
     x_order = df.sort_values("Year_Season")["Year_Season"].unique()
     Source_Colors = {"Replica": "#FC9A62", "Survey": "#208385"}
     df["Source Color"] = df["Source"].map(Source_Colors)
-    
+
     modeshare_data_car = df.query('Mode=="Car_Truck_Van"')
     modeshare_data_bike = df.query('Mode=="Bicycle"')
     modeshare_data_walk = df.query('Mode=="Walk"')
@@ -609,7 +609,7 @@ def plot_mode_share(df):
             ),
         )
     )
-    
+
     fig.update_layout(title_text="Modeshare by Source")
     source_sort = ["LOCUS", "Replica", "Survey"]
 
