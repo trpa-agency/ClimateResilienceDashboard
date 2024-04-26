@@ -397,10 +397,10 @@ def plot_vehicle_miles_traveled(df):
         color_sequence=["#208385"],
         orders=None,
         sort="year",
-        y_title="Total VMT",
+        y_title="Miles Traveled",
         x_title="Year",
         format=",.0f",
-        hovertemplate="%{y:,.0f} vehicle miles traveled",
+        hovertemplate="<b>%{y:,.0f}</b> vehicle miles traveled",
         markers=True,
         hover_data=None,
         tickvals=None,
@@ -408,8 +408,10 @@ def plot_vehicle_miles_traveled(df):
         tickangle=None,
         hovermode="x unified",
         custom_data=None,
+        additional_formatting=dict(
+            title="Total Vehicle Miles Traveled",
+            )
     )
-
 # get data for mode share
 def get_data_mode_share():
     modeshare_data = get_fs_data(

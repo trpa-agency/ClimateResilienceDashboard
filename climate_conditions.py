@@ -163,42 +163,40 @@ def get_fire_data():
 
 # html/1.2.a_Purple_Air_v2.html
 def plot_purple_air_fire(dfAir,dfFire):
-
     # creat a plotly express line chart
-    fig = px.line(dfAir, x="Date", y="PM 2.5 (ug/m3)", title="Purple Air PM2.5")
+    fig = px.line(dfAir, 
+                    x="Date", 
+                    y="PM 2.5 (ug/m3)", 
+                    title='Purple Air PM2.5'
+                                )
 
-    fig.update_layout(
-        hovertemplate="<br>".join(["<b>%{y:,.0f}</b> AQI", "<i>seven day rolling average</i>"])
-        + "<extra></extra>"
+    fig.update_traces(hovertemplate="<br>".join([
+                        "<b>%{y:,.0f} AQI</b>",
+                        "<i>seven day rolling average</i>"
+                            ])+"<extra></extra>"
     )
 
     # add scatter trace to figure of points of dfMerge by date and mean_pm25
-    fig.add_trace(
-        go.Scatter(
-            x=dfFire["Date"],
-            y=dfFire["PM 2.5 (ug/m3)"],
-            mode="markers",
-            name="Fire Start Date",
-            customdata=dfFire[["Fire", "Acres"]],
-            hovertemplate="<br>".join(
-                [
-                    "<b>%{customdata[0]}</b> fire started",
-                    "<i>%{x}</i> and burned",
-                    "<i>%{customdata[1]:,.0f} acres</i>",
-                ]
-            )
-            + "<extra></extra>",
-        )
-    )
-
+    fig.add_trace(go.Scatter(x=dfFire['Date'], 
+                            y=dfFire['PM 2.5 (ug/m3)'], 
+                            mode='markers',
+                            name='Fire Start Date', 
+                            customdata=df[["Fire", "Acres"]],
+                            hovertemplate="<br>".join([
+                                            "<b>%{customdata[0]} FIRE</b> started",
+                                            "<i>%{x}</i> and burned",
+                                            "<i>%{customdata[1]:,.0f} acres</i>"
+                                                ])+"<extra></extra>"
+                                                ))
+                            
     # make the scatter plot markers larger
     fig.update_traces(marker=dict(size=12))
 
     # label points by FIRE_NAME
     for i, txt in enumerate(dfFire['Fire']):
-        fig.add_annotation(x=dfFire['Date'].iloc[i], y=dfFire['PM 2.5 (ug/m3)'].iloc[i],
-                                text=txt+" FIRE",
-                                showarrow=True,
+        fig.add_annotation(x=dfFire['Date'].iloc[i], y=dfFire['PM 2.5 (ug/m3)'].iloc[i], 
+                                text=txt+" FIRE", 
+                                showarrow=True, 
                                 align="center",
                                 arrowhead=1,
                                 # arrowsize=1,
@@ -213,30 +211,40 @@ def plot_purple_air_fire(dfAir,dfFire):
                                 opacity=0.8
                                 )
 
-
     # plot variables
-    path_html = "html/1.2.a_Purple_Air_v2.html"
-    div_id = "1.2.a_Purple_Air_v2"
-    x = "time_stamp"
-    y = "moving_avg"
-    color = "#FF5733"
-    color_sequence = ["#023f64"]
-    sort = "time_stamp"
-    orders = None
-    x_title = "Date"
-    y_title = "AQI (rolling average)"
-    format = ",.0f"
-    hovermode = "x unified"
+    path_html="html/1.2.a_Purple_Air_v2.html"
+    div_id="1.2.a_Purple_Air_v2"
+    x="time_stamp"
+    y="moving_avg"
+    color="#FF5733"
+    color_sequence=["#023f64"]
+    sort="time_stamp"
+    orders=None
+    x_title="Date"
+    y_title="Air Quality Index"
+    format=",.0f"
+    # hovertemplate="%{y:,.0f}"
+    hovermode="x unified"
     config = {"displayModeBar": False}
 
     fig.update_layout(
-        yaxis=dict(title=y_title),
-        xaxis=dict(title=x_title, showgrid=False),
-        hovermode=hovermode,
-        template="plotly_white",
-        dragmode=False,
-        showlegend=False,
-    )
+            margin=dict(t=20),
+            yaxis=dict(title=y_title),
+            xaxis=dict(title=x_title, showgrid=False),
+            hovermode=hovermode,
+            template="plotly_white",
+            dragmode=False,
+            showlegend=False,
+            # title_font_family="Bell Topo Sans",
+            title_font_color="black",
+            title=dict(text="Air Quality Index and Significant Fire Events", 
+                        x=0.05, 
+                        y=0.95,
+                        xanchor="left",
+                        yanchor="top",
+                        font=dict(size=16), 
+                        automargin=True)
+        )
 
     # fig.update_traces(hovertemplate=hovertemplate)
     fig.update_yaxes(tickformat=format)
@@ -246,7 +254,12 @@ def plot_purple_air_fire(dfAir,dfFire):
     # set color of line
     fig.update_traces(line=dict(color=color_sequence[0]))
 
-    fig.write_html(config=config, file=path_html, include_plotlyjs="directory", div_id=div_id)
+    fig.write_html(
+            config=config,
+            file=path_html,
+            include_plotlyjs="directory",
+            div_id=div_id
+    )
 
 
 def plot_purple_air(df):
