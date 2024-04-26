@@ -88,6 +88,12 @@ def plot_affordable_units(df):
 
 # get data for home heating
 def get_data_home_heating():
+    heating_groupings = {'Utility gas':'Gas',
+                         'Bottled, tank, or LP gas':'Gas',
+                         'Electricity':'Electric',
+                         'Fuel oil, kerosene, etc.':'Gas',
+                         'Wood':'Wood',
+                         'Solar energy':'Solar'}
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
@@ -100,15 +106,13 @@ def get_data_home_heating():
         .loc[:, ["variable_name", "value", "Geography", "year_sample"]]
         .rename(columns={"year_sample": "Year", "variable_name": "Energy Source"})
     )
-    total = data[data["variable_name"] == "Total Heating Methods"].loc[
-        :, ["value", "Geography", "year_sample"]
-    ]
-    df = val.merge(
-        total,
-        left_on=["Geography", "Year"],
-        right_on=["Geography", "year_sample"],
-        suffixes=("", "_total"),
-    )
+    #drop rows in val that are not in heating_groupings
+    df = val[val["Energy Source"].isin(heating_groupings.keys())]
+    #replace engery source with groupings in heating_groupings
+    df["Energy Source"] = df["Energy Source"].replace(heating_groupings)
+    df = df.groupby(["Geography", "Year", "Energy Source"])['value'].sum().reset_index()
+    #populate a column called value total the the totals for each tear and geography
+    df['value_total'] = df.groupby(['Geography', 'Year'])['value'].transform('sum')
     df["Year"] = df["Year"].astype("str")
     df["share"] = df["value"] / df["value_total"]
     return df
@@ -417,6 +421,7 @@ def get_data_mode_share():
     modeshare_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136"
     )
+    modeshare_data=modeshare_data.query('Source!="LOCUS"')
     modeshare_data_grouped = (
         modeshare_data.groupby(["Year", "Season", "Mode", "Source"])
         .agg({"Number": "mean"})
@@ -435,7 +440,7 @@ def get_data_mode_share():
     ) * 100
 
     modeshare_data_grouped["Season"] = pd.Categorical(
-        modeshare_data_grouped["Season"], ["Winter", "Q1", "Spring", "Q3", "Summer", "Fall"]
+        modeshare_data_grouped["Season"], ["Winter", "Spring", "Summer", "Fall"]
     )
     modeshare_data_grouped = modeshare_data_grouped.sort_values(by=["Year", "Season"])
     # Order year season so that it graphs correctly
@@ -450,41 +455,44 @@ def get_data_mode_share():
 # html\3.3.d_Mode_Share_2.html
 def plot_mode_share(df):
     # Make a list of seasons for custom sorting
-    x_order = df.sort_values("Year_Season")["Year_Season"].unique()
-    x_sort = dict(xaxis=dict(categoryorder="array", categoryarray=x_order))
+    # x_order = df.sort_values("Year_Season")["Year_Season"].unique()
+    # x_sort = dict(xaxis=dict(categoryorder="array", categoryarray=x_order))
     # Facet option
-    stackedbar(
-        df=df,
-        path_html="html/3.3.d_Mode_Share_1.html",
-        div_id="3.3.d_Mode_Share_1",
-        x="Year_Season",
-        y="Percentage",
-        facet=None,
-        color="Mode",
-        color_sequence=[
-            "#208385",
-            "#FC9A62",
-            "#F9C63E",
-            "#632E5A",
-            "#A48352",
-        ],
-        orders={"Mode": ["Car_Truck_Van", "Bicycle", "Others", "Public Transit", "Walk"]},
-        y_title="Modeshare Percentage",
-        x_title="Year",
-        hovertemplate="%{y:.0f}%",
-        hovermode="x unified",
-        orientation="v",
-        format=",.0f",
-        additional_formatting=x_sort,
-        facet_row="Source",
-    )
+    # stackedbar(
+    #     df=df,
+    #     path_html="html/3.3.d_Mode_Share_1.html",
+    #     div_id="3.3.d_Mode_Share_1",
+    #     x="Year_Season",
+    #     y="Percentage",
+    #     facet=None,
+    #     color="Mode",
+    #     color_sequence=[
+    #         "#208385",
+    #         "#FC9A62",
+    #         "#F9C63E",
+    #         "#632E5A",
+    #         "#A48352",
+    #     ],
+    #     orders={"Mode": ["Car_Truck_Van", "Bicycle", "Others", "Public Transit", "Walk"]},
+    #     y_title="Modeshare Percentage",
+    #     x_title="Year",
+    #     hovertemplate="%{y:.0f}%",
+    #     hovermode="x unified",
+    #     orientation="v",
+    #     format=",.0f",
+    #     additional_formatting=x_sort,
+    #     facet_row="Source",
+    #     custom_data=None,
+    # )
     # Drop down by modeshare
     path_html = "html/3.3.d_Mode_Share_2.html"
     div_id = "3.3.d_Mode_Share_2"
     config = {"displayModeBar": False}
+    df=df.query('Source!="LOCUS"')
     x_order = df.sort_values("Year_Season")["Year_Season"].unique()
-    Source_Colors = {"LOCUS": "#208385", "Replica": "#FC9A62", "Survey": "#F9C63E"}
+    Source_Colors = {"Replica": "#FC9A62", "Survey": "#208385"}
     df["Source Color"] = df["Source"].map(Source_Colors)
+    
     modeshare_data_car = df.query('Mode=="Car_Truck_Van"')
     modeshare_data_bike = df.query('Mode=="Bicycle"')
     modeshare_data_walk = df.query('Mode=="Walk"')
@@ -493,6 +501,7 @@ def plot_mode_share(df):
     modeshare_data_non_car_list = ["Bicycle", "Walk", "Public Transit"]
     df["Mode"] = df["Mode"].replace(modeshare_data_non_car_list, "Non-Auto")
     modeshare_data_non_car = df.query('Mode=="Non-Auto"')
+    print(modeshare_data_non_car['Year_Season'].unique())
     # Group by year_season, source, source color and mode and sum percentage
     modeshare_data_non_car = (
         modeshare_data_non_car.groupby(["Year_Season", "Source", "Source Color", "Mode"])
@@ -503,13 +512,29 @@ def plot_mode_share(df):
     hovertemplate_text = "%{customdata[0]} was %{customdata[1]:.1%} of Modeshare <extra></extra>"
 
     fig = go.Figure()
-
+    fig.add_trace(
+        go.Bar(
+            x=modeshare_data_non_car["Year_Season"],
+            y=modeshare_data_non_car["Percentage"],
+            name="Non-Auto",
+            showlegend=False,
+            customdata=np.stack(
+                (modeshare_data_non_car["Mode"], modeshare_data_non_car["Percentage"] / 100),
+                axis=-1,
+            ),
+            hovertemplate=hovertemplate_text,
+            marker=dict(
+                color=modeshare_data_non_car["Source Color"],
+            ),
+        )
+    )
     fig.add_trace(
         go.Bar(
             x=modeshare_data_car["Year_Season"],
             y=modeshare_data_car["Percentage"],
             name="Automobile",
             showlegend=False,
+            visible=False,
             customdata=np.stack(
                 (modeshare_data_car["Mode"], modeshare_data_car["Percentage"] / 100), axis=-1
             ),
@@ -584,23 +609,7 @@ def plot_mode_share(df):
             ),
         )
     )
-    fig.add_trace(
-        go.Bar(
-            x=modeshare_data_non_car["Year_Season"],
-            y=modeshare_data_non_car["Percentage"],
-            name="Non-Auto",
-            showlegend=False,
-            visible=False,
-            customdata=np.stack(
-                (modeshare_data_non_car["Mode"], modeshare_data_non_car["Percentage"] / 100),
-                axis=-1,
-            ),
-            hovertemplate=hovertemplate_text,
-            marker=dict(
-                color=modeshare_data_non_car["Source Color"],
-            ),
-        )
-    )
+    
     fig.update_layout(title_text="Modeshare by Source")
     source_sort = ["LOCUS", "Replica", "Survey"]
 
@@ -627,13 +636,34 @@ def plot_mode_share(df):
                 buttons=list(
                     [
                         dict(
-                            label="Mode: Automobile",
+                            label="Mode: Non-Auto",
                             method="update",
                             args=[
                                 {
                                     "visible": [
                                         True,
                                         False,
+                                        False,
+                                        False,
+                                        False,
+                                        False,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                        True,
+                                    ]
+                                }
+                            ],
+                        ),
+                        dict(
+                            label="Mode: Automobile",
+                            method="update",
+                            args=[
+                                {
+                                    "visible": [
+                                        False,
+                                        True,
                                         False,
                                         False,
                                         False,
@@ -654,8 +684,8 @@ def plot_mode_share(df):
                                 {
                                     "visible": [
                                         False,
-                                        True,
                                         False,
+                                        True,
                                         False,
                                         False,
                                         False,
@@ -676,8 +706,8 @@ def plot_mode_share(df):
                                     "visible": [
                                         False,
                                         False,
-                                        True,
                                         False,
+                                        True,
                                         False,
                                         False,
                                         True,
@@ -698,8 +728,8 @@ def plot_mode_share(df):
                                         False,
                                         False,
                                         False,
-                                        True,
                                         False,
+                                        True,
                                         False,
                                         True,
                                         True,
@@ -712,27 +742,6 @@ def plot_mode_share(df):
                         ),
                         dict(
                             label="Mode: Other",
-                            method="update",
-                            args=[
-                                {
-                                    "visible": [
-                                        False,
-                                        False,
-                                        False,
-                                        False,
-                                        True,
-                                        False,
-                                        True,
-                                        True,
-                                        True,
-                                        True,
-                                        True,
-                                    ]
-                                }
-                            ],
-                        ),
-                        dict(
-                            label="Mode: Non-Auto",
                             method="update",
                             args=[
                                 {
