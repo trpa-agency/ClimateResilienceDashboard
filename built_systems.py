@@ -609,7 +609,10 @@ def plot_mode_share(df):
         )
     )
 
-    fig.update_layout(title_text="Modeshare by Source")
+    fig.update_layout(title_text="Modeshare by Source",
+                      template="plotly_white",
+        dragmode=False,
+        legend_title=None)
     source_sort = ["LOCUS", "Replica", "Survey"]
 
     def custom_sort(tuple_item):

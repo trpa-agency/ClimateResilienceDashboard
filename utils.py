@@ -427,3 +427,90 @@ def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequen
 
     fig.show()
     fig.write_html(path_html)
+    
+def create_stacked_bar_plot_with_dropdown(df, 
+                                  path_html,
+                                  x,
+                                   y,
+                                    color_column,
+                                     dropdown_column,
+                                      color_sequence,
+                                      title_text,
+                                       y_title,
+                                        x_title,
+                                         hovertemplate,
+                                          hovermode,
+                                           format,
+                                            additional_formatting = None):
+    config = {"displayModeBar": False}
+    years = df[x].unique()
+    categories = df[color_column].unique()
+    second_categories = df[dropdown_column].unique()
+    
+    values = {}
+    for second_category in second_categories:
+        values[second_category] = []
+        for category in categories:
+            values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
+
+    # Create traces for each category
+    traces = []
+    for i, category in enumerate(categories):
+        trace = go.Bar(
+            x=years,
+            y=values[second_categories[0]][i],  # Default to the first second category
+            name=category,
+            marker=dict(color=color_sequence[i])  # Assign colors to bars
+        )
+        traces.append(trace)
+
+    # Layout
+    layout = go.Layout(
+        title=title_text,
+        xaxis=dict(title='Year'),
+        yaxis=dict(title='Values'),
+        updatemenus=[
+            dict(
+                buttons=list([
+                    dict(label=second_category,
+                         method='update',
+                         args=[{'y': [values[second_category][i] for i in range(len(categories))]},
+                               {'yaxis': {'title': 'Values'}}])
+                    for second_category in second_categories
+                ]),
+                direction='down',
+                showactive=True,
+                x=0.1,
+                xanchor='left',
+                y=1.15,
+                yanchor='top'
+            ),
+        ]
+    )
+
+    # Create the figure
+    fig = go.Figure(data=traces, layout=layout)
+    fig.update_layout(barmode='stack')
+    fig.update_layout(
+        yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
+        xaxis=dict(title=x_title),
+        hovermode=hovermode,
+        template="plotly_white",
+        dragmode=False,
+        legend_title=None,
+    )
+    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
+    # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
+    
+    fig.update_xaxes(tickformat=".0f")
+    fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_layout(additional_formatting)
+
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
+
+
