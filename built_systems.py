@@ -10,6 +10,7 @@ from utils import (
     stacked_area,
     stackedbar,
     trendline,
+    create_stacked_bar_plot_with_dropdown
 )
 
 
@@ -120,45 +121,24 @@ def get_data_home_heating():
 
 # html\3.1.b_HomeHeatingFuels.html
 def plot_home_heating(df):
-    stackedbar(
+    create_stacked_bar_plot_with_dropdown(
         df,
         path_html="html/3.1.b_HomeHeatingFuels.html",
         div_id="3.1.b_HomeHeatingFuels",
         x="Year",
         y="share",
-        facet="Geography",
-        color="Energy Source",
-        color_sequence=[
-            "#208385",
-            "#FC9A62",
-            "#F9C63E",
-            "#632E5A",
-            "#A48352",
-            "#BCEDB8",
-            "#023F64",
-            "#62C0CC",
-            "#B83F5D",
-        ],
-        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
-        y_title="% of Home Energy Sources by Share of Total",
+        color_column = "Energy Source",
+        dropdown_column = "Geography",
+        color_sequence=["#023f64", "#7ebfb5", "#a48352", "#FC9A62", "#632E5A"],
+        title_text="Share of Total Home Heating by Energy Source",
         x_title="Year",
+        y_title="Share of Total Home Heating",
         hovertemplate="%{y:.0%}",
         hovermode="x unified",
-        orientation=None,
         format=".0%",
-        custom_data=None,
-        facet_row=None,
-        additional_formatting=dict(
-            legend=dict(
-                orientation="h",
-                entrywidth=150,
-                yanchor="bottom",
-                y=1.2,
-                xanchor="right",
-                x=0.95,
-            )
-        ),
-    )
+        additional_formatting = None)
+
+
 
 
 # get data for deed restricted units
