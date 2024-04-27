@@ -138,7 +138,7 @@ def plot_home_heating(df):
         format=".0%",
         additional_formatting = None)
 
-    
+
 
 
 # get data for deed restricted units

@@ -428,7 +428,7 @@ def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequen
     fig.show()
     fig.write_html(path_html)
 
-def create_stacked_bar_plot_with_dropdown(df, 
+def create_stacked_bar_plot_with_dropdown(df,
                                   path_html,
                                   div_id,
                                   x,
