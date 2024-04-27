@@ -389,16 +389,18 @@ def plot_restored_wetlands_meadows_bar(df):
         facet=None,
         custom_data=["Action Performed"],
         hovertemplate="<br>".join(
-            ["<b>%{y:.0f} acres</b> of wetlands and meadows", "<i>%{customdata[0]}</i>"]
+            ["<b>%{y:.0f} acres</b> of stream environment zones", "<i>%{customdata[0]}</i>"]
         )
         + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         format=",.0f",
         additional_formatting=dict(
+            title = "Stream Environment Zones",
+            margin=dict(t=20),
             legend=dict(
                 orientation="h",
-                entrywidth=120,
+                entrywidth=80,
                 yanchor="bottom",
                 y=1.05,
                 xanchor="right",
