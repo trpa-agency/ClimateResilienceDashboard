@@ -30,7 +30,7 @@ def plot_greenhouse_gas(df):
         sort="Year",
         orders=None,
         x_title="Year",
-        y_title="Amount of CO2 (MT CO2e)",
+        y_title="Amount of CO2 (MT CO<sup>2</sup>e)",
         format=",.0f",
         custom_data=["Category"],
         hovertemplate="<br>".join(
@@ -157,8 +157,8 @@ def get_fire_data():
     dfAir["Date"] = pd.to_datetime(dfAir["Date"], format="%m/%d/%Y")
 
     # merge with sdfPUrplAir on Date
-    df = dfFire.merge(dfAir, on="Date", how="left")
-    return df
+    dfFire = dfFire.merge(dfAir, on="Date", how="left")
+    return dfFire
 
 
 # html/1.2.a_Purple_Air_v2.html
@@ -181,7 +181,7 @@ def plot_purple_air_fire(dfAir,dfFire):
                             y=dfFire['PM 2.5 (ug/m3)'], 
                             mode='markers',
                             name='Fire Start Date', 
-                            customdata=df[["Fire", "Acres"]],
+                            customdata=dfFire[["Fire", "Acres"]],
                             hovertemplate="<br>".join([
                                             "<b>%{customdata[0]} FIRE</b> started",
                                             "<i>%{x}</i> and burned",
@@ -236,7 +236,7 @@ def plot_purple_air_fire(dfAir,dfFire):
             dragmode=False,
             showlegend=False,
             # title_font_family="Bell Topo Sans",
-            title_font_color="black",
+            # title_font_color="black",
             title=dict(text="Air Quality Index and Significant Fire Events", 
                         x=0.05, 
                         y=0.95,
@@ -307,14 +307,17 @@ def plot_secchi_depth(df):
     )
     fig.update_traces(marker=dict(size=8))
     fig.update_layout(
-        yaxis=dict(title="Secchi Depth (feet)"),
+        yaxis=dict(title="Feet"),
         xaxis=dict(title="Year", showgrid=False),
         template="plotly_white",
         hovermode="x unified",
         dragmode=False,
+        margin=dict(t=20),
+        # title = "Lake Tahoe Secchi Depth",
         legend=dict(
+            title="Lake Tahoe Secchi Depth",
             orientation="h",
-            entrywidth=125,
+            entrywidth=100,
             # entrywidthmode="fraction",
             yanchor="bottom",
             y=1.05,
@@ -334,7 +337,7 @@ def plot_secchi_depth(df):
     fig.data[1].showlegend = True
     fig.data[2].name = "5-Year Average"
     fig.data[2].showlegend = True
-    fig.update_traces(hovertemplate="%{y:.1f} ft")
+    fig.update_traces(hovertemplate="%{y:.1f}ft")
 
     fig.write_html(
         config=config,
@@ -583,7 +586,7 @@ def plot_lake_level_with_high_water_mark(df):
 
     # define field/value for high water mark and low water mark
     df["High Water Mark"] = 6229
-    df["Low Water Mark"] = 6223
+    df["Low Water Mark"]  = 6223
 
     # add high water mark trace
     fig.add_trace(
@@ -607,6 +610,8 @@ def plot_lake_level_with_high_water_mark(df):
     )
     # update layout
     fig.update_layout(
+        margin=dict(t=20),
+        title = "Lake Tahoe Water Level",
         yaxis=dict(title=y_title),
         xaxis=dict(title=x_title, showgrid=False),
         hovermode=hovermode,
@@ -667,6 +672,12 @@ def get_all_temp_midlake():
         dfMerge["RBR_0p5_F"] = dfMerge["RBR_0p5_m"] * 9 / 5 + 32
     # get the mean of all sites by date/time
     df = dfMerge.groupby("TmStamp")["RBR_0p5_F"].mean().reset_index()
+    # get the average for each day
+    df['TmStamp'] = pd.to_datetime(df['TmStamp'])
+    df = df.resample('D', on='TmStamp').mean().reset_index()
+
+    # create a seven day rolling average
+    df["RBR_0p5_F_7_day_avg"] = df["RBR_0p5_F"].rolling(window=7).mean()
     return df
 
 
@@ -700,21 +711,34 @@ def plot_lake_temp_midlake(df):
         path_html="html/1.3.b_Lake_Temp.html",
         div_id="1.3.b_Lake_Temp",
         x="TmStamp",
-        y="RBR_0p5_F",
+        y="RBR_0p5_F_7_day_avg",
         color=None,
         color_sequence=["#023f64"],
         sort="TmStamp",
         orders=None,
         x_title="Date",
-        y_title="Average Lake Surface Temperature (F)",
-        format=".1f",
-        hovertemplate="%{y:.2f} F",
+        y_title="Temperature (<sup>o</sup>F)",
+        format=".0f",
+        hovertemplate="<b>%{y:.0f}<sup>o</sup>F</b>",
         markers=False,
         hover_data=None,
         tickvals=None,
         ticktext=None,
         tickangle=None,
         hovermode="x unified",
+        custom_data=None,
+        additional_formatting=dict(
+            title="Lake Tahoe Mid-Lake Surface Temperature",
+            # legend_title_text="Lake Tahoe Surface Temperature",
+            # legend=dict(
+            #     orientation="h",
+            #     entrywidth=100,
+            #     yanchor="bottom",
+            #     y=1.05,
+            #     xanchor="right",
+            #     x=1,
+            # ),
+        ),
     )
 
 
@@ -774,6 +798,20 @@ def plot_precip(df):
         hovermode="x unified",
         orientation=None,
         format=",.0f",
+        custom_data=None,
+        additional_formatting=dict(
+            margin=dict(t=20),
+            title="Lake Tahoe Precipitation",
+            # legend_title_text="Precipitation Type",
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            ),
+        ),
     )
 
 
@@ -830,7 +868,10 @@ def plot_extremeheat(df):
     path_html = "html/1.2.a_ExtremeHeatDays.html"
     div_id = "1.3.d_Precip"
     color_sequence = ["#023f64"]
-    hovertemplate = "%{y:,.0f} days over 85 F"
+    hovertemplate = "<br>".join([
+                            "<b>%{y:,.0f} days</b> ",
+                            "<i>over 85<sup>o</sup>F</i>",
+                            ])+"<extra></extra>"
     format = ",.0f"
     tickvals = None
     ticktext = None
@@ -848,7 +889,7 @@ def plot_extremeheat(df):
         extremeHeatDaysDF,
         x="Year",
         y="Count",
-        # title="Number of Extreme Heat Days in Tahoe (over 85 degrees F)",
+        title="# of Extreme Heat Days in Tahoe (over 85<sup>o</sup>F)",
         color_discrete_sequence=color_sequence,
     )
 

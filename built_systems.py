@@ -359,8 +359,11 @@ def plot_transit(df):
             "<b>%{y:,.0f}</b> riders on",
             "<i>%{customdata[0]}</i> lines"
                 ])+"<extra></extra>",
-        additional_formatting = dict(legend=dict(
-                                        title="Transit Ridership",
+        additional_formatting = dict(
+                                    title = "Transit Ridership",
+                                    margin=dict(t=20),
+                                    legend=dict(
+                                        # title="Transit Ridership",
                                         orientation="h",
                                         entrywidth=120,
                                         yanchor="bottom",
