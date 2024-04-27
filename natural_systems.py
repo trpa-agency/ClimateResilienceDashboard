@@ -315,12 +315,12 @@ def plot_aquatic_species_bar(df):
         orientation=None,
         format=",.0f",
         additional_formatting=dict(
-            title=dict(text="Aquatic Invasive Species Treatment", 
-                    x=0.05, 
+            title=dict(text="Aquatic Invasive Species Treatment",
+                    x=0.05,
                     y=0.95,
                     xanchor="left",
                     yanchor="top",
-                    font=dict(size=16), 
+                    font=dict(size=16),
                     automargin=True),
             margin=dict(t=20),
             # turn off legend

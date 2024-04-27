@@ -427,8 +427,8 @@ def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequen
 
     fig.show()
     fig.write_html(path_html)
-    
-def create_stacked_bar_plot_with_dropdown(df, 
+
+def create_stacked_bar_plot_with_dropdown(df,
                                   path_html,
                                   x,
                                    y,
@@ -446,7 +446,7 @@ def create_stacked_bar_plot_with_dropdown(df,
     years = df[x].unique()
     categories = df[color_column].unique()
     second_categories = df[dropdown_column].unique()
-    
+
     values = {}
     for second_category in second_categories:
         values[second_category] = []
@@ -501,7 +501,7 @@ def create_stacked_bar_plot_with_dropdown(df,
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
-    
+
     fig.update_xaxes(tickformat=".0f")
     fig.update_traces(hovertemplate=hovertemplate)
     fig.update_layout(additional_formatting)
