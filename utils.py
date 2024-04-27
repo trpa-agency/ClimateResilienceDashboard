@@ -480,10 +480,11 @@ def create_stacked_bar_plot_with_dropdown(df,
                     for second_category in second_categories
                 ]),
                 direction='right',
+                type='buttons',
                 showactive=True,
                 x=0.1,
                 xanchor='left',
-                y=1.15,
+                y=1.05,
                 yanchor='top'
             ),
         ]
