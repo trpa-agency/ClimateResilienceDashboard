@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.express as px
 import pytz
 from arcgis.features import FeatureLayer
+import plotly.graph_objects as go
 
 
 # Reads in csv file
@@ -350,3 +351,166 @@ def stacked_area(
         include_plotlyjs="directory",
         div_id=div_id,
     )
+
+def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequence, orders,
+                              x_title, y_title,
+                              hovertemplate, hovermode,
+                              title_text):
+    """
+    Create an interactive bar chart with a dropdown menu.
+
+    Args:
+    - df (DataFrame): The DataFrame containing the data.
+    - path_html (str): The path to save the HTML file.
+    - dropdown_column (str): The column name to be used for dropdown menu options.
+    - x (str): The column name for the x-axis.
+    - y (str): The column name for the y-axis.
+    - color_sequence (list of str): List of color codes for each trace.
+    - orders (dict): Dictionary specifying the order of dropdown menu options.
+    - x_title (str): The title for the x-axis. Default is "Year".
+    - y_title (str): The title for the y-axis. Default is "Median Household Income ($)".
+    - hovertemplate (str): The hover template for the chart. Default is "%{y}".
+    - hovermode (str): The hover mode for the chart. Default is "x unified".
+
+    Returns:
+    - None
+    """
+    fig = go.Figure()
+
+    def create_trace(dff, name, color):
+        return go.Bar(
+            x=dff[x],
+            y=dff[y],
+            name=name,
+            hovertemplate=hovertemplate,
+            marker_color=color,
+            visible=False
+        )
+
+    traces = []
+    for i, region in enumerate(orders[dropdown_column]):
+        query_string = f"{dropdown_column} == '{region}'"
+        dff = df.query(query_string)
+        trace = create_trace(dff, region, color_sequence[i])
+        traces.append(trace)
+
+    fig.add_traces(traces)
+    fig.update_traces(visible=True, selector=0)
+    buttons = []
+    for i, region in enumerate(orders[dropdown_column]):
+        visible_state = [False] * len(orders[dropdown_column])
+        visible_state[i] = True
+        button = dict(
+            label=region,
+            method='update',
+            args=[{'visible': visible_state}, {'title': f'Median Income in {region}'}]
+        )
+        buttons.append(button)
+
+    fig.update_layout(
+        barmode='group',
+        xaxis_title=x_title,
+        yaxis_title=y_title,
+        hovermode=hovermode,
+        title=f'{title_text} {orders[dropdown_column][0]}',
+        title_x=0.5
+    )
+
+    fig.layout.updatemenus = [{
+        'buttons': buttons,
+        'type': "buttons",
+        'direction': "right",
+        'active': 0,
+        'x': 0.25,
+        'y': 1.05
+    }]
+
+    fig.show()
+    fig.write_html(path_html)
+    
+def create_stacked_bar_plot_with_dropdown(df, 
+                                  path_html,
+                                  x,
+                                   y,
+                                    color_column,
+                                     dropdown_column,
+                                      color_sequence,
+                                      title_text,
+                                       y_title,
+                                        x_title,
+                                         hovertemplate,
+                                          hovermode,
+                                           format,
+                                            additional_formatting = None):
+    config = {"displayModeBar": False}
+    years = df[x].unique()
+    categories = df[color_column].unique()
+    second_categories = df[dropdown_column].unique()
+    
+    values = {}
+    for second_category in second_categories:
+        values[second_category] = []
+        for category in categories:
+            values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
+
+    # Create traces for each category
+    traces = []
+    for i, category in enumerate(categories):
+        trace = go.Bar(
+            x=years,
+            y=values[second_categories[0]][i],  # Default to the first second category
+            name=category,
+            marker=dict(color=color_sequence[i])  # Assign colors to bars
+        )
+        traces.append(trace)
+
+    # Layout
+    layout = go.Layout(
+        title=title_text,
+        xaxis=dict(title='Year'),
+        yaxis=dict(title='Values'),
+        updatemenus=[
+            dict(
+                buttons=list([
+                    dict(label=second_category,
+                         method='update',
+                         args=[{'y': [values[second_category][i] for i in range(len(categories))]},
+                               {'yaxis': {'title': 'Values'}}])
+                    for second_category in second_categories
+                ]),
+                direction='down',
+                showactive=True,
+                x=0.1,
+                xanchor='left',
+                y=1.15,
+                yanchor='top'
+            ),
+        ]
+    )
+
+    # Create the figure
+    fig = go.Figure(data=traces, layout=layout)
+    fig.update_layout(barmode='stack')
+    fig.update_layout(
+        yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
+        xaxis=dict(title=x_title),
+        hovermode=hovermode,
+        template="plotly_white",
+        dragmode=False,
+        legend_title=None,
+    )
+    fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
+    # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
+    
+    fig.update_xaxes(tickformat=".0f")
+    fig.update_traces(hovertemplate=hovertemplate)
+    fig.update_layout(additional_formatting)
+
+    fig.write_html(
+        config=config,
+        file=path_html,
+        include_plotlyjs="directory",
+        div_id=div_id,
+    )
+
+
