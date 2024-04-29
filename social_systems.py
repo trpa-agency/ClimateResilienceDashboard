@@ -457,6 +457,38 @@ def get_data_housing_occupancy():
     val["Total_Housing_Units"] = val.groupby(["Geography", "year_sample"])["value"].transform("sum")
     val["share"] = val["value"] / val["Total_Housing_Units"]
     return val
+def plot_housing_occupancy(df):
+    create_stacked_bar_plot_with_dropdown(
+        df,
+        path_html="html/4.1.e_HousingOccupancy.html",
+        div_id="4.1.e_HousingOccupancy",
+        x="year_sample",
+        y="share",
+        color_column="Occupancy",
+        dropdown_column="Geography",
+        color_sequence=["#208385", "#FC9A62", "#632E5A", "#A48352"],
+        sort_order=['Owner Occupied', 'Renter Occupied', 'Vacant Other', 'Vacant Seasonal'],
+        title_text='Housing Occupancy',
+        y_title="Percent of Housing Occupancy",
+        x_title="Year",
+        hovermode="x unified",
+        format=".0%",
+        custom_data=["Occupancy"],
+        hovertemplate="<br>".join(
+            ["<b>%{y:.1%}</b> of the housing units are", "<i>%{customdata[0]}</i>"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+        ),
+    )
 # get commute patterns data
 def get_data_commute_patterns():
     data = get_fs_data(
@@ -717,7 +749,7 @@ def plot_race_ethnicity(df):
         format=".0%",
         custom_data=["Race"],
         hovertemplate="<br>".join(
-            ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata[0]}</i>"]
+            ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata}</i>"]
         )
         + "<extra></extra>",
         additional_formatting=dict(

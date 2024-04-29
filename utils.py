@@ -6,6 +6,7 @@ import plotly.express as px
 import pytz
 from arcgis.features import FeatureLayer
 import plotly.graph_objects as go
+import numpy as np
 
 
 # Reads in csv file
@@ -457,20 +458,30 @@ def create_stacked_bar_plot_with_dropdown(df,
     for second_category in second_categories:
         values[second_category] = []
         for category in categories:
-            values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
-
+            #values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
+            filtered_df = df[(df[dropdown_column] == second_category) & (df[color_column] == category)]
+            y_values = filtered_df[y].tolist()
+            category_values = filtered_df[color_column].tolist()
+            values[second_category].append([y_values, category_values])
     # Create traces for each category
     traces = []
     print(values)
+    df_custom_data = pd.DataFrame(categories, columns=['categories'])
+    my_array = np.stack(categories)
+    custom_data_list = []
+    print(my_array)
     for i, category in enumerate(categories):
+        print(values[second_categories[0]][i][0])
         trace = go.Bar(
             x=years,
-            y=values[second_categories[0]][i],  # Default to the first second category
+            y=values[second_categories[0]][i][0],  # Default to the first second category
             name=category,
             marker=dict(color=color_sequence[i]),
-            customdata=categories,
+            customdata=values[second_categories[0]][i][1],
+            
             hovertemplate=hovertemplate
         )
+        #custom_data_list.append(category)
         traces.append(trace)
 
     # Layout
@@ -513,7 +524,8 @@ def create_stacked_bar_plot_with_dropdown(df,
     # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
 
     fig.update_xaxes(tickformat=".0f")
-    #fig.update_traces()
+    #print(custom_data_list)
+    #fig.update_traces(customdata=custom_data_list)
 
     fig.update_layout(additional_formatting)
 
