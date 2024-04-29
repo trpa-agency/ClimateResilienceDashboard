@@ -1,38 +1,34 @@
-<html lang="en">
-
+<!DOCTYPE html>
+<html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport"
-      content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
     <title>Climate Resilience Dashboard - Smoke Forecast</title>
-    <script type="module" src="https://js.arcgis.com/calcite-components/1.9.2/calcite.esm.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/1.9.2/calcite.css"/>
-    <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css" />
-    <script src="https://js.arcgis.com/4.28/"></script>
-
     <style>
       html,
       body,
       #viewDiv {
-        padding: 0;
-        margin: 0;
         height: 100%;
         width: 100%;
+        padding: 0;
+        margin: 0;
       }
-
       #timeSlider {
         position: absolute;
         left: 5%;
         right: 5%;
         bottom: 20px;
       }
-
-      #titleDiv {
-        padding: 10px;
-        font-weight: 36;
-        text-align: center;
-      }
     </style>
+
+<script type="module" src="https://js.arcgis.com/calcite-components/1.9.2/calcite.esm.js"></script>
+<link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/1.9.2/calcite.css"/>
+<link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/light/main.css" />
+<script src="https://js.arcgis.com/4.29/"></script>
+
     <script>
     require([
       "esri/Map",
@@ -41,7 +37,6 @@
       "esri/widgets/TimeSlider",
       "esri/widgets/Expand",
       "esri/widgets/Legend",
-      // "esri/widgets/TimeZoneLabel",
       "esri/widgets/Home",
       "esri/widgets/Fullscreen"
     ], (
@@ -99,6 +94,9 @@
           }
         ]
         });
+
+
+
         // Add widget to the top right corner of the view
         view.ui.add(legend, "top-right");
         
@@ -108,16 +106,13 @@
             expandTooltip: "Legend",
             view: view,
             expanded: true,
-            autoCollapse: true,
+            autoCollapse: false,
             content: legend.domNode,
             group: "top-right"
             });
 
         // add layer list button to the top right corner of the view
         view.ui.add(legendExpand, "top-right");
-
-      // // add the UI for a title
-      // view.ui.add("titleDiv", "top-right");
 
         // move zoom buttons to top left
         view.ui.move("zoom", "top-left");
@@ -134,20 +129,21 @@
             view: view
         });
         view.ui.add(homeWidget, "top-left");
+      
 
         //disable scroll on zoom
         view.on("mouse-wheel", function(evt) {
         // disable mouse wheel scroll zooming on the view
         evt.stopPropagation();
       });
-
+      
     });
   </script>
   </head>
 
   <body>
     <div id="viewDiv"></div>
-    <div id="timeSlider"></div>
+    <div id="timeSlider"></div> 
     <!-- <div id="titleDiv" class="esri-widget">
       <div id="titleText">Smoke forecast for next 72 hours </div> -->
   </body>

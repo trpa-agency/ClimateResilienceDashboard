@@ -65,6 +65,18 @@ def plot_forest_fuel(df):
         hovermode="x unified",
         orientation=None,
         format=",.0f",
+        additional_formatting=dict(
+            # title = "Forest Health Treatment",
+            legend=dict(
+                title= "Forest Health Treatment Zone",
+                orientation="h",
+                entrywidth=85,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
     )
 
 
@@ -245,6 +257,8 @@ def get_data_aquatic_species():
             "IndicatorProjectValue": "Acres",
         }
     )
+    # filter out Terrestrial from Invasive Species Type
+    data = data.loc[data["Invasive Species Type"] != "Terrestrial"]
     df = data.groupby(["Year", "Invasive Species Type"])["Acres"].sum().reset_index()
     return df
 
@@ -257,7 +271,7 @@ def plot_aquatic_species(df):
         x="Year",
         y="Acres",
         color="Invasive Species Type",
-        color_sequence=["#023f64", "#7ebfb5"],
+        # color_sequence=["#023f64", "#7ebfb5"],
         sort="Year",
         orders=None,
         x_title="Year",
@@ -269,9 +283,15 @@ def plot_aquatic_species(df):
         tickvals=None,
         ticktext=None,
         tickangle=None,
-        hovermode="x",
+        hovermode="x unified",
+        custom_data=None,
+        additional_formatting=dict(
+            title="Aquatic Invasive Species Treatment",
+            margin=dict(t=20),
+            # turn off legend
+            showlegend=False,
+        ),
     )
-
 
 def plot_aquatic_species_bar(df):
     stackedbar(
@@ -294,6 +314,18 @@ def plot_aquatic_species_bar(df):
         hovermode="x unified",
         orientation=None,
         format=",.0f",
+        additional_formatting=dict(
+            title=dict(text="Aquatic Invasive Species Treatment",
+                    x=0.05,
+                    y=0.95,
+                    xanchor="left",
+                    yanchor="top",
+                    font=dict(size=16),
+                    automargin=True),
+            margin=dict(t=20),
+            # turn off legend
+            showlegend=False,
+        ),
     )
 
 
