@@ -415,7 +415,48 @@ def plot_tenure_by_race(df):
         ),
     )
 
+def get_data_housing_occupancy():
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
+    )
+    mask = (data["Category"] == "Housing Units: Occupancy")
+    val = data[mask].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    # Need to get vacant other from total housing units: vacant and 
+    #subtracting vacant housing units seasonal rereational or occasional use grouped by geography, year
+    mask_vacant_seasonal = (data["variable_name"] == "Vacant Housing Units: Seasonal, recreational, or occasional use")
+    mask_vacant_total = (data["variable_name"] == "Total Housing Units: Vacant")
+    data_vacant = data[mask_vacant_total].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    
+    data_vacant_seasonal = data[mask_vacant_seasonal].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    data_vacant_total = data[mask_vacant_total].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    #rename the value column to vacant_season for data vacant seasonal
+    data_vacant_seasonal = data_vacant_seasonal.rename(columns={"value": "vacant_season"})
+    data_vacant_total = data_vacant_total.rename(columns={"value": "vacant_total"})
+    #merge the two dataframes
+    data_vacant = data_vacant_total.merge(data_vacant_seasonal, 
+                                          on=["Geography", 'year_sample'])
+    print(data_vacant.columns)
+    data_vacant["vacant_other"] = data_vacant["vacant_total"] - data_vacant["vacant_season"]
+    data_vacant = data_vacant.loc[:, ["Geography", 'year_sample', 'vacant_other']]
+    data_vacant["variable_name"] = "Vacant Housing Units: Other"
+    data_vacant = data_vacant.rename(columns={"vacant_other": "value"})
+    val = pd.concat([val, data_vacant], ignore_index=True)
+    value_lookup = {
+             "Occupied Housing Units: Owner Occupied": "Owner Occupied",
+            "Occupied Housing Units: Renter Occupied": "Renter Occupied",
+            "Vacant Housing Units: Other": "Vacant Other",
+            "Vacant Housing Units: Seasonal, recreational, or occasional use": "Vacant Seasonal",
+        }
+    val["Occupancy"] = val["variable_name"].replace(
+        value_lookup
+    )
+    # Drop if variable_name not in value_lookup
+    val = val.loc[val["variable_name"].isin(value_lookup.keys())]
 
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
+    val["Total_Housing_Units"] = val.groupby(["Geography", "year_sample"])["value"].transform("sum")
+    val["share"] = val["value"] / val["Total_Housing_Units"]
+    return val
 # get commute patterns data
 def get_data_commute_patterns():
     data = get_fs_data(
