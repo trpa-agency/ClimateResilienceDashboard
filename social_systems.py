@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.express as px
 import pydeck
 
-from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline
+from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline, create_stacked_bar_plot_with_dropdown
 
 
 # get data for household income
@@ -595,15 +595,16 @@ def get_data_race_ethnicity():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
-    mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
-    mask2 = (
-        (data["Category"] == "Race and Ethnicity")
-        & (data["year_sample"] == 2020)
-        & (data["sample_level"] == "block group")
-    )
-    df1 = data[mask1]
-    df2 = data[mask2]
-    val = pd.concat([df1, df2], ignore_index=True)
+    mask1 = (data["Category"] == "Race and Ethnicity") & (data['dataset'] != 'acs/acs5' )
+    # mask2 = (
+    #     (data["Category"] == "Race and Ethnicity")
+    #     & (data["year_sample"] == 2020)
+    #     & (data["sample_level"] == "block group")
+    #     & (data['dataset'] != 'acs/acs5' )
+    # )
+    val = data[mask1]
+    # df2 = data[mask2]
+    # val = pd.concat([df1, df2], ignore_index=True)
     val = val.loc[:, ["variable_name", "value", "Geography", "year_sample"]].rename(
         columns={"year_sample": "Year", "variable_name": "Race"}
     )
@@ -626,25 +627,37 @@ def get_data_race_ethnicity():
             "Total population:  Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
             "Total population:  Not Hispanic or Latino; Asian alone": "Asian",
             "Total population:  Not Hispanic or Latino; Native Hawaiian and Other Pacific Islander alone": "NHPI",
-            "Total population:  Not Hispanic or Latino; Some other race alone": "Some Other",
+            "Total population:  Not Hispanic or Latino; Some other race alone": "Other",
             "Total population:  Not Hispanic or Latino; Two or more races": "Multi",
         }
     )
-    df = df.sort_values("Year")
+    # Populate missing combinations of Race and Year with 0 values
+    all_years = df["Year"].unique()
+    all_races = df["Race"].unique()
+    all_geographies = df["Geography"].unique()
+    all_combinations = [(year, race, geography) for year in all_years for race in all_races for geography in all_geographies]
+    existing_combinations = [(row["Year"], row["Race"], row["Geography"]) for _, row in df.iterrows()]
+    missing_combinations = list(set(all_combinations) - set(existing_combinations))
+    missing_data = pd.DataFrame(missing_combinations, columns=["Year", "Race", "Geography"])
+    missing_data["value"] = 0
+    missing_data["value_total"] = 0
+    missing_data["share"] = 0
+    df = pd.concat([df, missing_data], ignore_index=True)
+    df = df.sort_values(["Year", "Race", "Geography"])
     return df
 
 
 # html\4.4.a_RaceEthnicity_v1.html
 # html\4.4.a_RaceEthnicity_v2.html
 def plot_race_ethnicity(df):
-    stackedbar(
+    create_stacked_bar_plot_with_dropdown(
         df,
         path_html="html/4.4.a_RaceEthnicity_v1.html",
         div_id="4.4.a_RaceEthnicity_v1",
         x="Year",
         y="share",
-        facet="Geography",
-        color="Race",
+        color_column="Race",
+        dropdown_column="Geography",
         color_sequence=[
             "#208385",
             "#FC9A62",
@@ -655,11 +668,11 @@ def plot_race_ethnicity(df):
             "#023F64",
             "#B83F5D",
         ],
-        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
-        y_title="% of Race and Ethnicity of Total",
+        sort_order=['White', 'Hispanic', 'Asian', 'Black', 'AIAN', 'NHPI', 'Other', 'Multi'],
+        title_text='Race and Ethnicity of Population',
+        y_title="Percent of Race and Ethnicity",
         x_title="Year",
         hovermode="x unified",
-        orientation=None,
         format=".0%",
         custom_data=["Race"],
         hovertemplate="<br>".join(
