@@ -421,6 +421,7 @@ def get_data_housing_occupancy():
     )
     mask = (data["Category"] == "Housing Units: Occupancy")
     val = data[mask].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    val=val.groupby(["variable_name", "Geography", 'year_sample']).sum().reset_index()
     # Need to get vacant other from total housing units: vacant and 
     #subtracting vacant housing units seasonal rereational or occasional use grouped by geography, year
     mask_vacant_seasonal = (data["variable_name"] == "Vacant Housing Units: Seasonal, recreational, or occasional use")
