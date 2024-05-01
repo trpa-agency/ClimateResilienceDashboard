@@ -499,9 +499,9 @@ def create_stacked_bar_plot_with_dropdown(df,
                 direction='right',
                 type='buttons',
                 showactive=True,
-                x=0.1,
+                x=0.05,
                 xanchor='left',
-                y=1.15,
+                y=1.3,
                 yanchor='top'
             ),
         ]
