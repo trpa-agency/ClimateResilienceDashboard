@@ -487,6 +487,11 @@ def plot_housing_occupancy(df):
                 y=1.05,
                 xanchor="right",
                 x=1,
+            ),
+            xaxis = dict(
+                tickmode = 'array',
+                tickvals = [1990, 2000, 2010, 2020],
+                ticktext = ['1990', '2000', '2010', '2020'],
             )
         ),
     )

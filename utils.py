@@ -493,8 +493,7 @@ def create_stacked_bar_plot_with_dropdown(df,
                 buttons=list([
                     dict(label=second_category,
                          method='update',
-                         args=[{'y': [values[second_category][i][0] for i in range(len(categories))]},
-                               {'yaxis': {'title': 'Values'}}])
+                         args=[{'y': [values[second_category][i][0] for i in range(len(categories))]}])
                     for second_category in second_categories
                 ]),
                 direction='right',
