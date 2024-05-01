@@ -451,7 +451,7 @@ def create_stacked_bar_plot_with_dropdown(df,
     years = df[x].unique()
     categories = df[color_column].unique()
     categories =sorted(categories, key=lambda x: sort_order.index(x))
-    print(categories)
+    #print(categories)
     second_categories = df[dropdown_column].unique()
 
     values = {}
@@ -465,13 +465,12 @@ def create_stacked_bar_plot_with_dropdown(df,
             values[second_category].append([y_values, category_values])
     # Create traces for each category
     traces = []
-    print(values)
+    #print(values)
     df_custom_data = pd.DataFrame(categories, columns=['categories'])
     my_array = np.stack(categories)
     custom_data_list = []
-    print(my_array)
+    #print(my_array)
     for i, category in enumerate(categories):
-        print(values[second_categories[0]][i][0])
         trace = go.Bar(
             x=years,
             y=values[second_categories[0]][i][0],  # Default to the first second category
@@ -494,7 +493,7 @@ def create_stacked_bar_plot_with_dropdown(df,
                 buttons=list([
                     dict(label=second_category,
                          method='update',
-                         args=[{'y': [values[second_category][i] for i in range(len(categories))]},
+                         args=[{'y': [values[second_category][i][0] for i in range(len(categories))]},
                                {'yaxis': {'title': 'Values'}}])
                     for second_category in second_categories
                 ]),
@@ -508,7 +507,6 @@ def create_stacked_bar_plot_with_dropdown(df,
             ),
         ]
     )
-
     # Create the figure
     fig = go.Figure(data=traces, layout=layout)
     fig.update_layout(barmode='stack')
