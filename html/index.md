@@ -93,6 +93,7 @@
 * Housing tenure (rented full-time, owner-occupied, second home), disaggregated by race, ethnicity, and age
   * [Tenure by Race - Chart](4.1.c_TenureByRace.html)
   * [Tenure by Age - Chart](4.1.c_TenureByAge.html)
+  * [Occupancy - Chart](4.1.c_Occupancy.html)
 * Percent of workers who commute into the basin, origin demographics, distance traveled
   * [Commute Percentage - Chart](4.1.d_commuter_percentage.html)
   * [Commute Patterns - Map](4.1.d_commuter_patterns.html)

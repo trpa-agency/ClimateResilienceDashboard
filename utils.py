@@ -485,7 +485,7 @@ def create_stacked_bar_plot_with_dropdown(df,
 
     # Layout
     layout = go.Layout(
-        title=title_text,
+        title=None,
         xaxis=dict(title='Year'),
         yaxis=dict(title='Values'),
         updatemenus=[
@@ -515,7 +515,7 @@ def create_stacked_bar_plot_with_dropdown(df,
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None
+        legend_title=title_text
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
