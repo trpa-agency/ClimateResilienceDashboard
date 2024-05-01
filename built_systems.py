@@ -14,46 +14,66 @@ from utils import (
 )
 
 
+# # get data for affordable units
+# def get_data_affordable_units():
+#     # parcel development history layer
+#     parcelURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17"
+#     # deed restricted housing layer
+#     deedURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/20"
+
+#     parcelUnits = get_fs_data_spatial_query(parcelURL, "Year = 2022")
+#     deedUnits = get_fs_data_spatial_query(deedURL, "DeedRestrictionType = 'Affordable Housing'")
+
+#     # merge the two dataframes on the parcel id
+#     df = pd.merge(parcelUnits, deedUnits, on="APN", how="left")
+
+#     # group by LOCATION_TO_TOWNCENTER and sum of OBJECTID_y and Residential_Units
+#     df = (
+#         df.groupby("LOCATION_TO_TOWNCENTER")
+#         .agg({"OBJECTID_y": "count", "Residential_Units": "sum"})
+#         .reset_index()
+#     )
+
+#     # add the values in the first row to the second row
+#     df.iloc[1] = df.iloc[0] + df.iloc[1]
+
+#     # drop index row 0
+#     df = df.drop(df.index[0])
+
+#     # rename column OBJECTID_y to Total Deed Restricted Housing
+#     df = df.rename(
+#         columns={
+#             "LOCATION_TO_TOWNCENTER": "Location to Town Center",
+#             "OBJECTID_y": "Total Deed Restricted Housing",
+#             "Residential_Units": "Total Residential Units",
+#         }
+#     )
+
+#     # cast Total Deed Restricted Housing to int and Residential Units to int
+#     df["Total Deed Restricted Housing"] = df["Total Deed Restricted Housing"].astype(int)
+#     df["Total Residential Units"] = df["Total Residential Units"].astype(int)
+#     return df
+
 # get data for affordable units
 def get_data_affordable_units():
-    # parcel development history layer
-    parcelURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/17"
-    # deed restricted housing layer
-    deedURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/20"
-
-    parcelUnits = get_fs_data_spatial_query(parcelURL, "Year = 2022")
-    deedUnits = get_fs_data_spatial_query(deedURL, "DeedRestrictionType = 'Affordable Housing'")
-
-    # merge the two dataframes on the parcel id
-    df = pd.merge(parcelUnits, deedUnits, on="APN", how="left")
-
-    # group by LOCATION_TO_TOWNCENTER and sum of OBJECTID_y and Residential_Units
-    df = (
-        df.groupby("LOCATION_TO_TOWNCENTER")
-        .agg({"OBJECTID_y": "count", "Residential_Units": "sum"})
-        .reset_index()
-    )
-
-    # add the values in the first row to the second row
-    df.iloc[1] = df.iloc[0] + df.iloc[1]
-
-    # drop index row 0
-    df = df.drop(df.index[0])
-
-    # rename column OBJECTID_y to Total Deed Restricted Housing
-    df = df.rename(
-        columns={
-            "LOCATION_TO_TOWNCENTER": "Location to Town Center",
-            "OBJECTID_y": "Total Deed Restricted Housing",
-            "Residential_Units": "Total Residential Units",
-        }
-    )
-
-    # cast Total Deed Restricted Housing to int and Residential Units to int
-    df["Total Deed Restricted Housing"] = df["Total Deed Restricted Housing"].astype(int)
-    df["Total Residential Units"] = df["Total Residential Units"].astype(int)
+    # deed restricted housing units table
+    deedURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/148"
+    # data = get_fs_data_query(deedURL, "Date_Type = 'Constructed")
+    df = get_fs_data(deedURL)
+    # filter df to Date_Type = Constructed
+    df = df.loc[df.Date_Type == 'Constructed']
+    # group by Deed_Restriction_Type and LOCATION_TO_TOWNCENTER
+    df = df.groupby(['Deed_Restriction_Type', 'LOCATION_TO_TOWNCENTER'])['Units'].sum().reset_index()
+    # rename columns
+    df = df.rename(columns={'LOCATION_TO_TOWNCENTER':'Location',
+                            'Deed_Restriction_Type':'Deed Restriction Type',
+                            'Units':'Units'})
+    
+    # change Location values 
+    df['Location'] = df['Location'].replace({'Town Center': 'Within a Town Center',
+                                              'Quarter Mile Buffer': 'Within a 1/4 mile of a Town Center', 
+                                              'Outside Buffer': 'Further than a 1/4 of a Town Center'})
     return df
-
 
 # html\3.1.a_Affordable_Units.html
 def plot_affordable_units(df):
@@ -61,10 +81,10 @@ def plot_affordable_units(df):
         df,
         path_html="html/3.1.a_Affordable_Units.html",
         div_id="3.1.a_Affordable_Units",
-        x="Location to Town Center",
-        y=["Total Deed Restricted Housing", "Total Residential Units"],
+        x="Location",
+        y='Units',
         facet=None,
-        color=None,
+        color='Deed Restriction Type',
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         orders=None,
         y_title="Total Units",
@@ -75,6 +95,7 @@ def plot_affordable_units(df):
         hovermode="x unified",
         orientation=None,
         additional_formatting=dict(
+            title = "Deed Restricted Housing Units relative to Town Centers",
             legend=dict(
                 orientation="h",
                 entrywidth=100,
