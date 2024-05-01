@@ -470,7 +470,7 @@ def plot_housing_occupancy(df):
         color_sequence=["#208385", "#FC9A62", "#632E5A", "#A48352"],
         sort_order=['Owner Occupied', 'Renter Occupied', 'Vacant Other', 'Vacant Seasonal'],
         title_text='Housing Occupancy',
-        y_title="Percent of Housing Occupancy",
+        y_title="% Housing Occupancy",
         x_title="Year",
         hovermode="x unified",
         format=".0%",
