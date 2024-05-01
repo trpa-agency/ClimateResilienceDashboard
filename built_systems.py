@@ -68,10 +68,10 @@ def get_data_affordable_units():
     df = df.rename(columns={'LOCATION_TO_TOWNCENTER':'Location',
                             'Deed_Restriction_Type':'Deed Restriction Type',
                             'Units':'Units'})
-    
-    # change Location values 
+
+    # change Location values
     df['Location'] = df['Location'].replace({'Town Center': 'Within a Town Center',
-                                              'Quarter Mile Buffer': 'Within a 1/4 mile of a Town Center', 
+                                              'Quarter Mile Buffer': 'Within a 1/4 mile of a Town Center',
                                               'Outside Buffer': 'Further than a 1/4 of a Town Center'})
     return df
 
