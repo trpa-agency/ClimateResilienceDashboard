@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.express as px
 import pydeck
 
-from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline
+from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline, create_stacked_bar_plot_with_dropdown
 
 
 # get data for household income
@@ -415,7 +415,81 @@ def plot_tenure_by_race(df):
         ),
     )
 
+def get_data_housing_occupancy():
+    data = get_fs_data(
+        "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
+    )
+    mask = (data["Category"] == "Housing Units: Occupancy")
+    val = data[mask].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    val=val.groupby(["variable_name", "Geography", 'year_sample']).sum().reset_index()
 
+    # Need to get vacant other from total housing units: vacant and 
+    #subtracting vacant housing units seasonal rereational or occasional use grouped by geography, year
+    mask_vacant_seasonal = (val["variable_name"] == "Vacant Housing Units: Seasonal, recreational, or occasional use")
+    mask_vacant_total = (val["variable_name"] == "Total Housing Units: Vacant")
+    data_vacant = val[mask_vacant_total].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+
+    data_vacant_seasonal = val[mask_vacant_seasonal].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    data_vacant_total = val[mask_vacant_total].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    #rename the value column to vacant_season for data vacant seasonal
+    data_vacant_seasonal = data_vacant_seasonal.rename(columns={"value": "vacant_season"})
+    data_vacant_total = data_vacant_total.rename(columns={"value": "vacant_total"})
+    #merge the two dataframes
+    data_vacant = data_vacant_total.merge(data_vacant_seasonal, 
+                                            on=["Geography", 'year_sample'])
+    data_vacant["vacant_other"] = data_vacant["vacant_total"] - data_vacant["vacant_season"]
+    data_vacant = data_vacant.loc[:, ["Geography", 'year_sample', 'vacant_other']]
+    data_vacant["variable_name"] = "Vacant Housing Units: Other"
+    data_vacant = data_vacant.rename(columns={"vacant_other": "value"})
+    val = pd.concat([val, data_vacant], ignore_index=True)
+    value_lookup = {
+                "Occupied Housing Units: Owner Occupied": "Owner Occupied",
+            "Occupied Housing Units: Renter Occupied": "Renter Occupied",
+            "Vacant Housing Units: Other": "Vacant Other",
+            "Vacant Housing Units: Seasonal, recreational, or occasional use": "Vacant Seasonal",
+        }
+    val["Occupancy"] = val["variable_name"].replace(
+        value_lookup
+    )
+    # Drop if variable_name not in value_lookup
+    val = val.loc[val["variable_name"].isin(value_lookup.keys())]
+
+    val["Geography"] = val["Geography"].replace({"Basin": "Lake Tahoe Region"})
+    val["Total_Housing_Units"] = val.groupby(["Geography", "year_sample"])["value"].transform("sum")
+    val["share"] = val["value"] / val["Total_Housing_Units"]
+    return val
+def plot_housing_occupancy(df):
+    create_stacked_bar_plot_with_dropdown(
+        df,
+        path_html="html/4.1.e_HousingOccupancy.html",
+        div_id="4.1.e_HousingOccupancy",
+        x="year_sample",
+        y="share",
+        color_column="Occupancy",
+        dropdown_column="Geography",
+        color_sequence=["#208385", "#FC9A62", "#632E5A", "#A48352"],
+        sort_order=['Owner Occupied', 'Renter Occupied', 'Vacant Other', 'Vacant Seasonal'],
+        title_text='Housing Occupancy',
+        y_title="Percent of Housing Occupancy",
+        x_title="Year",
+        hovermode="x unified",
+        format=".0%",
+        custom_data=["Occupancy"],
+        hovertemplate="<br>".join(
+            ["<b>%{y:.1%}</b> of the housing units are", "<i>%{customdata}</i>"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=1,
+            )
+        ),
+    )
 # get commute patterns data
 def get_data_commute_patterns():
     data = get_fs_data(
@@ -595,15 +669,16 @@ def get_data_race_ethnicity():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
-    mask1 = (data["Category"] == "Race and Ethnicity") & (data["year_sample"] != 2020)
-    mask2 = (
-        (data["Category"] == "Race and Ethnicity")
-        & (data["year_sample"] == 2020)
-        & (data["sample_level"] == "block group")
-    )
-    df1 = data[mask1]
-    df2 = data[mask2]
-    val = pd.concat([df1, df2], ignore_index=True)
+    mask1 = (data["Category"] == "Race and Ethnicity") & (data['dataset'] != 'acs/acs5' )
+    # mask2 = (
+    #     (data["Category"] == "Race and Ethnicity")
+    #     & (data["year_sample"] == 2020)
+    #     & (data["sample_level"] == "block group")
+    #     & (data['dataset'] != 'acs/acs5' )
+    # )
+    val = data[mask1]
+    # df2 = data[mask2]
+    # val = pd.concat([df1, df2], ignore_index=True)
     val = val.loc[:, ["variable_name", "value", "Geography", "year_sample"]].rename(
         columns={"year_sample": "Year", "variable_name": "Race"}
     )
@@ -626,25 +701,37 @@ def get_data_race_ethnicity():
             "Total population:  Not Hispanic or Latino; American Indian and Alaska Native alone": "AIAN",
             "Total population:  Not Hispanic or Latino; Asian alone": "Asian",
             "Total population:  Not Hispanic or Latino; Native Hawaiian and Other Pacific Islander alone": "NHPI",
-            "Total population:  Not Hispanic or Latino; Some other race alone": "Some Other",
+            "Total population:  Not Hispanic or Latino; Some other race alone": "Other",
             "Total population:  Not Hispanic or Latino; Two or more races": "Multi",
         }
     )
-    df = df.sort_values("Year")
+    # Populate missing combinations of Race and Year with 0 values
+    all_years = df["Year"].unique()
+    all_races = df["Race"].unique()
+    all_geographies = df["Geography"].unique()
+    all_combinations = [(year, race, geography) for year in all_years for race in all_races for geography in all_geographies]
+    existing_combinations = [(row["Year"], row["Race"], row["Geography"]) for _, row in df.iterrows()]
+    missing_combinations = list(set(all_combinations) - set(existing_combinations))
+    missing_data = pd.DataFrame(missing_combinations, columns=["Year", "Race", "Geography"])
+    missing_data["value"] = 0
+    missing_data["value_total"] = 0
+    missing_data["share"] = 0
+    df = pd.concat([df, missing_data], ignore_index=True)
+    df = df.sort_values(["Year", "Race", "Geography"])
     return df
 
 
 # html\4.4.a_RaceEthnicity_v1.html
 # html\4.4.a_RaceEthnicity_v2.html
 def plot_race_ethnicity(df):
-    stackedbar(
+    create_stacked_bar_plot_with_dropdown(
         df,
         path_html="html/4.4.a_RaceEthnicity_v1.html",
         div_id="4.4.a_RaceEthnicity_v1",
         x="Year",
         y="share",
-        facet="Geography",
-        color="Race",
+        color_column="Race",
+        dropdown_column="Geography",
         color_sequence=[
             "#208385",
             "#FC9A62",
@@ -655,15 +742,15 @@ def plot_race_ethnicity(df):
             "#023F64",
             "#B83F5D",
         ],
-        orders={"Geography": ["Lake Tahoe Region", "South Lake", "North Lake"]},
-        y_title="% of Race and Ethnicity of Total",
+        sort_order=['White', 'Hispanic', 'Asian', 'Black', 'AIAN', 'NHPI', 'Other', 'Multi'],
+        title_text='Race and Ethnicity of Population',
+        y_title="Percent of Race and Ethnicity",
         x_title="Year",
         hovermode="x unified",
-        orientation=None,
         format=".0%",
         custom_data=["Race"],
         hovertemplate="<br>".join(
-            ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata[0]}</i>"]
+            ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata}</i>"]
         )
         + "<extra></extra>",
         additional_formatting=dict(

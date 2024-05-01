@@ -6,6 +6,7 @@ import plotly.express as px
 import pytz
 from arcgis.features import FeatureLayer
 import plotly.graph_objects as go
+import numpy as np
 
 
 # Reads in csv file
@@ -377,21 +378,22 @@ def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequen
     """
     fig = go.Figure()
 
-    def create_trace(dff, name, color):
+    def create_trace(dff, name, color,custom_data):
         return go.Bar(
             x=dff[x],
             y=dff[y],
             name=name,
             hovertemplate=hovertemplate,
             marker_color=color,
-            visible=False
+            visible=False,
+            customdata=dff[custom_data]
         )
 
     traces = []
     for i, region in enumerate(orders[dropdown_column]):
         query_string = f"{dropdown_column} == '{region}'"
         dff = df.query(query_string)
-        trace = create_trace(dff, region, color_sequence[i])
+        trace = create_trace(dff, region, color_sequence[i],custom_data)
         traces.append(trace)
 
     fig.add_traces(traces)
@@ -436,33 +438,49 @@ def create_stacked_bar_plot_with_dropdown(df,
                                     color_column,
                                      dropdown_column,
                                       color_sequence,
+                                      sort_order,
                                       title_text,
                                        y_title,
                                         x_title,
                                          hovertemplate,
                                           hovermode,
                                            format,
+                                           custom_data=None,
                                             additional_formatting = None):
     config = {"displayModeBar": False}
     years = df[x].unique()
     categories = df[color_column].unique()
+    categories =sorted(categories, key=lambda x: sort_order.index(x))
+    #print(categories)
     second_categories = df[dropdown_column].unique()
 
     values = {}
     for second_category in second_categories:
         values[second_category] = []
         for category in categories:
-            values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
-
+            #values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
+            filtered_df = df[(df[dropdown_column] == second_category) & (df[color_column] == category)]
+            y_values = filtered_df[y].tolist()
+            category_values = filtered_df[color_column].tolist()
+            values[second_category].append([y_values, category_values])
     # Create traces for each category
     traces = []
+    #print(values)
+    df_custom_data = pd.DataFrame(categories, columns=['categories'])
+    my_array = np.stack(categories)
+    custom_data_list = []
+    #print(my_array)
     for i, category in enumerate(categories):
         trace = go.Bar(
             x=years,
-            y=values[second_categories[0]][i],  # Default to the first second category
+            y=values[second_categories[0]][i][0],  # Default to the first second category
             name=category,
-            marker=dict(color=color_sequence[i])  # Assign colors to bars
+            marker=dict(color=color_sequence[i]),
+            customdata=values[second_categories[0]][i][1],
+            
+            hovertemplate=hovertemplate
         )
+        #custom_data_list.append(category)
         traces.append(trace)
 
     # Layout
@@ -475,7 +493,7 @@ def create_stacked_bar_plot_with_dropdown(df,
                 buttons=list([
                     dict(label=second_category,
                          method='update',
-                         args=[{'y': [values[second_category][i] for i in range(len(categories))]},
+                         args=[{'y': [values[second_category][i][0] for i in range(len(categories))]},
                                {'yaxis': {'title': 'Values'}}])
                     for second_category in second_categories
                 ]),
@@ -489,7 +507,6 @@ def create_stacked_bar_plot_with_dropdown(df,
             ),
         ]
     )
-
     # Create the figure
     fig = go.Figure(data=traces, layout=layout)
     fig.update_layout(barmode='stack')
@@ -499,13 +516,15 @@ def create_stacked_bar_plot_with_dropdown(df,
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=None,
+        legend_title=None
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
 
     fig.update_xaxes(tickformat=".0f")
-    fig.update_traces(hovertemplate=hovertemplate)
+    #print(custom_data_list)
+    #fig.update_traces(customdata=custom_data_list)
+
     fig.update_layout(additional_formatting)
 
     fig.write_html(
