@@ -461,8 +461,8 @@ def get_data_housing_occupancy():
 def plot_housing_occupancy(df):
     create_stacked_bar_plot_with_dropdown(
         df,
-        path_html="html/4.1.e_HousingOccupancy.html",
-        div_id="4.1.e_HousingOccupancy",
+        path_html="html/4.1.c_Occupancy.html",
+        div_id="4.1.c_Occupancy",
         x="year_sample",
         y="share",
         color_column="Occupancy",
@@ -480,14 +480,6 @@ def plot_housing_occupancy(df):
         )
         + "<extra></extra>",
         additional_formatting=dict(
-            legend=dict(
-                orientation="h",
-                entrywidth=100,
-                yanchor="bottom",
-                y=1.05,
-                xanchor="right",
-                x=1,
-            ),
             xaxis = dict(
                 tickmode = 'array',
                 tickvals = [1990, 2000, 2010, 2020],
@@ -758,16 +750,7 @@ def plot_race_ethnicity(df):
             ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata}</i>"]
         )
         + "<extra></extra>",
-        additional_formatting=dict(
-            legend=dict(
-                orientation="h",
-                entrywidth=100,
-                yanchor="bottom",
-                y=1.05,
-                xanchor="right",
-                x=1,
-            )
-        ),
+        additional_formatting=None,
     )
     groupedbar_percent(
         df,
@@ -797,14 +780,5 @@ def plot_race_ethnicity(df):
             ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata[0]}</i>"]
         )
         + "<extra></extra>",
-        additional_formatting=dict(
-            legend=dict(
-                orientation="h",
-                entrywidth=100,
-                yanchor="bottom",
-                y=1.05,
-                xanchor="right",
-                x=1,
-            )
-        ),
+        additional_formatting=None,
     )
