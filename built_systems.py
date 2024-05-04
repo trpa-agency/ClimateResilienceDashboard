@@ -13,7 +13,6 @@ from utils import (
     create_stacked_bar_plot_with_dropdown
 )
 
-
 # # get data for affordable units
 # def get_data_affordable_units():
 #     # parcel development history layer
@@ -68,11 +67,11 @@ def get_data_affordable_units():
     df = df.rename(columns={'LOCATION_TO_TOWNCENTER':'Location',
                             'Deed_Restriction_Type':'Deed Restriction Type',
                             'Units':'Units'})
-    
-    # change Location values 
+
+    # change Location values
     df['Location'] = df['Location'].replace({'Town Center': 'Within a Town Center',
-                                              'Quarter Mile Buffer': 'Within a 1/4 mile of a Town Center', 
-                                              'Outside Buffer': 'Further than a 1/4 of a Town Center'})
+                                              'Quarter Mile Buffer': '< 1/4 mile from a Town Center', 
+                                              'Outside Buffer': '> 1/4 from a Town Center'})
     return df
 
 # html\3.1.a_Affordable_Units.html
@@ -87,15 +86,19 @@ def plot_affordable_units(df):
         color='Deed Restriction Type',
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         orders=None,
-        y_title="Total Units",
+        y_title="Units",
         x_title="Location to Town Center",
         format=".0f",
-        custom_data=None,
-        hovertemplate="%{y:.0f}",
+        custom_data=["Deed Restriction Type"],
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0f}</b> units with a", 
+             "<b>%{customdata[0]}</b> housing deed restriction"]
+        )+ "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         additional_formatting=dict(
-            title = "Deed Restricted Housing Units relative to Town Centers",
+            # title = "Deed Restricted Housing Units relative to Town Centers",
+            legend_title = "Deed Restricted Housing Units",
             legend=dict(
                 orientation="h",
                 entrywidth=100,
