@@ -10,7 +10,8 @@ from utils import (
     stacked_area,
     stackedbar,
     trendline,
-    create_stacked_bar_plot_with_dropdown
+    create_stacked_bar_plot_with_dropdown,
+    convert_to_utc,
 )
 
 # # get data for affordable units
@@ -52,6 +53,150 @@ from utils import (
 #     df["Total Deed Restricted Housing"] = df["Total Deed Restricted Housing"].astype(int)
 #     df["Total Residential Units"] = df["Total Residential Units"].astype(int)
 #     return df
+
+
+# get data for affordable units by year
+def get_data_affordable_units_by_year():
+    # deed restricted housing units table
+    deedURL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/148"
+    # data = get_fs_data_query(deedURL, "Date_Type = 'Constructed")
+    df = get_fs_data(deedURL)
+    # filter df to Date_Type = Constructed
+    df = df.loc[df.Date_Type == 'Constructed']
+    # cast Finaled_Date as datetime using utc time
+    df['Finaled_Date'] = df.Finaled_Date.apply(convert_to_utc)
+    df['Finaled_Date'] = pd.to_datetime(df['Finaled_Date'])
+    # convert Finaled_Date
+    df["Finaled_Date"] = df["Finaled_Date"].dt.strftime("%m/%d/%Y")
+    # get Year field from Finaled_Date date as Y
+    df['Year'] = df.Finaled_Date.str[-4:]
+    # group by Deed_Restriction_Type and Year
+    df = df.groupby(['Deed_Restriction_Type', 'Year'])['Units'].sum().reset_index()
+    # sort year
+    df = df.sort_values('Year')
+    # # rename columns
+    df = df.rename(columns={'Deed_Restriction_Type':'Type'})
+    # Create a DataFrame with all possible combinations of 'Type' and 'Year'
+    df_all = pd.DataFrame(
+        {
+            "Type": np.repeat(df["Type"].unique(), df["Year"].nunique()),
+            "Year": df["Year"].unique().tolist() * df["Type"].nunique(),
+        }
+    )
+    # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
+    df = pd.merge(df_all, df, on=["Type", "Year"], how="left")
+    # Replace NaN values in 'Count' with 0
+    df["Units"] = df["Units"].fillna(0)
+    # Ensure 'Count' is of integer type
+    df["Units"] = df["Units"].astype(int)
+    # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
+    df["Total"] = df.sort_values("Year").groupby("Type")["Units"].cumsum()
+    return df
+
+
+# # get data for deed restricted units
+# def get_data_deed_restricted():
+#     # deed restriction service
+#     deedRestrictionService = "https://www.laketahoeinfo.org/WebServices/GetDeedRestrictedParcels/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476"
+#     # read in deed restricted parcels
+#     dfDeed = pd.read_json(deedRestrictionService)
+#     # filter out deed restrictions that are not affordable housing
+#     dfDeed = dfDeed.loc[
+#         dfDeed["DeedRestrictionType"].isin(
+#             ["Affordable Housing", "Achievable Housing", "Moderate Income Housing"]
+#         )
+#     ]
+#     # create year column
+#     dfDeed["Year"] = dfDeed["RecordingDate"].str[-4:]
+#     # group by type and year
+#     df = dfDeed.groupby(["DeedRestrictionType", "Year"]).size().reset_index(name="Total")
+#     # sort by year
+#     df.sort_values("Year", inplace=True)
+#     # rename columns
+#     df = df.rename(columns={"DeedRestrictionType": "Type", "Year": "Year", "Total": "Count"})
+#     # Create a DataFrame with all possible combinations of 'Type' and 'Year'
+#     df_all = pd.DataFrame(
+#         {
+#             "Type": np.repeat(df["Type"].unique(), df["Year"].nunique()),
+#             "Year": df["Year"].unique().tolist() * df["Type"].nunique(),
+#         }
+#     )
+#     # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
+#     df = pd.merge(df_all, df, on=["Type", "Year"], how="left")
+#     # Replace NaN values in 'Count' with 0
+#     df["Count"] = df["Count"].fillna(0)
+#     # Ensure 'Count' is of integer type
+#     df["Count"] = df["Count"].astype(int)
+#     # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
+#     df["Cumulative Count"] = df.sort_values("Year").groupby("Type")["Count"].cumsum()
+#     return df
+
+
+# html\3.1.c_Deed_Restricted_Units_v1.html
+# html\3.1.c_Deed_Restricted_Units_v2.html
+def plot_data_deed_restricted(df):
+    trendline(
+        df,
+        path_html="html/3.1.c_Deed_Restricted_Units_v1.html",
+        div_id="3.1.c_Deed_Restricted_Units_v1",
+        x="Year",
+        y="Total",
+        color="Type",
+        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
+        sort="Year",
+        orders=None,
+        x_title="Year",
+        y_title="Total Units",
+        format=",.0f",
+        hovertemplate="%{y:.0f}",
+        markers=True,
+        hover_data=None,
+        tickvals=None,
+        ticktext=None,
+        tickangle=None,
+        hovermode="x unified",
+        custom_data=None,
+        additional_formatting=dict(
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
+    )
+    stacked_area(
+        df,
+        path_html="html/3.1.c_Deed_Restricted_Units_v2.html",
+        div_id="3.1.c_Deed_Restricted_Units_v2",
+        x="Year",
+        y="Total",
+        color="Type",
+        line_group=None,
+        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
+        x_title="Year",
+        y_title="Total Units",
+        hovermode="x unified",
+        format=",.0f",
+        custom_data=["Type"],
+        hovertemplate="<br>".join(
+            ["<b>%{y:.0f}</b> units with a", "<b>%{customdata[0]}</b> housing deed restriction"]
+        )
+        + "<extra></extra>",
+        additional_formatting=dict(
+            legend_title = "Deed Restricted Housing Units",
+            legend=dict(
+                orientation="h",
+                entrywidth=100,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            )
+        ),
+    )
 
 # get data for affordable units
 def get_data_affordable_units():
@@ -161,112 +306,6 @@ def plot_home_heating(df):
         hovermode="x unified",
         format=".0%",
         additional_formatting = None)
-
-
-
-
-# get data for deed restricted units
-def get_data_deed_restricted():
-    # deed restriction service
-    deedRestrictionService = "https://www.laketahoeinfo.org/WebServices/GetDeedRestrictedParcels/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476"
-    # read in deed restricted parcels
-    dfDeed = pd.read_json(deedRestrictionService)
-    # filter out deed restrictions that are not affordable housing
-    dfDeed = dfDeed.loc[
-        dfDeed["DeedRestrictionType"].isin(
-            ["Affordable Housing", "Achievable Housing", "Moderate Income Housing"]
-        )
-    ]
-    # create year column
-    dfDeed["Year"] = dfDeed["RecordingDate"].str[-4:]
-    # group by type and year
-    df = dfDeed.groupby(["DeedRestrictionType", "Year"]).size().reset_index(name="Total")
-    # sort by year
-    df.sort_values("Year", inplace=True)
-    # rename columns
-    df = df.rename(columns={"DeedRestrictionType": "Type", "Year": "Year", "Total": "Count"})
-    # Create a DataFrame with all possible combinations of 'Type' and 'Year'
-    df_all = pd.DataFrame(
-        {
-            "Type": np.repeat(df["Type"].unique(), df["Year"].nunique()),
-            "Year": df["Year"].unique().tolist() * df["Type"].nunique(),
-        }
-    )
-    # Merge the new DataFrame with the original one to fill in the gaps of years for each type with NaN values
-    df = pd.merge(df_all, df, on=["Type", "Year"], how="left")
-    # Replace NaN values in 'Count' with 0
-    df["Count"] = df["Count"].fillna(0)
-    # Ensure 'Count' is of integer type
-    df["Count"] = df["Count"].astype(int)
-    # Recalculate 'Cumulative Count' as the cumulative sum of 'Count' within each 'Type' and 'Year'
-    df["Cumulative Count"] = df.sort_values("Year").groupby("Type")["Count"].cumsum()
-    return df
-
-
-# html\3.1.c_Deed_Restricted_Units_v1.html
-# html\3.1.c_Deed_Restricted_Units_v2.html
-def plot_data_deed_restricted(df):
-    trendline(
-        df,
-        path_html="html/3.1.c_Deed_Restricted_Units_v1.html",
-        div_id="3.1.c_Deed_Restricted_Units_v1",
-        x="Year",
-        y="Cumulative Count",
-        color="Type",
-        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
-        sort="Year",
-        orders=None,
-        x_title="Year",
-        y_title="Cumuluative Total of Deed Restricted Parcels",
-        format=",.0f",
-        hovertemplate="%{y:.0f}",
-        markers=True,
-        hover_data=None,
-        tickvals=None,
-        ticktext=None,
-        tickangle=None,
-        hovermode="x unified",
-        custom_data=None,
-        additional_formatting=dict(
-            legend=dict(
-                orientation="h",
-                entrywidth=100,
-                yanchor="bottom",
-                y=1.05,
-                xanchor="right",
-                x=0.95,
-            )
-        ),
-    )
-    stacked_area(
-        df,
-        path_html="html/3.1.c_Deed_Restricted_Units_v2.html",
-        div_id="3.1.c_Deed_Restricted_Units_v2",
-        x="Year",
-        y="Cumulative Count",
-        color="Type",
-        line_group=None,
-        color_sequence=["#023f64", "#7ebfb5", "#a48352"],
-        x_title="Year",
-        y_title="Cumuluative Count of Deed Restricted Parcels",
-        hovermode="x unified",
-        format=",.0f",
-        custom_data=["Type"],
-        hovertemplate="<br>".join(
-            ["<b>%{y:.0f}</b> parcels with a", "<b>%{customdata[0]}</b> deed restriction"]
-        )
-        + "<extra></extra>",
-        additional_formatting=dict(
-            legend=dict(
-                orientation="h",
-                entrywidth=100,
-                yanchor="bottom",
-                y=1.05,
-                xanchor="right",
-                x=0.95,
-            )
-        ),
-    )
 
 
 # get data for energy mix
