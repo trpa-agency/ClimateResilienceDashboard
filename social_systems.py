@@ -423,7 +423,7 @@ def get_data_housing_occupancy():
     val = data[mask].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
     val=val.groupby(["variable_name", "Geography", 'year_sample']).sum().reset_index()
 
-    # Need to get vacant other from total housing units: vacant and 
+    # Need to get vacant other from total housing units: vacant and
     #subtracting vacant housing units seasonal rereational or occasional use grouped by geography, year
     mask_vacant_seasonal = (val["variable_name"] == "Vacant Housing Units: Seasonal, recreational, or occasional use")
     mask_vacant_total = (val["variable_name"] == "Total Housing Units: Vacant")
@@ -435,7 +435,7 @@ def get_data_housing_occupancy():
     data_vacant_seasonal = data_vacant_seasonal.rename(columns={"value": "vacant_season"})
     data_vacant_total = data_vacant_total.rename(columns={"value": "vacant_total"})
     #merge the two dataframes
-    data_vacant = data_vacant_total.merge(data_vacant_seasonal, 
+    data_vacant = data_vacant_total.merge(data_vacant_seasonal,
                                             on=["Geography", 'year_sample'])
     data_vacant["vacant_other"] = data_vacant["vacant_total"] - data_vacant["vacant_season"]
     data_vacant = data_vacant.loc[:, ["Geography", 'year_sample', 'vacant_other']]

@@ -215,7 +215,7 @@ def get_data_affordable_units():
 
     # change Location values
     df['Location'] = df['Location'].replace({'Town Center': 'Within a Town Center',
-                                              'Quarter Mile Buffer': '< 1/4 mile from a Town Center', 
+                                              'Quarter Mile Buffer': '< 1/4 mile from a Town Center',
                                               'Outside Buffer': '> 1/4 from a Town Center'})
     return df
 
@@ -236,7 +236,7 @@ def plot_affordable_units(df):
         format=".0f",
         custom_data=["Deed Restriction Type"],
         hovertemplate="<br>".join(
-            ["<b>%{y:.0f}</b> units with a", 
+            ["<b>%{y:.0f}</b> units with a",
              "<b>%{customdata[0]}</b> housing deed restriction"]
         )+ "<extra></extra>",
         hovermode="x unified",
