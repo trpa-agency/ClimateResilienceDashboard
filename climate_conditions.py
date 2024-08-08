@@ -825,7 +825,7 @@ def get_data_temp():
     tahoe = Point(39.0001, -120.0001, 70)
 
     # adjust attributes fro tahoe
-    tahoe.radius = 2000000
+    tahoe.radius = 150000
     tahoe.method = "weighted"
 
     # Get daily data for 2018
@@ -870,7 +870,7 @@ def plot_extremeheat(df):
     color_sequence = ["#023f64"]
     hovertemplate = "<br>".join([
                             "<b>%{y:,.0f} days</b> ",
-                            "<i>over 85<sup>o</sup>F</i>",
+                            "<i>over 100<sup>o</sup>F</i>",
                             ])+"<extra></extra>"
     format = ",.0f"
     tickvals = None
@@ -879,7 +879,7 @@ def plot_extremeheat(df):
     hovermode = "x unified"
     config = {"displayModeBar": False}
     # create a dataframe with the number of extreme heat days
-    extremeHeatDaysDF = df[df["MaxTemp"] > 85]
+    extremeHeatDaysDF = df[df["MaxTemp"] > 100]
     extremeHeatDaysDF = extremeHeatDaysDF.assign(Count=1)
     extremeHeatDaysDF = extremeHeatDaysDF.resample("Y").sum()
     extremeHeatDaysDF = extremeHeatDaysDF.assign(Year=extremeHeatDaysDF.index.year)

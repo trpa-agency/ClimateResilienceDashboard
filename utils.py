@@ -477,7 +477,7 @@ def create_stacked_bar_plot_with_dropdown(df,
             name=category,
             marker=dict(color=color_sequence[i]),
             customdata=values[second_categories[0]][i][1],
-            
+
             hovertemplate=hovertemplate
         )
         #custom_data_list.append(category)
@@ -532,6 +532,6 @@ def create_stacked_bar_plot_with_dropdown(df,
         include_plotlyjs="directory",
         div_id=div_id,
     )
-    
+
 
 

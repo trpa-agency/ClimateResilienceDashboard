@@ -1,70 +1,47 @@
-from rocketry import Rocketry
-from rocketry.args import Arg, FuncArg, Return, Session
-from rocketry.conds import after_success, daily, time_of_week
-
-app = Rocketry()
-app.task("hourly")
-app.task("daily between 22:00 and 23:00")
-app.task("weekly before Friday")
-app.task("monthly starting 3rd")
+from schedule import every, repeat, run_pending
+import time
+import os
+import subprocess
+import datetime
+import logging
+from climate_conditions import *
 
 
-@app.cond()
-def is_foo():
-    "This is a custom condition"
-    ...
-    return True
+# Configure logging
+logging.basicConfig(filename='task_scheduler.log', level=logging.INFO)
+# .
+# Inside execute_task function:
+def execute_task(task_name, max_runtime, command):
+    try:
+        start_time = datetime.datetime.now()
+        # Example: Run an external command as the task
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        process.communicate()
+        exit_code = process.returncode
+        end_time = datetime.datetime.now()
+        runtime = (end_time - start_time).total_seconds() / 3600  # Calculate runtime in hours
+        if runtime > max_runtime:
+            logging.warning(f"Task '{task_name}' exceeded max runtime ({max_runtime} hours) and was terminated.")
+            process.terminate()  # Terminate the task
+        else:
+            logging.info(f"Task '{task_name}' completed in {runtime:.2f} hours.")
+            if exit_code != 0:
+                logging.error(f"Task '{task_name}' encountered an error. Exit code: {exit_code}")
+    except Exception as e:
+        logging.error(f"Error executing task '{task_name}': {str(e)}")
 
 
-@app.task(daily & is_foo)
-def do_daily():
-    "This task runs once a day when foo is true"
-    ...
-    return ...
+# schedule get_data_temp function to run every 15 minutes
+every(15).minutes.do(get_data_temp()) 
+# then schedule plot_temp to run when get_data_temp is done
+os.wait(get_data_temp())
 
+# Define the schedule of the system
+every(15).minutes.do(get_data_temp())
 
-@app.task(weekly & is_foo)
-def do_weekly():
-    "This task runs once a week when foo is true"
-    ...
-    return ...
+# schedule plot_temp function to wait until return of get_data_temp
+every(15).minutes.do(plot_temp())
 
-
-@app.task(
-    (daily.at("10:00") | daily.at("19:00")) & time_of_week.between("Mon", "Fri"),
-    execution="process",
-)
-def do_complex():
-    "This task runs on complex interval and on separate process"
-    ...
-    return ...
-
-
-@app.task(after_success(do_daily))
-def do_after_another(arg=Return(do_daily)):
-    """This task runs after 'do_daily' and it has its the
-    return argument as an input"""
-    ...
-
-
-@app.task(daily)
-def do_with_params(arg1=FuncArg(lambda: ...), arg2=Arg("myparam")):
-    """This task runs with variety of arguments"""
-    ...
-
-
-@app.task(daily, execution="thread")
-def do_on_session(session=Session()):
-    "This task modifies the scheduling session"
-    # Setting a task to run
-    for task in session.tasks:
-        if task.name == "do_after_another":
-            task.run(arg="...")
-
-    # Call for shut down
-    session.shut_down()
-
-
-if __name__ == "__main__":
-    app.params(myparam="...")
-    app.run()
+while True:
+    run_pending()
+    time.sleep(1)
