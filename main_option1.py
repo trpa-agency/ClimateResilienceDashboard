@@ -32,7 +32,7 @@ def execute_task(task_name, max_runtime, command):
 
 
 # schedule get_data_temp function to run every 15 minutes
-every(15).minutes.do(get_data_temp()) 
+every(15).minutes.do(get_data_temp())
 # then schedule plot_temp to run when get_data_temp is done
 os.wait(get_data_temp())
 
