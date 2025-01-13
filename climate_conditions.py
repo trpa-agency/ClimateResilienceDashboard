@@ -491,14 +491,12 @@ def plot_air_quality(df):
             ),
     )
 
-
 def calcAQI(Cp, Ih, Il, BPh, BPl):
     a = Ih - Il
     b = BPh - BPl
     c = Cp - BPl
     val = round((a / b) * c + Il)
     return val
-
 
 def get_data_lake_level(days):
     site_number = 10337000
@@ -524,7 +522,6 @@ def get_data_lake_level(days):
     weekly = df.groupby(pd.Grouper(key="dateTime", freq="W"))["value"].mean().reset_index()
     return weekly
 
-
 def plot_lake_level(df):
     trendline(
         df,
@@ -547,7 +544,6 @@ def plot_lake_level(df):
         tickangle=None,
         hovermode="x",
     )
-
 
 def plot_lake_level_with_high_water_mark(df):
     path_html = "html/1.3.a_Lake_Level.html"
@@ -644,18 +640,16 @@ def plot_lake_level_with_high_water_mark(df):
         div_id=div_id,
     )
 
-
 def get_data_lake_temp():
     lakeTempURL = "https://tepfsail50.execute-api.us-west-2.amazonaws.com/v1/report/ns-station-range?rptdate=20240130&rptend=20240202&id=4"
     response = requests.get(lakeTempURL)
-    df = pd.DataFrame(response.json())
+    df = pd.DataFrame(response.json()).reset_index()
     df["LS_Temp_Avg"] = df["LS_Temp_Avg"].astype(float)
     return df
 
-
 def get_all_temp_midlake():
     # get start/end dates for the last year
-    start = datetime.now() - timedelta(days=365)
+    start = datetime.now() - timedelta(days=400)
     start = start.strftime("%Y%m%d")
     end = datetime.now().strftime("%Y%m%d")
     dfMerge = pd.DataFrame()
@@ -680,7 +674,6 @@ def get_all_temp_midlake():
     df["RBR_0p5_F_7_day_avg"] = df["RBR_0p5_F"].rolling(window=7).mean()
     return df
 
-
 def get_all_temp_shore():
     # get all data from lake temp URL
     start = datetime.now() - timedelta(days=365)
@@ -703,7 +696,6 @@ def get_all_temp_shore():
     # get the mean of all sites by date/time
     df = dfMerge.groupby("TmStamp")["LS_Temp_Avg_F"].mean().reset_index()
     return df
-
 
 def plot_lake_temp_midlake(df):
     trendline(
@@ -740,7 +732,6 @@ def plot_lake_temp_midlake(df):
             # ),
         ),
     )
-
 
 def get_data_precip():
     # snowlab precip data
@@ -780,7 +771,6 @@ def get_data_precip():
     df = dfYearly[dfYearly["Year"] >= 1987]
     return df
 
-
 def plot_precip(df):
     stackedbar(
         df,
@@ -814,7 +804,6 @@ def plot_precip(df):
         ),
     )
 
-
 def get_data_temp():
     # meteostat data
     # Set time period
@@ -837,7 +826,6 @@ def get_data_temp():
     df = df.assign(MinTemp=lambda x: (9 / 5) * x["tmin"] + 32)
     df = df.assign(AvgTemp=lambda x: (9 / 5) * x["tavg"] + 32)
     return df
-
 
 def plot_temp(df):
     # Plot daily temperature data
@@ -862,7 +850,6 @@ def plot_temp(df):
         include_plotlyjs="directory",
         div_id=div_id,
     )
-
 
 def plot_extremeheat(df):
     path_html = "html/1.2.a_ExtremeHeatDays.html"
