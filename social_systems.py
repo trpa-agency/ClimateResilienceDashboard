@@ -553,7 +553,7 @@ def get_data_commute_origin():
     reno_census_tracts['FIPS'] = reno_census_tracts['FIPS'].astype(str)
     data['reno_tract'] = data['h_tract_id'].isin(reno_census_tracts['FIPS'])
     data.loc[data['reno_tract'], 'h_tract_lat'] = 39.5226659
-    data.loc[data['reno_tract'], 'h_tract_long'] = -119.8121265 
+    data.loc[data['reno_tract'], 'h_tract_long'] = -119.8121265
     grouped_df = data.groupby(
         [
             "Year",
