@@ -62,20 +62,20 @@ def get_data_affordable_units_by_year():
     # data = get_fs_data_query(deedURL, "Date_Type = 'Constructed")
     df = get_fs_data(deedURL)
     # filter df to Date_Type = Constructed
-    df = df.loc[df.Date_Type == 'Constructed']
+    df = df.loc[df.Date_Type == "Constructed"]
     # cast Finaled_Date as datetime using utc time
-    df['Finaled_Date'] = df.Finaled_Date.apply(convert_to_utc)
-    df['Finaled_Date'] = pd.to_datetime(df['Finaled_Date'])
+    df["Finaled_Date"] = df.Finaled_Date.apply(convert_to_utc)
+    df["Finaled_Date"] = pd.to_datetime(df["Finaled_Date"])
     # convert Finaled_Date
     df["Finaled_Date"] = df["Finaled_Date"].dt.strftime("%m/%d/%Y")
     # get Year field from Finaled_Date date as Y
-    df['Year'] = df.Finaled_Date.str[-4:]
+    df["Year"] = df.Finaled_Date.str[-4:]
     # group by Deed_Restriction_Type and Year
-    df = df.groupby(['Deed_Restriction_Type', 'Year'])['Units'].sum().reset_index()
+    df = df.groupby(["Deed_Restriction_Type", "Year"])["Units"].sum().reset_index()
     # sort year
-    df = df.sort_values('Year')
+    df = df.sort_values("Year")
     # # rename columns
-    df = df.rename(columns={'Deed_Restriction_Type':'Type'})
+    df = df.rename(columns={"Deed_Restriction_Type": "Type"})
     # Create a DataFrame with all possible combinations of 'Type' and 'Year'
     df_all = pd.DataFrame(
         {
@@ -186,7 +186,7 @@ def plot_data_deed_restricted(df):
         )
         + "<extra></extra>",
         additional_formatting=dict(
-            legend_title = "Deed Restricted Housing Units",
+            legend_title="Deed Restricted Housing Units",
             legend=dict(
                 orientation="h",
                 entrywidth=100,
@@ -194,9 +194,10 @@ def plot_data_deed_restricted(df):
                 y=1.05,
                 xanchor="right",
                 x=0.95,
-            )
+            ),
         ),
     )
+
 
 # get data for affordable units
 def get_data_affordable_units():
@@ -205,19 +206,30 @@ def get_data_affordable_units():
     # data = get_fs_data_query(deedURL, "Date_Type = 'Constructed")
     df = get_fs_data(deedURL)
     # filter df to Date_Type = Constructed
-    df = df.loc[df.Date_Type == 'Constructed']
+    df = df.loc[df.Date_Type == "Constructed"]
     # group by Deed_Restriction_Type and LOCATION_TO_TOWNCENTER
-    df = df.groupby(['Deed_Restriction_Type', 'LOCATION_TO_TOWNCENTER'])['Units'].sum().reset_index()
+    df = (
+        df.groupby(["Deed_Restriction_Type", "LOCATION_TO_TOWNCENTER"])["Units"].sum().reset_index()
+    )
     # rename columns
-    df = df.rename(columns={'LOCATION_TO_TOWNCENTER':'Location',
-                            'Deed_Restriction_Type':'Deed Restriction Type',
-                            'Units':'Units'})
+    df = df.rename(
+        columns={
+            "LOCATION_TO_TOWNCENTER": "Location",
+            "Deed_Restriction_Type": "Deed Restriction Type",
+            "Units": "Units",
+        }
+    )
 
     # change Location values
-    df['Location'] = df['Location'].replace({'Town Center': 'Within a Town Center',
-                                              'Quarter Mile Buffer': '< 1/4 mile from a Town Center',
-                                              'Outside Buffer': '> 1/4 from a Town Center'})
+    df["Location"] = df["Location"].replace(
+        {
+            "Town Center": "Within a Town Center",
+            "Quarter Mile Buffer": "< 1/4 mile from a Town Center",
+            "Outside Buffer": "> 1/4 from a Town Center",
+        }
+    )
     return df
+
 
 # html\3.1.a_Affordable_Units.html
 def plot_affordable_units(df):
@@ -226,9 +238,9 @@ def plot_affordable_units(df):
         path_html="html/3.1.a_Affordable_Units.html",
         div_id="3.1.a_Affordable_Units",
         x="Location",
-        y='Units',
+        y="Units",
         facet=None,
-        color='Deed Restriction Type',
+        color="Deed Restriction Type",
         color_sequence=["#023f64", "#7ebfb5", "#a48352"],
         orders=None,
         y_title="Units",
@@ -236,14 +248,14 @@ def plot_affordable_units(df):
         format=".0f",
         custom_data=["Deed Restriction Type"],
         hovertemplate="<br>".join(
-            ["<b>%{y:.0f}</b> units with a",
-             "<b>%{customdata[0]}</b> housing deed restriction"]
-        )+ "<extra></extra>",
+            ["<b>%{y:.0f}</b> units with a", "<b>%{customdata[0]}</b> housing deed restriction"]
+        )
+        + "<extra></extra>",
         hovermode="x unified",
         orientation=None,
         additional_formatting=dict(
             # title = "Deed Restricted Housing Units relative to Town Centers",
-            legend_title = "Deed Restricted Housing Units",
+            legend_title="Deed Restricted Housing Units",
             legend=dict(
                 orientation="h",
                 entrywidth=100,
@@ -251,19 +263,21 @@ def plot_affordable_units(df):
                 y=1.05,
                 xanchor="right",
                 x=0.95,
-            )
+            ),
         ),
     )
 
 
 # get data for home heating
 def get_data_home_heating():
-    heating_groupings = {'Utility gas':'Gas',
-                         'Bottled, tank, or LP gas':'Gas',
-                         'Electricity':'Electric',
-                         'Fuel oil, kerosene, etc.':'Gas',
-                         'Wood':'Wood',
-                         'Solar energy':'Solar'}
+    heating_groupings = {
+        "Utility gas": "Gas",
+        "Bottled, tank, or LP gas": "Gas",
+        "Electricity": "Electric",
+        "Fuel oil, kerosene, etc.": "Gas",
+        "Wood": "Wood",
+        "Solar energy": "Solar",
+    }
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
@@ -276,13 +290,13 @@ def get_data_home_heating():
         .loc[:, ["variable_name", "value", "Geography", "year_sample"]]
         .rename(columns={"year_sample": "Year", "variable_name": "Energy Source"})
     )
-    #drop rows in val that are not in heating_groupings
+    # drop rows in val that are not in heating_groupings
     df = val[val["Energy Source"].isin(heating_groupings.keys())]
-    #replace engery source with groupings in heating_groupings
+    # replace engery source with groupings in heating_groupings
     df["Energy Source"] = df["Energy Source"].replace(heating_groupings)
-    df = df.groupby(["Geography", "Year", "Energy Source"])['value'].sum().reset_index()
-    #populate a column called value total the the totals for each tear and geography
-    df['value_total'] = df.groupby(['Geography', 'Year'])['value'].transform('sum')
+    df = df.groupby(["Geography", "Year", "Energy Source"])["value"].sum().reset_index()
+    # populate a column called value total the the totals for each tear and geography
+    df["value_total"] = df.groupby(["Geography", "Year"])["value"].transform("sum")
     df["Year"] = df["Year"].astype("str")
     df["share"] = df["value"] / df["value_total"]
     return df
@@ -296,8 +310,8 @@ def plot_home_heating(df):
         div_id="3.1.b_HomeHeatingFuels",
         x="Year",
         y="share",
-        color_column = "Energy Source",
-        dropdown_column = "Geography",
+        color_column="Energy Source",
+        dropdown_column="Geography",
         color_sequence=["#023f64", "#7ebfb5", "#a48352", "#FC9A62", "#632E5A"],
         title_text="Share of Total Home Heating by Energy Source",
         x_title="Year",
@@ -305,7 +319,8 @@ def plot_home_heating(df):
         hovertemplate="%{y:.0%}",
         hovermode="x unified",
         format=".0%",
-        additional_formatting = None)
+        additional_formatting=None,
+    )
 
 
 # get data for energy mix
@@ -353,32 +368,42 @@ def plot_energy_mix(df):
         ),
     )
 
+
 # get data for transit ridership
 def get_data_transit():
     url = "https://www.laketahoeinfo.org/WebServices/GetTransitMonitoringData/CSV/e17aeb86-85e3-4260-83fd-a2b32501c476"
 
     dfTransit = pd.read_csv(url)
-    dfTransit['Month'] = pd.to_datetime(dfTransit['Month'])
-    dfTransit['Month'] = dfTransit['Month'].dt.strftime('%Y-%m')
+    dfTransit["Month"] = pd.to_datetime(dfTransit["Month"])
+    dfTransit["Month"] = dfTransit["Month"].dt.strftime("%Y-%m")
     # filter out rows where RouteType is not Paratransit, Commuter, or Seasonal Fixed
-    df = dfTransit.loc[~dfTransit['RouteType'].isin(['Paratransit', 'Commuter', 'Seasonal Fixed Route'])]
+    df = dfTransit.loc[
+        ~dfTransit["RouteType"].isin(["Paratransit", "Commuter", "Seasonal Fixed Route"])
+    ]
     # df = dfTransit.loc[dfTransit['RouteType'] != 'Paratransit']
 
     # replace transit operator values with abreviations
-    df['TransitOperator'] = df['TransitOperator'].replace(
-        ['Tahoe Transportation District',
-       'Tahoe Truckee Area Regional Transit',
-       'South Shore Transportation Management Association'],
-       ["TTD", "TART", "SSTMA"])
+    df["TransitOperator"] = df["TransitOperator"].replace(
+        [
+            "Tahoe Transportation District",
+            "Tahoe Truckee Area Regional Transit",
+            "South Shore Transportation Management Association",
+        ],
+        ["TTD", "TART", "SSTMA"],
+    )
     # route name = route type + transit operator
-    df['RouteName'] = df['RouteType'] + ' - ' + df['TransitOperator']
+    df["RouteName"] = df["RouteType"] + " - " + df["TransitOperator"]
     # group by RouteType, TransitOperator, and Month with sum of MonthlyRidership
-    df = df.groupby(['RouteName', 'Month'])['MonthlyRidership'].sum().reset_index()
+    df = df.groupby(["RouteName", "Month"])["MonthlyRidership"].sum().reset_index()
     # rename columns to Date, Name, Ridership
-    df.rename(columns={'Month':'Date', 'RouteName':'Name', 'MonthlyRidership':'Ridership'}, inplace=True)
+    df.rename(
+        columns={"Month": "Date", "RouteName": "Name", "MonthlyRidership": "Ridership"},
+        inplace=True,
+    )
     # sort by Date
-    df = df.sort_values('Date')
+    df = df.sort_values("Date")
     return df
+
 
 # html/3.3.a_Transit_Ridership.html
 def plot_transit(df):
@@ -402,23 +427,23 @@ def plot_transit(df):
         hovermode="x unified",
         format=",.0f",
         custom_data=["Name"],
-        hovertemplate="<br>".join([
-            "<b>%{y:,.0f}</b> riders on",
-            "<i>%{customdata[0]}</i> lines"
-                ])+"<extra></extra>",
-        additional_formatting = dict(
-                                    title = "Transit Ridership",
-                                    margin=dict(t=20),
-                                    legend=dict(
-                                        # title="Transit Ridership",
-                                        orientation="h",
-                                        entrywidth=120,
-                                        yanchor="bottom",
-                                        y=1.05,
-                                        xanchor="right",
-                                        x=0.95,
-                                    ))
+        hovertemplate="<br>".join(["<b>%{y:,.0f}</b> riders on", "<i>%{customdata[0]}</i> lines"])
+        + "<extra></extra>",
+        additional_formatting=dict(
+            title="Transit Ridership",
+            margin=dict(t=20),
+            legend=dict(
+                # title="Transit Ridership",
+                orientation="h",
+                entrywidth=120,
+                yanchor="bottom",
+                y=1.05,
+                xanchor="right",
+                x=0.95,
+            ),
+        ),
     )
+
 
 # get data for vehicle miles traveled
 def get_data_vehicle_miles_traveled():
@@ -460,14 +485,16 @@ def plot_vehicle_miles_traveled(df):
         custom_data=None,
         additional_formatting=dict(
             title="Total Vehicle Miles Traveled",
-            )
+        ),
     )
+
+
 # get data for mode share
 def get_data_mode_share():
     modeshare_data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/136"
     )
-    modeshare_data=modeshare_data.query('Source!="LOCUS"')
+    modeshare_data = modeshare_data.query('Source!="LOCUS"')
     modeshare_data_grouped = (
         modeshare_data.groupby(["Year", "Season", "Mode", "Source"])
         .agg({"Number": "mean"})
@@ -534,7 +561,7 @@ def plot_mode_share(df):
     path_html = "html/3.3.d_Mode_Share_2.html"
     div_id = "3.3.d_Mode_Share_2"
     config = {"displayModeBar": False}
-    df=df.query('Source!="LOCUS"')
+    df = df.query('Source!="LOCUS"')
     x_order = df.sort_values("Year_Season")["Year_Season"].unique()
     Source_Colors = {"Replica": "#FC9A62", "Survey": "#208385"}
     df["Source Color"] = df["Source"].map(Source_Colors)
@@ -655,10 +682,9 @@ def plot_mode_share(df):
         )
     )
 
-    fig.update_layout(title_text="Modeshare by Source",
-                      template="plotly_white",
-        dragmode=False,
-        legend_title=None)
+    fig.update_layout(
+        title_text="Modeshare by Source", template="plotly_white", dragmode=False, legend_title=None
+    )
     source_sort = ["LOCUS", "Replica", "Survey"]
 
     def custom_sort(tuple_item):
@@ -911,7 +937,7 @@ def plot_low_stress_bicycle(df):
         )
         + "<extra></extra>",
         additional_formatting=dict(
-            title = "Total Miles of Bike Routes Built",
+            title="Total Miles of Bike Routes Built",
             # legend_title="Total Miles of Bike Routes Built",
             legend=dict(
                 orientation="h",
@@ -920,6 +946,6 @@ def plot_low_stress_bicycle(df):
                 y=1.05,
                 xanchor="right",
                 x=0.95,
-            )
+            ),
         ),
     )

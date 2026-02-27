@@ -8,20 +8,26 @@ from climate_conditions import *
 
 
 # Configure logging
-logging.basicConfig(filename='task_scheduler.log', level=logging.INFO)
+logging.basicConfig(filename="task_scheduler.log", level=logging.INFO)
+
+
 # .
 # Inside execute_task function:
 def execute_task(task_name, max_runtime, command):
     try:
         start_time = datetime.datetime.now()
         # Example: Run an external command as the task
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
         process.communicate()
         exit_code = process.returncode
         end_time = datetime.datetime.now()
         runtime = (end_time - start_time).total_seconds() / 3600  # Calculate runtime in hours
         if runtime > max_runtime:
-            logging.warning(f"Task '{task_name}' exceeded max runtime ({max_runtime} hours) and was terminated.")
+            logging.warning(
+                f"Task '{task_name}' exceeded max runtime ({max_runtime} hours) and was terminated."
+            )
             process.terminate()  # Terminate the task
         else:
             logging.info(f"Task '{task_name}' completed in {runtime:.2f} hours.")

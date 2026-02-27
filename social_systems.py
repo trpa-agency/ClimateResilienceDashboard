@@ -5,7 +5,14 @@ import pandas as pd
 import plotly.express as px
 import pydeck
 
-from utils import get_fs_data, groupedbar_percent, read_file, stackedbar, trendline, create_stacked_bar_plot_with_dropdown
+from utils import (
+    get_fs_data,
+    groupedbar_percent,
+    read_file,
+    stackedbar,
+    trendline,
+    create_stacked_bar_plot_with_dropdown,
+)
 
 
 # get data for household income
@@ -123,7 +130,6 @@ def calculate_data_median_home_price(start_date, end_date):
     df = df.dropna()
     df.to_csv("data/property_radar.csv", index=False)
     return df
-
 
 
 # get data for median home price
@@ -415,42 +421,48 @@ def plot_tenure_by_race(df):
         ),
     )
 
+
 def get_data_housing_occupancy():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
-    mask = (data["Category"] == "Housing Units: Occupancy")
-    val = data[mask].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
-    val=val.groupby(["variable_name", "Geography", 'year_sample']).sum().reset_index()
+    mask = data["Category"] == "Housing Units: Occupancy"
+    val = data[mask].loc[:, ["variable_name", "value", "Geography", "year_sample"]]
+    val = val.groupby(["variable_name", "Geography", "year_sample"]).sum().reset_index()
 
     # Need to get vacant other from total housing units: vacant and
-    #subtracting vacant housing units seasonal rereational or occasional use grouped by geography, year
-    mask_vacant_seasonal = (val["variable_name"] == "Vacant Housing Units: Seasonal, recreational, or occasional use")
-    mask_vacant_total = (val["variable_name"] == "Total Housing Units: Vacant")
-    data_vacant = val[mask_vacant_total].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
+    # subtracting vacant housing units seasonal rereational or occasional use grouped by geography, year
+    mask_vacant_seasonal = (
+        val["variable_name"] == "Vacant Housing Units: Seasonal, recreational, or occasional use"
+    )
+    mask_vacant_total = val["variable_name"] == "Total Housing Units: Vacant"
+    data_vacant = val[mask_vacant_total].loc[
+        :, ["variable_name", "value", "Geography", "year_sample"]
+    ]
 
-    data_vacant_seasonal = val[mask_vacant_seasonal].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
-    data_vacant_total = val[mask_vacant_total].loc[:, ["variable_name", "value", "Geography", 'year_sample']]
-    #rename the value column to vacant_season for data vacant seasonal
+    data_vacant_seasonal = val[mask_vacant_seasonal].loc[
+        :, ["variable_name", "value", "Geography", "year_sample"]
+    ]
+    data_vacant_total = val[mask_vacant_total].loc[
+        :, ["variable_name", "value", "Geography", "year_sample"]
+    ]
+    # rename the value column to vacant_season for data vacant seasonal
     data_vacant_seasonal = data_vacant_seasonal.rename(columns={"value": "vacant_season"})
     data_vacant_total = data_vacant_total.rename(columns={"value": "vacant_total"})
-    #merge the two dataframes
-    data_vacant = data_vacant_total.merge(data_vacant_seasonal,
-                                            on=["Geography", 'year_sample'])
+    # merge the two dataframes
+    data_vacant = data_vacant_total.merge(data_vacant_seasonal, on=["Geography", "year_sample"])
     data_vacant["vacant_other"] = data_vacant["vacant_total"] - data_vacant["vacant_season"]
-    data_vacant = data_vacant.loc[:, ["Geography", 'year_sample', 'vacant_other']]
+    data_vacant = data_vacant.loc[:, ["Geography", "year_sample", "vacant_other"]]
     data_vacant["variable_name"] = "Vacant Housing Units: Other"
     data_vacant = data_vacant.rename(columns={"vacant_other": "value"})
     val = pd.concat([val, data_vacant], ignore_index=True)
     value_lookup = {
-                "Occupied Housing Units: Owner Occupied": "Owner Occupied",
-            "Occupied Housing Units: Renter Occupied": "Renter Occupied",
-            "Vacant Housing Units: Other": "Vacant Other",
-            "Vacant Housing Units: Seasonal, recreational, or occasional use": "Vacant Seasonal",
-        }
-    val["Occupancy"] = val["variable_name"].replace(
-        value_lookup
-    )
+        "Occupied Housing Units: Owner Occupied": "Owner Occupied",
+        "Occupied Housing Units: Renter Occupied": "Renter Occupied",
+        "Vacant Housing Units: Other": "Vacant Other",
+        "Vacant Housing Units: Seasonal, recreational, or occasional use": "Vacant Seasonal",
+    }
+    val["Occupancy"] = val["variable_name"].replace(value_lookup)
     # Drop if variable_name not in value_lookup
     val = val.loc[val["variable_name"].isin(value_lookup.keys())]
 
@@ -458,6 +470,8 @@ def get_data_housing_occupancy():
     val["Total_Housing_Units"] = val.groupby(["Geography", "year_sample"])["value"].transform("sum")
     val["share"] = val["value"] / val["Total_Housing_Units"]
     return val
+
+
 def plot_housing_occupancy(df):
     create_stacked_bar_plot_with_dropdown(
         df,
@@ -468,8 +482,8 @@ def plot_housing_occupancy(df):
         color_column="Occupancy",
         dropdown_column="Geography",
         color_sequence=["#208385", "#FC9A62", "#632E5A", "#A48352"],
-        sort_order=['Owner Occupied', 'Renter Occupied', 'Vacant Other', 'Vacant Seasonal'],
-        title_text='Housing Occupancy',
+        sort_order=["Owner Occupied", "Renter Occupied", "Vacant Other", "Vacant Seasonal"],
+        title_text="Housing Occupancy",
         y_title="% Housing Occupancy",
         x_title="Year",
         hovermode="x unified",
@@ -480,13 +494,15 @@ def plot_housing_occupancy(df):
         )
         + "<extra></extra>",
         additional_formatting=dict(
-            xaxis = dict(
-                tickmode = 'array',
-                tickvals = [1990, 2000, 2010, 2020],
-                ticktext = ['1990', '2000', '2010', '2020'],
+            xaxis=dict(
+                tickmode="array",
+                tickvals=[1990, 2000, 2010, 2020],
+                ticktext=["1990", "2000", "2010", "2020"],
             )
         ),
     )
+
+
 # get commute patterns data
 def get_data_commute_patterns():
     data = get_fs_data(
@@ -550,10 +566,10 @@ def get_data_commute_origin():
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/141"
     )
     reno_census_tracts = read_file("data/Reno_Census_Tracts.csv")
-    reno_census_tracts['FIPS'] = reno_census_tracts['FIPS'].astype(str)
-    data['reno_tract'] = data['h_tract_id'].isin(reno_census_tracts['FIPS'])
-    data.loc[data['reno_tract'], 'h_tract_lat'] = 39.5226659
-    data.loc[data['reno_tract'], 'h_tract_long'] = -119.8121265
+    reno_census_tracts["FIPS"] = reno_census_tracts["FIPS"].astype(str)
+    data["reno_tract"] = data["h_tract_id"].isin(reno_census_tracts["FIPS"])
+    data.loc[data["reno_tract"], "h_tract_lat"] = 39.5226659
+    data.loc[data["reno_tract"], "h_tract_long"] = -119.8121265
     grouped_df = data.groupby(
         [
             "Year",
@@ -671,7 +687,7 @@ def get_data_race_ethnicity():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
-    mask1 = (data["Category"] == "Race and Ethnicity") & (data['dataset'] != 'acs/acs5' )
+    mask1 = (data["Category"] == "Race and Ethnicity") & (data["dataset"] != "acs/acs5")
     # mask2 = (
     #     (data["Category"] == "Race and Ethnicity")
     #     & (data["year_sample"] == 2020)
@@ -711,8 +727,15 @@ def get_data_race_ethnicity():
     all_years = df["Year"].unique()
     all_races = df["Race"].unique()
     all_geographies = df["Geography"].unique()
-    all_combinations = [(year, race, geography) for year in all_years for race in all_races for geography in all_geographies]
-    existing_combinations = [(row["Year"], row["Race"], row["Geography"]) for _, row in df.iterrows()]
+    all_combinations = [
+        (year, race, geography)
+        for year in all_years
+        for race in all_races
+        for geography in all_geographies
+    ]
+    existing_combinations = [
+        (row["Year"], row["Race"], row["Geography"]) for _, row in df.iterrows()
+    ]
     missing_combinations = list(set(all_combinations) - set(existing_combinations))
     missing_data = pd.DataFrame(missing_combinations, columns=["Year", "Race", "Geography"])
     missing_data["value"] = 0
@@ -744,16 +767,14 @@ def plot_race_ethnicity(df):
             "#023F64",
             "#B83F5D",
         ],
-        sort_order=['White', 'Hispanic', 'Asian', 'Black', 'AIAN', 'NHPI', 'Other', 'Multi'],
-        title_text='Race and Ethnicity of Population',
+        sort_order=["White", "Hispanic", "Asian", "Black", "AIAN", "NHPI", "Other", "Multi"],
+        title_text="Race and Ethnicity of Population",
         y_title="Percent of Race and Ethnicity",
         x_title="Year",
         hovermode="x unified",
         format=".0%",
         custom_data=["Race"],
-        hovertemplate="<br>".join(
-            ["<b>%{y:.1%}</b> of the population is", "<i>%{customdata}</i>"]
-        )
+        hovertemplate="<br>".join(["<b>%{y:.1%}</b> of the population is", "<i>%{customdata}</i>"])
         + "<extra></extra>",
         additional_formatting=None,
     )
