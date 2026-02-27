@@ -175,10 +175,14 @@
     .chart-wrap {
       padding: 24px 12px 12px;
       position: relative;
-      min-height: 440px;
+      /* Height is driven by the chart div itself — no fixed min-height */
     }
 
-    #transit-chart { width: 100%; height: 440px; }
+    #transit-chart {
+      width: 100%;
+      /* Responsive height: clamp between 340px and 520px based on viewport */
+      height: clamp(340px, 42vw, 520px);
+    }
 
     .loader {
       position: absolute; inset: 0;
@@ -612,17 +616,22 @@
 
     const names = [...new Set(filtered.map(d => d.name))].sort();
 
+    // All unique dates in sorted order — ensures every trace has same x-axis
+    const allDates = [...new Set(filtered.map(d => d.date))].sort();
+
     const traces = names.map((name, i) => {
-      const rows = filtered.filter(d => d.name === name);
+      const byDate = {};
+      filtered.filter(d => d.name === name).forEach(d => { byDate[d.date] = d.ridership; });
       return {
         name,
-        x: rows.map(d => d.date),
-        y: rows.map(d => d.ridership),
-        type: "scatter",
-        mode: "lines+markers",
-        marker: { size: 5, color: COLORS[i % COLORS.length] },
-        line:   { color: COLORS[i % COLORS.length], width: 2 },
-        customdata: rows.map(d => [d.name]),
+        x: allDates,
+        y: allDates.map(date => byDate[date] || 0),
+        type: "bar",
+        marker: {
+          color: COLORS[i % COLORS.length],
+          line: { width: 0 },
+        },
+        customdata: allDates.map(() => [name]),
         hovertemplate:
           "%{x|%b %Y}: <b>%{y:,.0f}</b> riders<br>" +
           "<i>%{customdata[0]}</i><extra></extra>",
@@ -630,14 +639,15 @@
     });
 
     const layout = {
+      barmode: "stack",
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor:  "rgba(0,0,0,0)",
-      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#0d1f2d" },
+      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#01161E" },
       xaxis: {
         title: { text: "Date", standoff: 14 },
         showgrid: false,
         zeroline: false,
-        linecolor: "#d6e3ed",
+        linecolor: "#BFD7ED",
         tickfont: { size: 12 },
         tickangle: -45,
         type: "date",
@@ -660,14 +670,17 @@
       },
       legend: {
         orientation: "h",
-        entrywidth: 160,
-        yanchor: "bottom",
-        y: 1.05,
-        xanchor: "right",
-        x: 0.95,
-        font: { size: 12 },
+        entrywidth: 150,
+        yanchor: "top",
+        y: -0.22,
+        xanchor: "center",
+        x: 0.5,
+        font: { size: 11 },
+        tracegroupgap: 4,
       },
-      margin: { t: 20, r: 30, b: 80, l: 80 },
+      // Large bottom margin to prevent legend clipping
+      margin: { t: 10, r: 20, b: 120, l: 80 },
+      bargap: 0.15,
       dragmode: false,
     };
 
