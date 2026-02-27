@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Extreme Heat Days — Lake Tahoe</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.1/plotly.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #fdf4ee;
+      --surface: #ffffff;
+      --ink:     #1a0f00;
+      --muted:   #8a6a50;
+      --border:  #f0ddd0;
+      --accent:  #c94a00;
+      --accent2: #FCB42C;
+      --c1: #c94a00;
+      --c2: #FCB42C;
+      --c3: #E69800;
+      --c4: #FF8C00;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 70% -10%, rgba(201,74,0,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 5% 95%, rgba(252,180,44,0.06) 0%, transparent 60%);
+      font-family: 'Lexend Deca', sans-serif;
+      color: var(--ink);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px 64px;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 24px 12px 40px; }
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--c1) 0%, var(--c2) 40%, var(--c3) 70%, var(--c4) 100%);
+      z-index: 100;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(26,15,0,0.04), 0 8px 40px rgba(201,74,0,0.09);
+      width: 100%;
+      max-width: 1100px;
+      overflow: visible;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      padding: 32px 44px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 600px) {
+      .card-header { padding: 20px 20px 16px; gap: 12px; }
+    }
+
+    .header-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-icon svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .header-text h1 {
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .header-text p {
+      margin-top: 6px;
+      font-size: 0.875rem;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.55;
+      max-width: 560px;
+    }
+
+    @media (max-width: 600px) {
+      .header-text h1 { font-size: 1.25rem; }
+      .header-text p { font-size: 0.8rem; }
+    }
+
+    .source-badge {
+      margin-left: auto; flex-shrink: 0;
+      font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); border: 1px solid rgba(201,74,0,0.25);
+      background: rgba(201,74,0,0.05);
+      border-radius: 6px; padding: 4px 10px;
+      align-self: flex-start;
+    }
+
+    @media (max-width: 600px) {
+      .source-badge { margin-left: 0; }
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: flex;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(201,74,0,0.03) 0%, transparent 100%);
+    }
+    .stat {
+      flex: 1;
+      min-width: 120px;
+      padding: 16px 28px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+
+    @media (max-width: 600px) {
+      .stat {
+        flex: 1 1 50%;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .stat:nth-child(2) { border-right: none; }
+      .stat:nth-child(3) { border-right: 1px solid var(--border); border-bottom: none; }
+      .stat:nth-child(4) { border-right: none; border-bottom: none; }
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .stat-value {
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 2px;
+      min-height: 2rem;
+    }
+    .stat:nth-child(2) .stat-value { color: var(--c2); }
+    .stat:nth-child(3) .stat-value { color: var(--c3); }
+    .stat-value.loading {
+      background: linear-gradient(90deg, #f5e8dc 25%, #eeddd0 50%, #f5e8dc 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 4px;
+      width: 80px; height: 1.5rem;
+      display: inline-block;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Threshold control */
+    .controls-bar {
+      padding: 14px 44px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 600px) {
+      .controls-bar {
+        padding: 12px 16px;
+        gap: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .control-group { flex-wrap: wrap; }
+      .control-group:last-child { margin-left: 0 !important; width: 100%; }
+      .threshold-group { margin-left: 0 !important; width: 100%; }
+      #temp-slider { flex: 1; width: auto !important; min-width: 0; }
+    }
+    .control-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .city-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .city-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .city-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(201,74,0,0.25);
+    }
+
+    .chart-wrap {
+      padding: 24px 12px 12px;
+      position: relative;
+    }
+
+    #heat-chart {
+      width: 100%;
+      min-height: 380px; /* fallback before JS runs */
+    }
+
+    .loader {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; background: var(--surface); z-index: 10;
+      transition: opacity 0.3s;
+    }
+    .loader.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { font-size: 0.84rem; color: var(--muted); }
+
+    .error-msg {
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px; padding: 24px; text-align: center;
+    }
+    .error-msg.visible { display: flex; }
+    .error-msg svg { width: 36px; height: 36px; stroke: #b83f5d; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .error-msg p { font-size: 0.88rem; color: var(--muted); max-width: 380px; line-height: 1.5; }
+    .retry-btn {
+      margin-top: 4px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 8px 20px; font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .retry-btn:hover { opacity: 0.85; }
+
+    .card-footer {
+      padding: 14px 44px;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(252,180,44,0.03) 0%, transparent 100%);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+    .footer-note { font-size: 0.74rem; color: var(--muted); font-weight: 300; }
+    .footer-note a { color: var(--accent); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .card-footer { padding: 12px 16px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="card-header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4"/>
+        <line x1="12" y1="2"  x2="12" y2="4"/>
+        <line x1="12" y1="20" x2="12" y2="22"/>
+        <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="2"  y1="12" x2="4"  y2="12"/>
+        <line x1="20" y1="12" x2="22" y2="12"/>
+        <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+        <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1># of Extreme Heat Days in Tahoe</h1>
+      <p>Annual count of days exceeding a high-temperature threshold at Lake Tahoe (39.0°N, 120.0°W, 2,100 m elevation). Data from Open-Meteo ERA5 reanalysis, 2003–present.</p>
+    </div>
+  </div>
+
+
+
+  <div class="controls-bar">
+    <div class="control-group">
+      <span class="control-label">Location</span>
+      <button class="city-btn active" data-city="tahoe">Lake Tahoe</button>
+      <button class="city-btn" data-city="reno">Reno</button>
+      <button class="city-btn" data-city="sacramento">Sacramento</button>
+    </div>
+    <div class="control-group threshold-group" style="margin-left:auto;">
+      <span class="control-label">Threshold</span>
+      <span class="control-label" id="slider-val" style="font-size:0.9rem;color:var(--ink);font-weight:600;min-width:52px;">85 °F</span>
+      <input type="range" id="temp-slider" min="80" max="100" value="85" step="1"
+             style="width:160px;accent-color:var(--accent);cursor:pointer;"/>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-label">Most Recent Year</div>
+      <div class="stat-value loading" id="stat-recent"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Record High Year</div>
+      <div class="stat-value loading" id="stat-peak-year"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Peak Count</div>
+      <div class="stat-value loading" id="stat-peak-count"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Years on Record</div>
+      <div class="stat-value" id="stat-years">—</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <span class="loader-text">Fetching climate data…</span>
+    </div>
+    <div class="error-msg" id="error-msg">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p id="error-detail">Could not load climate data. Check the browser console (F12) for details.</p>
+      <button class="retry-btn" onclick="loadAndRender()">Retry</button>
+    </div>
+    <div id="heat-chart"></div>
+  </div>
+
+  <div class="card-footer">
+    <span class="footer-note">
+      Source: <a href="https://open-meteo.com/" target="_blank">Open-Meteo Historical Weather API</a> · ERA5 reanalysis · Lake Tahoe (39.0°N, 120.0°W)
+    </span>
+    <span class="footer-note">Daily maximum temperature · Annual extreme heat day counts</span>
+  </div>
+
+</div>
+
+<script>
+  const CITIES = {
+    tahoe:      { label: "Lake Tahoe",  lat: 39.0001,  lon: -120.0001, elev: 1900 },
+    reno:       { label: "Reno",        lat: 39.5296,  lon: -119.8138, elev: 1373 },
+    sacramento: { label: "Sacramento",  lat: 38.5816,  lon: -121.4944, elev: 9    },
+  };
+
+  const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+
+  // Per-city raw data cache in memory
+  const memCache = {};
+
+  let currentCity      = "tahoe";
+  let currentThreshold = 85;
+
+  // --- localStorage cache (per city) ---
+  function cacheKey(city) { return `extreme_heat_${city}`; }
+
+  function readCache(city) {
+    try {
+      const raw = localStorage.getItem(cacheKey(city));
+      if (!raw) return null;
+      const { ts, data } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL) return null;
+      return data;
+    } catch { return null; }
+  }
+
+  function writeCache(city, data) {
+    try {
+      localStorage.setItem(cacheKey(city), JSON.stringify({ ts: Date.now(), data }));
+    } catch {}
+  }
+
+  // --- Data fetching ---
+  async function fetchChunk(city, start, end) {
+    const { lat, lon, elev } = CITIES[city];
+    const url =
+      `https://archive-api.open-meteo.com/v1/archive` +
+      `?latitude=${lat}&longitude=${lon}&elevation=${elev}` +
+      `&start_date=${start}&end_date=${end}` +
+      `&daily=temperature_2m_max` +
+      `&temperature_unit=fahrenheit` +
+      `&timezone=America%2FLos_Angeles`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.error) throw new Error(json.reason || "Open-Meteo error");
+    return { dates: json.daily.time, tmaxF: json.daily.temperature_2m_max };
+  }
+
+  async function loadRawData(city) {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const [chunk1, chunk2] = await Promise.all([
+      fetchChunk(city, "2003-01-01", "2013-12-31"),
+      fetchChunk(city, "2014-01-01", todayStr),
+    ]);
+    return {
+      dates: [...chunk1.dates, ...chunk2.dates],
+      tmaxF: [...chunk1.tmaxF, ...chunk2.tmaxF],
+    };
+  }
+
+  // --- Processing ---
+  function countByYear(raw, thresholdF) {
+    const counts = {};
+    const currentYear = new Date().getFullYear();
+    raw.dates.forEach((dateStr, i) => {
+      const tmax = raw.tmaxF[i];
+      if (tmax === null) return;
+      const year = parseInt(dateStr.slice(0, 4));
+      if (year >= currentYear) return; // exclude partial current year
+      if (!counts[year]) counts[year] = 0;
+      if (tmax > thresholdF) counts[year]++;
+    });
+    return Object.entries(counts)
+      .map(([year, count]) => ({ year: parseInt(year), count }))
+      .sort((a, b) => a.year - b.year);
+  }
+
+  // --- UI helpers ---
+  function setStats(yearly) {
+    const counts   = yearly.map(d => d.count);
+    const years    = yearly.map(d => d.year);
+    const maxCount = Math.max(...counts);
+    const recent   = yearly[yearly.length - 1];
+
+    const setEl = (id, text) => {
+      const el = document.getElementById(id);
+      el.classList.remove("loading");
+      el.textContent = text;
+    };
+    setEl("stat-recent",     `${recent.count} days (${recent.year})`);
+    setEl("stat-peak-year",  String(years[counts.indexOf(maxCount)]));
+    setEl("stat-peak-count", `${maxCount} days`);
+    document.getElementById("stat-years").textContent = `${years.length}`;
+  }
+
+  function resetStats() {
+    ["stat-recent", "stat-peak-year", "stat-peak-count"].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.add("loading");
+      el.textContent = "";
+    });
+    document.getElementById("stat-years").textContent = "—";
+  }
+
+  function renderChart(yearly, thresholdF, cityLabel) {
+    const max = Math.max(...yearly.map(d => d.count));
+    const trace = {
+      x: yearly.map(d => d.year),
+      y: yearly.map(d => d.count),
+      type: "bar",
+      marker: {
+        color: yearly.map(d => {
+          const t = max > 0 ? d.count / max : 0;
+          // cool amber (#FCB42C) → hot burnt orange-red (#c94a00)
+          const r = Math.round(252 + (201 - 252) * t);
+          const g = Math.round(180 + (74  - 180) * t);
+          const b = Math.round(44  + (0   - 44)  * t);
+          return `rgb(${r},${g},${b})`;
+        }),
+      },
+      hovertemplate: `<b>%{y:,.0f} days</b><br><i>over ${thresholdF}°F in ${cityLabel}</i><extra></extra>`,
+    };
+
+    const layout = {
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor:  "rgba(0,0,0,0)",
+      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#1a0f00" },
+      xaxis: { title: { text: "Year", standoff: 14 }, showgrid: false, zeroline: false, linecolor: "#f0ddd0", tickfont: { size: 12 }, dtick: 1, tickangle: -45 },
+      yaxis: { title: { text: "Days", standoff: 14 }, showgrid: true, gridcolor: "#f5e8dc", zeroline: false, tickformat: ",.0f", tickfont: { size: 12 } },
+      hovermode: "x unified",
+      hoverlabel: { bgcolor: "#c94a00", font: { color: "#fff", family: "'Lexend Deca', sans-serif", size: 12 }, bordercolor: "#c94a00" },
+      margin: { t: 20, r: 30, b: 80, l: 70 },
+      dragmode: false,
+      bargap: 0.25,
+    };
+
+    Plotly.react("heat-chart", [trace], layout, { displayModeBar: false, responsive: true })
+      .then(() => setChartHeight());
+  }
+
+  function applyView() {
+    const raw = memCache[currentCity];
+    if (!raw) return;
+    const yearly = countByYear(raw, currentThreshold);
+    renderChart(yearly, currentThreshold, CITIES[currentCity].label);
+    setStats(yearly);
+  }
+
+  async function loadCity(city) {
+    // Already in memory
+    if (memCache[city]) { applyView(); return; }
+
+    document.getElementById("loader").classList.remove("hidden");
+    document.getElementById("error-msg").classList.remove("visible");
+    resetStats();
+
+    // Try localStorage cache
+    const cached = readCache(city);
+    if (cached) {
+      memCache[city] = cached;
+      applyView();
+      document.getElementById("loader").classList.add("hidden");
+      // Background refresh
+      loadRawData(city).then(data => {
+        memCache[city] = data;
+        writeCache(city, data);
+        if (currentCity === city) applyView();
+      }).catch(() => {});
+      return;
+    }
+
+    try {
+      const data = await loadRawData(city);
+      memCache[city] = data;
+      writeCache(city, data);
+      if (currentCity === city) {
+        applyView();
+        document.getElementById("loader").classList.add("hidden");
+      }
+    } catch (err) {
+      console.error(err);
+      document.getElementById("loader").classList.add("hidden");
+      document.getElementById("error-msg").classList.add("visible");
+      document.getElementById("error-detail").innerHTML =
+        `<strong>Error:</strong> ${err.message}<br><br>Check the browser console (F12) for details.`;
+    }
+  }
+
+  async function loadAndRender() {
+    await loadCity(currentCity);
+    // Preload other cities silently in background
+    Object.keys(CITIES).filter(c => c !== currentCity).forEach(city => {
+      loadRawData(city).then(data => {
+        memCache[city] = data;
+        writeCache(city, data);
+      }).catch(() => {});
+    });
+  }
+
+  // City buttons
+  document.querySelectorAll(".city-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".city-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentCity = btn.dataset.city;
+      loadCity(currentCity);
+    });
+  });
+
+  // Slider
+  const slider   = document.getElementById("temp-slider");
+  const sliderVal = document.getElementById("slider-val");
+  slider.addEventListener("input", () => {
+    currentThreshold = parseInt(slider.value);
+    sliderVal.textContent = `${currentThreshold} °F`;
+    resetStats();
+    applyView();
+  });
+
+  loadAndRender();
+
+  // ── Responsive chart sizing ───────────────────────────────────────────────
+  // Bar chart has no legend — bottom space only needed for rotated x-axis labels
+  function setChartHeight() {
+    const card    = document.querySelector(".card");
+    const chartEl = document.getElementById("heat-chart");
+    if (!card || !chartEl) return;
+
+    const isMobile = window.innerWidth <= 600;
+    const cardW  = card.getBoundingClientRect().width - (isMobile ? 20 : 40);
+    const plotH  = Math.min(420, Math.max(220, Math.round(cardW * (isMobile ? 0.65 : 0.42))));
+    const bottomMargin = isMobile ? 60 : 80;
+    const totalH = plotH + bottomMargin;
+
+    chartEl.style.height = totalH + "px";
+    Plotly.relayout("heat-chart", {
+      height: totalH,
+      "margin.b": bottomMargin,
+      "xaxis.tickfont.size": isMobile ? 9 : 12,
+      "yaxis.tickfont.size": isMobile ? 9 : 12,
+      "margin.l": isMobile ? 46 : 70,
+      "margin.r": isMobile ? 12 : 30,
+    });
+  }
+
+  // Run once after first paint
+  requestAnimationFrame(() => setTimeout(setChartHeight, 100));
+
+  // Re-run on any size change (window resize, iframe resize, sidebar toggle)
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => setChartHeight());
+    const card = document.querySelector(".card");
+    if (card) ro.observe(card);
+  } else {
+    window.addEventListener("resize", setChartHeight);
+  }
+</script>
+</body>
+</html>
