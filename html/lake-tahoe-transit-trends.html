@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lake Tahoe Transit Ridership</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.1/plotly.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #edf4f9;
+      --surface: #ffffff;
+      --ink:     #01161E;
+      --muted:   #598392;
+      --border:  #BFD7ED;
+      --accent:  #0077C0;
+      --accent2: #00A99D;
+      --c1: #0077C0;
+      --c2: #00A99D;
+      --c3: #A48352;
+      --c4: #FC9A62;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 60% -10%, rgba(0,119,192,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 10% 90%, rgba(0,169,157,0.06) 0%, transparent 60%);
+      font-family: 'Lexend Deca', sans-serif;
+      color: var(--ink);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px 64px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--c1) 0%, var(--c2) 40%, var(--c3) 70%, var(--c4) 100%);
+      z-index: 100;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(1,22,30,0.04), 0 8px 40px rgba(0,119,192,0.08);
+      width: 100%;
+      max-width: 1100px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      padding: 32px 44px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .header-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-icon svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .header-text h1 {
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    .header-text p {
+      margin-top: 6px;
+      font-size: 0.875rem;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.55;
+      max-width: 560px;
+    }
+
+    .source-badge {
+      margin-left: auto; flex-shrink: 0;
+      font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); border: 1px solid rgba(0,119,192,0.25);
+      background: rgba(0,119,192,0.05);
+      border-radius: 6px; padding: 4px 10px;
+      align-self: flex-start;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 16px 28px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .stat-value {
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-top: 2px;
+      min-height: 2rem;
+    }
+    .stat-value.loading {
+      background: linear-gradient(90deg, #ddedf7 25%, #BFD7ED 50%, #ddedf7 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 4px;
+      width: 100px; height: 1.5rem;
+      display: inline-block;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Time range controls */
+    .controls {
+      padding: 16px 44px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .controls-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+      margin-right: 4px;
+    }
+    .range-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .range-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .range-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .chart-wrap {
+      padding: 24px 12px 12px;
+      position: relative;
+      min-height: 440px;
+    }
+
+    #transit-chart { width: 100%; height: 440px; }
+
+    .loader {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; background: var(--surface); z-index: 10;
+      transition: opacity 0.3s;
+    }
+    .loader.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { font-size: 0.84rem; color: var(--muted); }
+
+    .error-msg {
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px; padding: 24px; text-align: center;
+    }
+    .error-msg.visible { display: flex; }
+    .error-msg svg { width: 36px; height: 36px; stroke: #b83f5d; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .error-msg p { font-size: 0.88rem; color: var(--muted); max-width: 380px; line-height: 1.5; }
+    .retry-btn {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 8px 20px; font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .retry-btn:hover { opacity: 0.85; }
+
+    /* Stats strip accent line */
+    .stats-strip {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(0,119,192,0.03) 0%, transparent 100%);
+    }
+
+    /* Filter row */
+    .filters {
+      padding: 14px 44px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filters-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+    .filter-select {
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 28px 5px 10px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23607a8f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      transition: border-color 0.15s;
+      max-width: 220px;
+    }
+    .filter-select:focus { outline: none; border-color: var(--accent); }
+    .filter-select:hover { border-color: var(--accent); }
+
+    .filter-divider {
+      width: 1px; height: 20px;
+      background: var(--border);
+      margin: 0 2px;
+    }
+
+    .download-btn {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 14px;
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .download-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .download-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .card-footer {
+      padding: 14px 44px;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(0,169,157,0.03) 0%, transparent 100%);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+    .footer-note { font-size: 0.74rem; color: var(--muted); font-weight: 300; }
+    .footer-note a { color: var(--accent); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+
+    /* Stat highlight — first stat uses teal accent */
+    .stat:first-child .stat-value { color: var(--accent2); }
+    .stat:nth-child(3) .stat-value { color: var(--c3); }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="card-header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24">
+        <rect x="1" y="6" width="15" height="13" rx="2"/>
+        <path d="M16 10l4.553-2.07A1 1 0 0 1 22 8.82v6.36a1 1 0 0 1-1.447.89L16 14"/>
+        <line x1="1" y1="10" x2="16" y2="10"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Transit Ridership</h1>
+      <p>Monthly ridership by route type and transit operator across the Lake Tahoe region, excluding paratransit, commuter, and seasonal fixed routes.</p>
+    </div>
+
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-label">Latest Month Total</div>
+      <div class="stat-value loading" id="stat-latest"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Peak Month</div>
+      <div class="stat-value loading" id="stat-peak"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Peak Ridership</div>
+      <div class="stat-value loading" id="stat-peak-val"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Routes Tracked</div>
+      <div class="stat-value loading" id="stat-routes"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span class="controls-label">Range</span>
+    <button class="range-btn" data-months="12">1 yr</button>
+    <button class="range-btn" data-months="36">3 yr</button>
+    <button class="range-btn" data-months="60">5 yr</button>
+    <button class="range-btn active" data-months="0">All</button>
+  </div>
+
+  <div class="filters">
+    <span class="filters-label">Filter</span>
+    <select class="filter-select" id="filter-operator">
+      <option value="">All Operators</option>
+    </select>
+    <select class="filter-select" id="filter-type">
+      <option value="">All Route Types</option>
+    </select>
+    <select class="filter-select" id="filter-route">
+      <option value="">All Routes</option>
+    </select>
+    <button class="download-btn" id="download-btn">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download CSV
+    </button>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <span class="loader-text">Fetching ridership data…</span>
+    </div>
+    <div class="error-msg" id="error-msg">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p id="error-detail">Could not load transit data.</p>
+      <button class="retry-btn" onclick="loadAndRender()">Retry</button>
+    </div>
+    <div id="transit-chart"></div>
+  </div>
+
+  <div class="card-footer">
+    <span class="footer-note">Source: LakeTahoeInfo Transit Monitoring Data</span>
+    <span class="footer-note">Excludes Paratransit · Commuter · Seasonal Fixed Route</span>
+  </div>
+
+</div>
+
+<script>
+  const CSV_URL_DIRECT = "https://www.laketahoeinfo.org/WebServices/GetTransitMonitoringData/CSV/e17aeb86-85e3-4260-83fd-a2b32501c476";
+  const CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(CSV_URL_DIRECT);
+  const CACHE_KEY = "transit_cache";
+  const CACHE_TTL = 6 * 60 * 60 * 1000;
+
+  const COLORS = ["#0077C0", "#00A99D", "#A48352", "#FC9A62", "#4A90E2", "#37B28D"];
+
+  const EXCLUDE_TYPES = new Set(["Paratransit", "Commuter", "Seasonal Fixed Route"]);
+  const OPERATOR_ABBR = {
+    "Tahoe Transportation District": "TTD",
+    "Tahoe Truckee Area Regional Transit": "TART",
+    "South Shore Transportation Management Association": "SSTMA",
+  };
+
+  // Raw rows stored for filtering & download
+  let rawRows = [];
+  let allData = [];
+  let filteredData = [];
+  let activeMonths = 0;
+
+  // Active filter state
+  const filters = { operator: "", type: "", route: "" };
+
+  // ── Cache ──────────────────────────────────────────────────────────────────
+  function readCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts, csv } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL) return null;
+      return csv;
+    } catch { return null; }
+  }
+  function writeCache(csv) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), csv })); } catch {}
+  }
+
+  // ── CSV parser ─────────────────────────────────────────────────────────────
+  function parseCSV(text) {
+    const lines = text.trim().split("\n");
+    const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+    return lines.slice(1).map(line => {
+      const vals = line.split(",").map(v => v.trim().replace(/^"|"$/g, ""));
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = vals[i] ?? "");
+      return obj;
+    });
+  }
+
+  // ── Date normalizer ────────────────────────────────────────────────────────
+  function normalizeDate(rawDate) {
+    if (!rawDate) return "";
+    if (rawDate.includes("/")) {
+      const parts = rawDate.split("/");
+      if (parts.length >= 3) {
+        const month = parts[0].padStart(2, "0");
+        const year  = parts[2].split(" ")[0];
+        return `${year}-${month}-01`;
+      }
+    }
+    // Already YYYY-MM or YYYY-MM-DD
+    if (/^\d{4}-\d{2}$/.test(rawDate.slice(0,7))) {
+      return rawDate.slice(0,7) + "-01";
+    }
+    return rawDate.length >= 10 ? rawDate.slice(0, 10) : rawDate;
+  }
+
+  function fmtMonth(ym) {
+    if (!ym) return "—";
+    const parts = ym.split("-");
+    const y = parts[0], m = parts[1];
+    const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return `${names[parseInt(m,10)-1]} ${y}`;
+  }
+
+  // ── Data processing ────────────────────────────────────────────────────────
+  // Returns enriched rows with normalized fields; does NOT aggregate
+  function enrichRows(rows) {
+    return rows
+      .filter(r => !EXCLUDE_TYPES.has(r.RouteType))
+      .map(r => ({
+        date:     normalizeDate(r.Month || ""),
+        operator: r.TransitOperator || "",
+        type:     r.RouteType || "",
+        route:    r.Route || "",
+        ridership: parseFloat(r.MonthlyRidership) || 0,
+      }))
+      .filter(r => r.date);
+  }
+
+  // Aggregate enriched rows into chart series [{date, name, ridership}]
+  function aggregate(rows) {
+    const grouped = {};
+    for (const r of rows) {
+      const op   = OPERATOR_ABBR[r.operator] || r.operator || "Unknown";
+      const type = r.type || "Unknown";
+      const name = `${type} — ${op}`;
+      const key  = `${name}||${r.date}`;
+      if (!grouped[key]) grouped[key] = { date: r.date, name, ridership: 0 };
+      grouped[key].ridership += r.ridership;
+    }
+    return Object.values(grouped).sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  // ── Filters ────────────────────────────────────────────────────────────────
+  function getFilteredRows() {
+    return rawRows.filter(r =>
+      (!filters.operator || r.operator === filters.operator) &&
+      (!filters.type     || r.type === filters.type) &&
+      (!filters.route    || r.route === filters.route)
+    );
+  }
+
+  // Populate dropdowns based on currently visible rows (cascading)
+  function populateDropdowns() {
+    const opSel    = document.getElementById("filter-operator");
+    const typeSel  = document.getElementById("filter-type");
+    const routeSel = document.getElementById("filter-route");
+
+    // Operator options — based on full data
+    const operators = [...new Set(rawRows.map(r => r.operator).filter(Boolean))].sort();
+    rebuildSelect(opSel, operators, filters.operator, "All Operators");
+
+    // Type options — filtered by operator
+    const typeRows = rawRows.filter(r => !filters.operator || r.operator === filters.operator);
+    const types = [...new Set(typeRows.map(r => r.type).filter(Boolean))].sort();
+    rebuildSelect(typeSel, types, filters.type, "All Route Types");
+
+    // Route options — filtered by operator + type
+    const routeRows = rawRows.filter(r =>
+      (!filters.operator || r.operator === filters.operator) &&
+      (!filters.type     || r.type === filters.type)
+    );
+    const routes = [...new Set(routeRows.map(r => r.route).filter(Boolean))].sort();
+    rebuildSelect(routeSel, routes, filters.route, "All Routes");
+  }
+
+  function rebuildSelect(sel, options, selected, placeholder) {
+    const prev = sel.value;
+    sel.innerHTML = `<option value="">${placeholder}</option>`;
+    options.forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt;
+      o.textContent = opt;
+      if (opt === (selected || prev)) o.selected = true;
+      sel.appendChild(o);
+    });
+  }
+
+  function applyFilters() {
+    const fr = getFilteredRows();
+    filteredData = aggregate(fr);
+    populateDropdowns();
+    const visibleRows = getVisibleRows(fr, activeMonths);
+    const visibleData = getVisibleData(filteredData, activeMonths);
+    setStats(visibleData, visibleRows);
+    renderChart(filteredData, activeMonths);
+  }
+
+  // Returns aggregated data trimmed to the active time window
+  function getVisibleData(data, months) {
+    if (!months || months <= 0) return data;
+    const dates = [...new Set(data.map(d => d.date))].sort();
+    const cutoff = dates[Math.max(0, dates.length - months)];
+    return data.filter(d => d.date >= cutoff);
+  }
+
+  // Returns raw rows trimmed to the active time window
+  function getVisibleRows(rows, months) {
+    if (!months || months <= 0) return rows;
+    const dates = [...new Set(rows.map(r => r.date))].sort();
+    const cutoff = dates[Math.max(0, dates.length - months)];
+    return rows.filter(r => r.date >= cutoff);
+  }
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
+  // data = aggregated series, rows = raw filtered rows (for accurate route count)
+  function setStats(data, rows) {
+    rows = rows || rawRows;
+    const setEl = (id, text) => {
+      const el = document.getElementById(id);
+      el.classList.remove("loading");
+      el.textContent = text;
+    };
+
+    const dates = [...new Set(data.map(d => d.date))].sort();
+    const latestDate = dates[dates.length - 1];
+    // Latest month: sum ridership from raw rows for that month
+    const latestTotal = rows
+      .filter(r => r.date === latestDate)
+      .reduce((s, r) => s + r.ridership, 0);
+
+    const byDate = {};
+    data.forEach(d => { byDate[d.date] = (byDate[d.date] || 0) + d.ridership; });
+    const peakDate = Object.entries(byDate).sort((a, b) => b[1] - a[1])[0];
+
+    // Count distinct individual routes from raw rows
+    const routeCount = new Set(rows.map(r => r.route).filter(Boolean)).size;
+
+    setEl("stat-latest",   latestTotal ? latestTotal.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—");
+    setEl("stat-peak",     peakDate ? fmtMonth(peakDate[0]) : "—");
+    setEl("stat-peak-val", peakDate ? peakDate[1].toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—");
+    setEl("stat-routes",   String(routeCount || "—"));
+  }
+
+  function resetStats() {
+    ["stat-latest","stat-peak","stat-peak-val","stat-routes"].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.add("loading");
+      el.textContent = "";
+    });
+  }
+
+  // ── Chart ──────────────────────────────────────────────────────────────────
+  function renderChart(data, months) {
+    if (!data.length) return;
+
+    let filtered = data;
+    if (months > 0) {
+      const dates = [...new Set(data.map(d => d.date))].sort();
+      const cutoff = dates[Math.max(0, dates.length - months)];
+      filtered = data.filter(d => d.date >= cutoff);
+    }
+
+    const names = [...new Set(filtered.map(d => d.name))].sort();
+
+    const traces = names.map((name, i) => {
+      const rows = filtered.filter(d => d.name === name);
+      return {
+        name,
+        x: rows.map(d => d.date),
+        y: rows.map(d => d.ridership),
+        type: "scatter",
+        mode: "lines+markers",
+        marker: { size: 5, color: COLORS[i % COLORS.length] },
+        line:   { color: COLORS[i % COLORS.length], width: 2 },
+        customdata: rows.map(d => [d.name]),
+        hovertemplate:
+          "%{x|%b %Y}: <b>%{y:,.0f}</b> riders<br>" +
+          "<i>%{customdata[0]}</i><extra></extra>",
+      };
+    });
+
+    const layout = {
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor:  "rgba(0,0,0,0)",
+      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#0d1f2d" },
+      xaxis: {
+        title: { text: "Date", standoff: 14 },
+        showgrid: false,
+        zeroline: false,
+        linecolor: "#d6e3ed",
+        tickfont: { size: 12 },
+        tickangle: -45,
+        type: "date",
+        tickformat: "%b %Y",
+        dtick: "M6",
+      },
+      yaxis: {
+        title: { text: "Ridership", standoff: 14 },
+        showgrid: true,
+        gridcolor: "#ddedf7",
+        zeroline: false,
+        tickformat: ",.0f",
+        tickfont: { size: 12 },
+      },
+      hovermode: "x unified",
+      hoverlabel: {
+        bgcolor: "#0077C0",
+        font: { color: "#fff", family: "'Lexend Deca', sans-serif", size: 12 },
+        bordercolor: "#0077C0",
+      },
+      legend: {
+        orientation: "h",
+        entrywidth: 160,
+        yanchor: "bottom",
+        y: 1.05,
+        xanchor: "right",
+        x: 0.95,
+        font: { size: 12 },
+      },
+      margin: { t: 20, r: 30, b: 80, l: 80 },
+      dragmode: false,
+    };
+
+    Plotly.react("transit-chart", traces, layout, { displayModeBar: false, responsive: true });
+  }
+
+  // ── Download CSV ───────────────────────────────────────────────────────────
+  function downloadCSV() {
+    const fr = getFilteredRows();
+    if (!fr.length) return;
+
+    const headers = ["Month", "TransitOperator", "RouteType", "Route", "MonthlyRidership"];
+    const rows = fr.map(r =>
+      [r.date, r.operator, r.type, r.route, r.ridership].join(",")
+    );
+    const csv = [headers.join(","), ...rows].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+
+    // Build filename from active filters
+    const parts = ["lake-tahoe-transit"];
+    if (filters.operator) parts.push(filters.operator.replace(/\s+/g, "-"));
+    if (filters.type)     parts.push(filters.type.replace(/\s+/g, "-"));
+    if (filters.route)    parts.push(filters.route.replace(/\s+/g, "-"));
+    a.download = parts.join("_") + ".csv";
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Event listeners ────────────────────────────────────────────────────────
+  document.querySelectorAll(".range-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".range-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeMonths = parseInt(btn.dataset.months);
+      renderChart(filteredData, activeMonths);
+      const fr = getFilteredRows();
+      setStats(getVisibleData(filteredData, activeMonths), getVisibleRows(fr, activeMonths));
+    });
+  });
+
+  document.getElementById("filter-operator").addEventListener("change", e => {
+    filters.operator = e.target.value;
+    filters.type  = "";
+    filters.route = "";
+    applyFilters();
+  });
+
+  document.getElementById("filter-type").addEventListener("change", e => {
+    filters.type  = e.target.value;
+    filters.route = "";
+    applyFilters();
+  });
+
+  document.getElementById("filter-route").addEventListener("change", e => {
+    filters.route = e.target.value;
+    applyFilters();
+  });
+
+  document.getElementById("download-btn").addEventListener("click", downloadCSV);
+
+  // ── Load & render ──────────────────────────────────────────────────────────
+  async function fetchCSV() {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.text();
+  }
+
+  function initFromCSV(csv) {
+    rawRows     = enrichRows(parseCSV(csv));
+    allData     = aggregate(rawRows);
+    filteredData = allData;
+    populateDropdowns();
+    renderChart(filteredData, activeMonths);
+    setStats(getVisibleData(filteredData, activeMonths), getVisibleRows(rawRows, activeMonths));
+  }
+
+  async function loadAndRender() {
+    document.getElementById("loader").classList.remove("hidden");
+    document.getElementById("error-msg").classList.remove("visible");
+    resetStats();
+
+    const cached = readCache();
+    if (cached) {
+      initFromCSV(cached);
+      document.getElementById("loader").classList.add("hidden");
+      fetchCSV().then(csv => { writeCache(csv); initFromCSV(csv); }).catch(() => {});
+      return;
+    }
+
+    try {
+      const csv = await fetchCSV();
+      writeCache(csv);
+      initFromCSV(csv);
+      document.getElementById("loader").classList.add("hidden");
+    } catch (err) {
+      console.error(err);
+      document.getElementById("loader").classList.add("hidden");
+      document.getElementById("error-msg").classList.add("visible");
+      document.getElementById("error-detail").innerHTML =
+        `<strong>Error:</strong> ${err.message}`;
+    }
+  }
+
+  loadAndRender();
+</script>
+</body>
+</html>
