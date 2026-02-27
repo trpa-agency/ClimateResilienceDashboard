@@ -24,7 +24,7 @@
     }
 
     html, body {
-      height: 100%;
+      min-height: 100%;
       background: var(--bg);
       background-image:
         radial-gradient(ellipse 80% 60% at 60% -10%, rgba(0,119,192,0.08) 0%, transparent 70%),
@@ -37,7 +37,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 48px 24px 64px;
+      padding: 24px 16px 40px;
     }
 
     body::before {
@@ -56,7 +56,7 @@
       box-shadow: 0 2px 4px rgba(1,22,30,0.04), 0 8px 40px rgba(0,119,192,0.08);
       width: 100%;
       max-width: 1100px;
-      overflow: hidden;
+      overflow: visible;
       animation: fadeUp 0.5s ease both;
     }
 
@@ -65,120 +65,140 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── Shared horizontal padding var for easy tuning ── */
+    :root { --px: clamp(16px, 4vw, 44px); }
+
     .card-header {
-      padding: 32px 44px 24px;
+      padding: 24px var(--px) 20px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: flex-start;
-      gap: 18px;
+      gap: 14px;
+      flex-wrap: wrap;
     }
 
     .header-icon {
-      width: 48px; height: 48px; flex-shrink: 0;
+      width: 44px; height: 44px; flex-shrink: 0;
       background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
       border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
     }
-    .header-icon svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .header-icon svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
+    .header-text { flex: 1; min-width: 0; }
     .header-text h1 {
       font-family: 'Lexend Deca', sans-serif;
-      font-size: 1.6rem;
+      font-size: clamp(1.1rem, 3vw, 1.55rem);
       font-weight: 400;
       line-height: 1.2;
     }
     .header-text p {
-      margin-top: 6px;
-      font-size: 0.875rem;
+      margin-top: 5px;
+      font-size: clamp(0.78rem, 2vw, 0.875rem);
       color: var(--muted);
       font-weight: 300;
       line-height: 1.55;
-      max-width: 560px;
     }
 
-    .source-badge {
-      margin-left: auto; flex-shrink: 0;
-      font-size: 0.72rem; font-weight: 500;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--accent); border: 1px solid rgba(0,119,192,0.25);
-      background: rgba(0,119,192,0.05);
-      border-radius: 6px; padding: 4px 10px;
-      align-self: flex-start;
+    /* Stats strip */
+    .stats-strip {
+      display: flex;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(0,119,192,0.03) 0%, transparent 100%);
     }
-
     .stat {
-      flex: 1;
-      padding: 16px 28px;
+      flex: 1 1 120px;        /* shrink but never below 120px, grow equally */
+      min-width: 0;
+      padding: 14px clamp(12px, 2.5vw, 28px);
       border-right: 1px solid var(--border);
+      border-bottom: 1px solid transparent; /* placeholder for wrap */
     }
     .stat:last-child { border-right: none; }
+    /* When stats wrap to 2 rows, add bottom border on first row */
+    @media (max-width: 540px) {
+      .stat { flex-basis: 50%; border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:nth-child(odd) { border-right: 1px solid var(--border); }
+      .stat:nth-last-child(-n+2) { border-bottom: none; }
+    }
     .stat-label {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
       font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .stat-value {
       font-family: 'Lexend Deca', sans-serif;
-      font-size: 1.5rem;
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
       color: var(--accent);
       margin-top: 2px;
-      min-height: 2rem;
+      min-height: 1.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .stat-value.loading {
       background: linear-gradient(90deg, #ddedf7 25%, #BFD7ED 50%, #ddedf7 75%);
       background-size: 200% 100%;
       animation: shimmer 1.2s infinite;
       border-radius: 4px;
-      width: 100px; height: 1.5rem;
+      width: min(100px, 80%); height: 1.4rem;
       display: inline-block;
     }
     @keyframes shimmer { to { background-position: -200% 0; } }
 
+    /* Stat color accents */
+    .stat:first-child .stat-value { color: var(--accent2); }
+    .stat:nth-child(3) .stat-value { color: var(--c3); }
+
     /* Time range controls */
     .controls {
-      padding: 16px 44px;
+      padding: 12px var(--px);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     .controls-label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
       font-weight: 500;
-      margin-right: 4px;
+      margin-right: 2px;
+      white-space: nowrap;
     }
     .range-btn {
       background: none;
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 5px 14px;
+      padding: 4px 12px;
       font-family: 'Lexend Deca', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 500;
       color: var(--muted);
       cursor: pointer;
       transition: all 0.15s;
+      white-space: nowrap;
     }
     .range-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .range-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
+    .range-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
+    /* Chart */
     .chart-wrap {
-      padding: 24px 12px 12px;
+      padding: 20px 8px 8px;
       position: relative;
-      min-height: 440px;
     }
-
-    #transit-chart { width: 100%; height: 440px; }
+    #transit-chart {
+      width: 100%;
+      /* Height set dynamically by JS based on legend row count */
+      min-height: 480px;
+    }
 
     .loader {
       position: absolute; inset: 0;
@@ -189,14 +209,14 @@
     }
     .loader.hidden { opacity: 0; pointer-events: none; }
     .spinner {
-      width: 38px; height: 38px;
+      width: 36px; height: 36px;
       border: 3px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loader-text { font-size: 0.84rem; color: var(--muted); }
+    .loader-text { font-size: 0.82rem; color: var(--muted); }
 
     .error-msg {
       display: none; position: absolute; inset: 0;
@@ -205,101 +225,91 @@
     }
     .error-msg.visible { display: flex; }
     .error-msg svg { width: 36px; height: 36px; stroke: #b83f5d; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-    .error-msg p { font-size: 0.88rem; color: var(--muted); max-width: 380px; line-height: 1.5; }
+    .error-msg p { font-size: 0.86rem; color: var(--muted); max-width: 360px; line-height: 1.5; }
     .retry-btn {
       background: var(--accent); color: #fff;
       border: none; border-radius: 8px;
-      padding: 8px 20px; font-family: 'Lexend Deca', sans-serif;
-      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      padding: 7px 18px; font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.8rem; font-weight: 500; cursor: pointer;
       transition: opacity 0.15s;
     }
     .retry-btn:hover { opacity: 0.85; }
 
-    /* Stats strip accent line */
-    .stats-strip {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(0,119,192,0.03) 0%, transparent 100%);
-    }
-
     /* Filter row */
     .filters {
-      padding: 14px 44px;
+      padding: 12px var(--px);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
     .filters-label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
       font-weight: 500;
-      margin-right: 4px;
       white-space: nowrap;
     }
     .filter-select {
       font-family: 'Lexend Deca', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 400;
+      font-size: 0.78rem;
       color: var(--ink);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 5px 28px 5px 10px;
+      padding: 5px 26px 5px 9px;
       cursor: pointer;
       appearance: none;
       -webkit-appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23607a8f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 8px center;
+      background-position: right 7px center;
       transition: border-color 0.15s;
-      max-width: 220px;
+      /* Fluid width — fits content but won't overflow */
+      min-width: 0;
+      max-width: min(200px, calc(50vw - 24px));
+      flex: 0 1 auto;
     }
     .filter-select:focus { outline: none; border-color: var(--accent); }
     .filter-select:hover { border-color: var(--accent); }
 
-    .filter-divider {
-      width: 1px; height: 20px;
-      background: var(--border);
-      margin: 0 2px;
-    }
+    .filter-divider { width: 1px; height: 18px; background: var(--border); margin: 0 1px; }
 
     .download-btn {
       margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      display: flex; align-items: center; gap: 5px;
       background: none;
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 5px 14px;
+      padding: 5px 12px;
       font-family: 'Lexend Deca', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 500;
+      font-size: 0.78rem; font-weight: 500;
       color: var(--muted);
       cursor: pointer;
       transition: all 0.15s;
       white-space: nowrap;
+      flex-shrink: 0;
     }
     .download-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .download-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .download-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* On very narrow screens, stack the download button below the selects */
+    @media (max-width: 480px) {
+      .download-btn { margin-left: 0; width: 100%; justify-content: center; }
+      .filter-divider { display: none; }
+    }
 
     .card-footer {
-      padding: 14px 44px;
+      padding: 12px var(--px);
       border-top: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(0,169,157,0.03) 0%, transparent 100%);
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
     }
-    .footer-note { font-size: 0.74rem; color: var(--muted); font-weight: 300; }
+    .footer-note { font-size: 0.72rem; color: var(--muted); font-weight: 300; }
     .footer-note a { color: var(--accent); text-decoration: none; }
     .footer-note a:hover { text-decoration: underline; }
-
-    /* Stat highlight — first stat uses teal accent */
-    .stat:first-child .stat-value { color: var(--accent2); }
-    .stat:nth-child(3) .stat-value { color: var(--c3); }
   </style>
 </head>
 <body>
@@ -612,17 +622,25 @@
 
     const names = [...new Set(filtered.map(d => d.name))].sort();
 
+    // Store trace names globally so setChartHeight can calculate legend rows
+    window._lastTraceNames = names;
+
+    // All unique dates in sorted order — ensures every trace has same x-axis
+    const allDates = [...new Set(filtered.map(d => d.date))].sort();
+
     const traces = names.map((name, i) => {
-      const rows = filtered.filter(d => d.name === name);
+      const byDate = {};
+      filtered.filter(d => d.name === name).forEach(d => { byDate[d.date] = d.ridership; });
       return {
         name,
-        x: rows.map(d => d.date),
-        y: rows.map(d => d.ridership),
-        type: "scatter",
-        mode: "lines+markers",
-        marker: { size: 5, color: COLORS[i % COLORS.length] },
-        line:   { color: COLORS[i % COLORS.length], width: 2 },
-        customdata: rows.map(d => [d.name]),
+        x: allDates,
+        y: allDates.map(date => byDate[date] || 0),
+        type: "bar",
+        marker: {
+          color: COLORS[i % COLORS.length],
+          line: { width: 0 },
+        },
+        customdata: allDates.map(() => [name]),
         hovertemplate:
           "%{x|%b %Y}: <b>%{y:,.0f}</b> riders<br>" +
           "<i>%{customdata[0]}</i><extra></extra>",
@@ -630,14 +648,15 @@
     });
 
     const layout = {
+      barmode: "stack",
       paper_bgcolor: "rgba(0,0,0,0)",
       plot_bgcolor:  "rgba(0,0,0,0)",
-      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#0d1f2d" },
+      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#01161E" },
       xaxis: {
         title: { text: "Date", standoff: 14 },
         showgrid: false,
         zeroline: false,
-        linecolor: "#d6e3ed",
+        linecolor: "#BFD7ED",
         tickfont: { size: 12 },
         tickangle: -45,
         type: "date",
@@ -660,18 +679,21 @@
       },
       legend: {
         orientation: "h",
-        entrywidth: 160,
-        yanchor: "bottom",
-        y: 1.05,
-        xanchor: "right",
-        x: 0.95,
-        font: { size: 12 },
+        entrywidth: 150,
+        yanchor: "top",
+        y: -0.28,          // below the x-axis; setChartHeight adjusts total height to fit
+        xanchor: "center",
+        x: 0.5,
+        font: { size: 11 },
+        tracegroupgap: 4,
       },
-      margin: { t: 20, r: 30, b: 80, l: 80 },
+      margin: { t: 10, r: 20, b: 160, l: 80 }, // generous initial b; setChartHeight refines it
+      bargap: 0.15,
       dragmode: false,
     };
 
-    Plotly.react("transit-chart", traces, layout, { displayModeBar: false, responsive: true });
+    Plotly.react("transit-chart", traces, layout, { displayModeBar: false, responsive: true })
+      .then(() => setChartHeight());
   }
 
   // ── Download CSV ───────────────────────────────────────────────────────────
@@ -779,6 +801,46 @@
   }
 
   loadAndRender();
+
+  // ── Responsive chart sizing via ResizeObserver ─────────────────────────────
+  // Sets chart height based on card width and triggers a Plotly relayout
+  // so the chart fills correctly at any size, including on first load in iframes.
+  function setChartHeight() {
+    const card    = document.querySelector(".card");
+    const chartEl = document.getElementById("transit-chart");
+    if (!card || !chartEl) return;
+
+    // How many legend entries are currently rendered?
+    const chartData = window._lastTraceNames || [];
+    const chartW    = card.getBoundingClientRect().width - 40; // subtract padding
+    const tracesPerRow = Math.max(1, Math.floor(chartW / 155));
+    const legendRows   = chartData.length > 0 ? Math.ceil(chartData.length / tracesPerRow) : 2;
+    const legendH      = legendRows * 30 + 24;   // 30px/row + padding
+    const xAxisBuffer  = 70;                      // room for -45deg rotated date labels
+    const plotH        = Math.min(460, Math.max(320, Math.round(chartW * 0.42)));
+    const totalH       = plotH + xAxisBuffer + legendH;
+
+    chartEl.style.height = totalH + "px";
+    Plotly.relayout("transit-chart", {
+      height: totalH,
+      "margin.b": xAxisBuffer + legendH,
+    });
+  }
+
+  // Run once on load (after a tick so the DOM has painted)
+  requestAnimationFrame(() => {
+    setTimeout(setChartHeight, 100);
+  });
+
+  // Re-run whenever the card changes size (window resize, iframe resize, sidebar toggle)
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => setChartHeight());
+    const card = document.querySelector(".card");
+    if (card) ro.observe(card);
+  } else {
+    // Fallback for older browsers
+    window.addEventListener("resize", setChartHeight);
+  }
 </script>
 </body>
 </html>
