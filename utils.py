@@ -532,6 +532,3 @@ def create_stacked_bar_plot_with_dropdown(df,
         include_plotlyjs="directory",
         div_id=div_id,
     )
-
-
-

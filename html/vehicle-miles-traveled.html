@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vehicle Miles Traveled — Lake Tahoe</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.1/plotly.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #edf4f9;
+      --surface: #ffffff;
+      --ink:     #01161E;
+      --muted:   #598392;
+      --border:  #BFD7ED;
+      --accent:  #208385;   /* teal from Python color_sequence */
+      --accent2: #00A99D;
+      --c1: #208385;
+      --c2: #00A99D;
+      --c3: #A48352;
+      --c4: #FC9A62;
+      --px: clamp(16px, 4vw, 44px);
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 60% -10%, rgba(32,131,133,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 5% 90%,  rgba(0,169,157,0.05) 0%, transparent 60%);
+      font-family: 'Lexend Deca', sans-serif;
+      color: var(--ink);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--c1) 0%, var(--c2) 40%, var(--c3) 70%, var(--c4) 100%);
+      z-index: 100;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(1,22,30,0.04), 0 8px 40px rgba(32,131,133,0.09);
+      width: 100%;
+      max-width: 1100px;
+      overflow: visible;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .card-header {
+      padding: 24px var(--px) 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .header-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-icon svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .header-text { flex: 1; min-width: 0; }
+    .header-text h1 {
+      font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .header-text p {
+      margin-top: 5px;
+      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.55;
+      max-width: 560px;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: flex;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(32,131,133,0.03) 0%, transparent 100%);
+    }
+    .stat {
+      flex: 1;
+      min-width: 120px;
+      padding: 14px var(--px);
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 2px;
+      min-height: 1.8rem;
+    }
+    .stat:nth-child(2) .stat-value { color: #1a6e70; }
+    .stat:nth-child(3) .stat-value { color: var(--c3); }
+    .stat:nth-child(4) .stat-value { font-size: 1.1rem; }
+    .stat-value.loading {
+      background: linear-gradient(90deg, #d8eee8 25%, #c4e4df 50%, #d8eee8 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 4px;
+      width: 90px; height: 1.5rem;
+      display: inline-block;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Chart */
+    .chart-wrap {
+      padding: 20px 8px 8px;
+      position: relative;
+    }
+    #vmt-chart {
+      width: 100%;
+      min-height: 380px;
+    }
+
+    /* Loader */
+    .loader {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; background: var(--surface); z-index: 10;
+      transition: opacity 0.3s;
+    }
+    .loader.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { font-size: 0.82rem; color: var(--muted); }
+
+    /* Error */
+    .error-msg {
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px; padding: 24px; text-align: center;
+    }
+    .error-msg.visible { display: flex; }
+    .error-msg svg { width: 34px; height: 34px; stroke: #b83f5d; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .error-msg p { font-size: 0.86rem; color: var(--muted); max-width: 360px; line-height: 1.5; }
+    .retry-btn {
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 8px 20px; font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .retry-btn:hover { opacity: 0.85; }
+
+    /* Footer */
+    .card-footer {
+      padding: 12px var(--px);
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(0,169,157,0.03) 0%, transparent 100%);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 6px;
+    }
+    .footer-note { font-size: 0.72rem; color: var(--muted); font-weight: 300; }
+    .footer-note a { color: var(--accent); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="card-header">
+    <div class="header-icon">
+      <!-- Car / road icon -->
+      <svg viewBox="0 0 24 24">
+        <rect x="1" y="9" width="22" height="9" rx="2"/>
+        <path d="M3 9l2-4h14l2 4"/>
+        <circle cx="7"  cy="18" r="2"/>
+        <circle cx="17" cy="18" r="2"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Vehicle Miles Traveled</h1>
+      <p>Annual total vehicle miles traveled in the Lake Tahoe region, 2016–present. Sourced from TRPA regional transportation monitoring.</p>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-label">Most Recent Year</div>
+      <div class="stat-value loading" id="stat-recent"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Peak VMT</div>
+      <div class="stat-value loading" id="stat-peak"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Peak Year</div>
+      <div class="stat-value loading" id="stat-peak-year"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Overall Trend</div>
+      <div class="stat-value loading" id="stat-trend"></div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <span class="loader-text">Fetching VMT data…</span>
+    </div>
+    <div class="error-msg" id="error-msg">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p id="error-detail">Could not load VMT data.</p>
+      <button class="retry-btn" onclick="loadAndRender()">Retry</button>
+    </div>
+    <div id="vmt-chart"></div>
+  </div>
+
+  <div class="card-footer">
+    <span class="footer-note">Source: <a href="https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133" target="_blank">TRPA Climate Resilience Dashboard</a> · MapServer Layer 133</span>
+    <span class="footer-note">Total VMT · Years &gt; 2015</span>
+  </div>
+
+</div>
+
+<script>
+  const SERVICE_URL = "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/133/query";
+  const CACHE_KEY   = "vmt_cache";
+  const CACHE_TTL   = 6 * 60 * 60 * 1000; // 6 hours
+
+  const COLOR_LINE  = "#208385";
+  const COLOR_TREND = "#A48352";
+
+  // ── Cache ────────────────────────────────────────────────────────────────
+  function readCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts, data } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL) return null;
+      return data;
+    } catch { return null; }
+  }
+  function writeCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch {}
+  }
+
+  // ── Fetch from ArcGIS REST ───────────────────────────────────────────────
+  async function fetchData() {
+    const params = new URLSearchParams({
+      where:         "1=1",
+      outFields:     "*",
+      f:             "json",
+      returnGeometry: "false",
+    });
+    const res = await fetch(`${SERVICE_URL}?${params}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error.message || "ArcGIS error");
+    return json.features.map(f => f.attributes);
+  }
+
+  // ── Process: mirror get_data_vehicle_miles_traveled() ───────────────────
+  function processData(records) {
+    return records
+      .map(r => {
+        // Strip commas and coerce to number — matches the Python lambda
+        const raw = r.Total ?? r.total ?? r.TOTAL ?? "";
+        const vmt = typeof raw === "number"
+          ? raw
+          : parseInt(String(raw).replace(/,/g, ""), 10);
+        const year = parseInt(r.year ?? r.Year ?? r.YEAR, 10);
+        return { year, vmt };
+      })
+      .filter(d => !isNaN(d.year) && !isNaN(d.vmt) && d.year > 2015)
+      .sort((a, b) => a.year - b.year);
+  }
+
+  // ── OLS trendline (least squares slope/intercept) ───────────────────────
+  function olsTrendline(data) {
+    const n  = data.length;
+    const xs = data.map(d => d.year);
+    const ys = data.map(d => d.vmt);
+    const mx = xs.reduce((s, v) => s + v, 0) / n;
+    const my = ys.reduce((s, v) => s + v, 0) / n;
+    const num = xs.reduce((s, x, i) => s + (x - mx) * (ys[i] - my), 0);
+    const den = xs.reduce((s, x) => s + (x - mx) ** 2, 0);
+    const slope = den !== 0 ? num / den : 0;
+    const intercept = my - slope * mx;
+    return { slope, intercept, fitted: xs.map(x => slope * x + intercept) };
+  }
+
+  // ── Stats ────────────────────────────────────────────────────────────────
+  function setStats(data, trend) {
+    const setEl = (id, text) => {
+      const el = document.getElementById(id);
+      el.classList.remove("loading");
+      el.textContent = text;
+    };
+
+    const recent = data[data.length - 1];
+    const first  = data[0];
+    const peak   = data.reduce((best, d) => d.vmt > best.vmt ? d : best, data[0]);
+
+    // % change from first year to last year — more intuitive than raw slope
+    const pctChange = ((recent.vmt - first.vmt) / first.vmt) * 100;
+    const direction = pctChange >= 0 ? "↑" : "↓";
+    const trendLabel = `${direction} ${Math.abs(pctChange).toFixed(1)}% since ${first.year}`;
+
+    setEl("stat-recent",    recent.vmt.toLocaleString("en-US"));
+    setEl("stat-peak",      peak.vmt.toLocaleString("en-US"));
+    setEl("stat-peak-year", String(peak.year));
+    setEl("stat-trend",     trendLabel);
+
+    // Color the trend stat — red if up, teal if down
+    const trendEl = document.getElementById("stat-trend");
+    trendEl.style.color = pctChange >= 0 ? "#c94a00" : "#208385";
+  }
+
+  // ── Chart ────────────────────────────────────────────────────────────────
+  function renderChart(data) {
+    const years   = data.map(d => d.year);
+    const vmts    = data.map(d => d.vmt);
+    const trend   = olsTrendline(data);
+
+    const traceActual = {
+      name: "VMT",
+      x: years,
+      y: vmts,
+      type: "scatter",
+      mode: "lines+markers",
+      line:   { color: COLOR_LINE, width: 2.5 },
+      marker: { size: 7, color: COLOR_LINE, line: { color: "#fff", width: 1.5 } },
+      hovertemplate: "<b>%{y:,.0f}</b> vehicle miles traveled<extra></extra>",
+    };
+
+    const traceTrend = {
+      name: "Trend (OLS)",
+      x: years,
+      y: trend.fitted,
+      type: "scatter",
+      mode: "lines",
+      line: { color: COLOR_TREND, width: 2, dash: "dot" },
+      hovertemplate: "Trend: <b>%{y:,.0f}</b><extra></extra>",
+    };
+
+    const layout = {
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor:  "rgba(0,0,0,0)",
+      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#01161E" },
+      xaxis: {
+        title: { text: "Year", standoff: 12 },
+        showgrid: false,
+        zeroline: false,
+        linecolor: "#BFD7ED",
+        tickfont: { size: 12 },
+        tickmode: "array",
+        tickvals: years,
+        ticktext: years.map(String),
+        tickangle: -45,
+        fixedrange: true,
+      },
+      yaxis: {
+        title: { text: "Miles Traveled", standoff: 14 },
+        showgrid: true,
+        gridcolor: "#d8eee8",
+        zeroline: false,
+        tickformat: ",.0f",
+        tickfont: { size: 12 },
+        fixedrange: true,
+      },
+      hovermode: "x unified",
+      hoverlabel: {
+        bgcolor: "#208385",
+        font: { color: "#fff", family: "'Lexend Deca', sans-serif", size: 12 },
+        bordercolor: "#208385",
+      },
+      legend: {
+        orientation: "h",
+        yanchor: "top",
+        y: -0.28,
+        xanchor: "center",
+        x: 0.5,
+        font: { size: 12 },
+      },
+      margin: { t: 10, r: 24, b: 100, l: 90 },
+      dragmode: false,
+    };
+
+    Plotly.react("vmt-chart", [traceActual, traceTrend], layout, {
+      displayModeBar: false,
+      responsive: true,
+    }).then(() => setChartHeight());
+
+    return trend;
+  }
+
+  // ── Responsive height ────────────────────────────────────────────────────
+  function setChartHeight() {
+    const card    = document.querySelector(".card");
+    const chartEl = document.getElementById("vmt-chart");
+    if (!card || !chartEl) return;
+
+    const cardW  = card.getBoundingClientRect().width - 40;
+    const plotH  = Math.min(420, Math.max(280, Math.round(cardW * 0.40)));
+    const totalH = plotH + 100; // x-axis labels + legend (2 entries = 1 row)
+
+    chartEl.style.height = totalH + "px";
+    Plotly.relayout("vmt-chart", {
+      height: totalH,
+      "margin.b": 100,
+    });
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  async function loadAndRender() {
+    document.getElementById("loader").classList.remove("hidden");
+    document.getElementById("error-msg").classList.remove("visible");
+    ["stat-recent","stat-peak","stat-peak-year","stat-trend"].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.add("loading");
+      el.textContent = "";
+    });
+
+    // Stale-while-revalidate
+    const cached = readCache();
+    if (cached) {
+      const data  = processData(cached);
+      const trend = renderChart(data);
+      setStats(data, trend);
+      document.getElementById("loader").classList.add("hidden");
+      fetchData().then(raw => { writeCache(raw); const d = processData(raw); renderChart(d); setStats(d, olsTrendline(d)); }).catch(() => {});
+      return;
+    }
+
+    try {
+      const raw   = await fetchData();
+      writeCache(raw);
+      const data  = processData(raw);
+      const trend = renderChart(data);
+      setStats(data, trend);
+      document.getElementById("loader").classList.add("hidden");
+    } catch (err) {
+      console.error(err);
+      document.getElementById("loader").classList.add("hidden");
+      document.getElementById("error-msg").classList.add("visible");
+      document.getElementById("error-detail").innerHTML = `<strong>Error:</strong> ${err.message}`;
+    }
+  }
+
+  loadAndRender();
+
+  // Responsive resize
+  requestAnimationFrame(() => setTimeout(setChartHeight, 100));
+  if (window.ResizeObserver) {
+    new ResizeObserver(() => setChartHeight()).observe(document.querySelector(".card") || document.body);
+  } else {
+    window.addEventListener("resize", setChartHeight);
+  }
+</script>
+</body>
+</html>
