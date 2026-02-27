@@ -68,7 +68,7 @@ def plot_forest_fuel(df):
         additional_formatting=dict(
             # title = "Forest Health Treatment",
             legend=dict(
-                title= "Forest Health Treatment Zone",
+                title="Forest Health Treatment Zone",
                 orientation="h",
                 entrywidth=85,
                 yanchor="bottom",
@@ -293,6 +293,7 @@ def plot_aquatic_species(df):
         ),
     )
 
+
 def plot_aquatic_species_bar(df):
     stackedbar(
         df,
@@ -315,13 +316,15 @@ def plot_aquatic_species_bar(df):
         orientation=None,
         format=",.0f",
         additional_formatting=dict(
-            title=dict(text="Aquatic Invasive Species Treatment",
-                    x=0.05,
-                    y=0.95,
-                    xanchor="left",
-                    yanchor="top",
-                    font=dict(size=16),
-                    automargin=True),
+            title=dict(
+                text="Aquatic Invasive Species Treatment",
+                x=0.05,
+                y=0.95,
+                xanchor="left",
+                yanchor="top",
+                font=dict(size=16),
+                automargin=True,
+            ),
             margin=dict(t=20),
             # turn off legend
             showlegend=False,
@@ -396,7 +399,7 @@ def plot_restored_wetlands_meadows_bar(df):
         orientation=None,
         format=",.0f",
         additional_formatting=dict(
-            title = "Stream Environment Zones",
+            title="Stream Environment Zones",
             margin=dict(t=20),
             legend=dict(
                 orientation="h",
@@ -405,7 +408,7 @@ def plot_restored_wetlands_meadows_bar(df):
                 y=1.05,
                 xanchor="right",
                 x=0.95,
-            )
+            ),
         ),
     )
 

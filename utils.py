@@ -353,10 +353,21 @@ def stacked_area(
         div_id=div_id,
     )
 
-def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequence, orders,
-                              x_title, y_title,
-                              hovertemplate, hovermode,
-                              title_text):
+
+def create_dropdown_bar_chart(
+    df,
+    path_html,
+    dropdown_column,
+    x,
+    y,
+    color_sequence,
+    orders,
+    x_title,
+    y_title,
+    hovertemplate,
+    hovermode,
+    title_text,
+):
     """
     Create an interactive bar chart with a dropdown menu.
 
@@ -378,7 +389,7 @@ def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequen
     """
     fig = go.Figure()
 
-    def create_trace(dff, name, color,custom_data):
+    def create_trace(dff, name, color, custom_data):
         return go.Bar(
             x=dff[x],
             y=dff[y],
@@ -386,14 +397,14 @@ def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequen
             hovertemplate=hovertemplate,
             marker_color=color,
             visible=False,
-            customdata=dff[custom_data]
+            customdata=dff[custom_data],
         )
 
     traces = []
     for i, region in enumerate(orders[dropdown_column]):
         query_string = f"{dropdown_column} == '{region}'"
         dff = df.query(query_string)
-        trace = create_trace(dff, region, color_sequence[i],custom_data)
+        trace = create_trace(dff, region, color_sequence[i], custom_data)
         traces.append(trace)
 
     fig.add_traces(traces)
@@ -404,72 +415,79 @@ def create_dropdown_bar_chart(df, path_html, dropdown_column, x, y, color_sequen
         visible_state[i] = True
         button = dict(
             label=region,
-            method='update',
-            args=[{'visible': visible_state}, {'title': f'Median Income in {region}'}]
+            method="update",
+            args=[{"visible": visible_state}, {"title": f"Median Income in {region}"}],
         )
         buttons.append(button)
 
     fig.update_layout(
-        barmode='group',
+        barmode="group",
         xaxis_title=x_title,
         yaxis_title=y_title,
         hovermode=hovermode,
-        title=f'{title_text} {orders[dropdown_column][0]}',
-        title_x=0.5
+        title=f"{title_text} {orders[dropdown_column][0]}",
+        title_x=0.5,
     )
 
-    fig.layout.updatemenus = [{
-        'buttons': buttons,
-        'type': "buttons",
-        'direction': "right",
-        'active': 0,
-        'x': 0.25,
-        'y': 1.05
-    }]
+    fig.layout.updatemenus = [
+        {
+            "buttons": buttons,
+            "type": "buttons",
+            "direction": "right",
+            "active": 0,
+            "x": 0.25,
+            "y": 1.05,
+        }
+    ]
 
     fig.show()
     fig.write_html(path_html)
 
-def create_stacked_bar_plot_with_dropdown(df,
-                                  path_html,
-                                  div_id,
-                                  x,
-                                   y,
-                                    color_column,
-                                     dropdown_column,
-                                      color_sequence,
-                                      sort_order,
-                                      title_text,
-                                       y_title,
-                                        x_title,
-                                         hovertemplate,
-                                          hovermode,
-                                           format,
-                                           custom_data=None,
-                                            additional_formatting = None):
+
+def create_stacked_bar_plot_with_dropdown(
+    df,
+    path_html,
+    div_id,
+    x,
+    y,
+    color_column,
+    dropdown_column,
+    color_sequence,
+    sort_order,
+    title_text,
+    y_title,
+    x_title,
+    hovertemplate,
+    hovermode,
+    format,
+    custom_data=None,
+    additional_formatting=None,
+):
     config = {"displayModeBar": False}
     years = df[x].unique()
     categories = df[color_column].unique()
-    categories =sorted(categories, key=lambda x: sort_order.index(x))
-    #print(categories)
+    categories = sorted(categories, key=lambda x: sort_order.index(x))
+    # print(categories)
     second_categories = df[dropdown_column].unique()
 
     values = {}
     for second_category in second_categories:
         values[second_category] = []
         for category in categories:
-            #values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
-            filtered_df = df[(df[dropdown_column] == second_category) & (df[color_column] == category)]
+            # values[second_category].append(df[df[dropdown_column]==second_category].loc[df[color_column]==category, y].tolist())
+            filtered_df = df[
+                (df[dropdown_column] == second_category) & (df[color_column] == category)
+            ]
             y_values = filtered_df[y].tolist()
             category_values = filtered_df[color_column].tolist()
             values[second_category].append([y_values, category_values])
     # Create traces for each category
     traces = []
-    #print(values)
-    df_custom_data = pd.DataFrame(categories, columns=['categories'])
+    # print(values)
+    df_custom_data = pd.DataFrame(categories, columns=["categories"])
     my_array = np.stack(categories)
     custom_data_list = []
-    #print(my_array)
+    # print(my_array)
     for i, category in enumerate(categories):
         trace = go.Bar(
             x=years,
@@ -477,52 +495,62 @@ def create_stacked_bar_plot_with_dropdown(df,
             name=category,
             marker=dict(color=color_sequence[i]),
             customdata=values[second_categories[0]][i][1],
-
-            hovertemplate=hovertemplate
+            hovertemplate=hovertemplate,
         )
-        #custom_data_list.append(category)
+        # custom_data_list.append(category)
         traces.append(trace)
 
     # Layout
     layout = go.Layout(
         title=None,
-        xaxis=dict(title='Year'),
-        yaxis=dict(title='Values'),
+        xaxis=dict(title="Year"),
+        yaxis=dict(title="Values"),
         updatemenus=[
             dict(
-                buttons=list([
-                    dict(label=second_category,
-                         method='update',
-                         args=[{'y': [values[second_category][i][0] for i in range(len(categories))]}])
-                    for second_category in second_categories
-                ]),
-                direction='right',
-                type='buttons',
+                buttons=list(
+                    [
+                        dict(
+                            label=second_category,
+                            method="update",
+                            args=[
+                                {
+                                    "y": [
+                                        values[second_category][i][0]
+                                        for i in range(len(categories))
+                                    ]
+                                }
+                            ],
+                        )
+                        for second_category in second_categories
+                    ]
+                ),
+                direction="right",
+                type="buttons",
                 showactive=True,
                 x=0.05,
-                xanchor='left',
+                xanchor="left",
                 y=1.3,
-                yanchor='top'
+                yanchor="top",
             ),
-        ]
+        ],
     )
     # Create the figure
     fig = go.Figure(data=traces, layout=layout)
-    fig.update_layout(barmode='stack')
+    fig.update_layout(barmode="stack")
     fig.update_layout(
         yaxis=dict(tickformat=format, hoverformat=format, title=y_title),
         xaxis=dict(title=x_title),
         hovermode=hovermode,
         template="plotly_white",
         dragmode=False,
-        legend_title=title_text
+        legend_title=title_text,
     )
     fig.for_each_yaxis(lambda yaxis: yaxis.update(showticklabels=True, tickformat=format))
     # fig.for_each_yaxis(lambda yaxis: yaxis.update(tickfont = dict(color = 'rgba(0,0,0,0)')), secondary_y=True)
 
     fig.update_xaxes(tickformat=".0f")
-    #print(custom_data_list)
-    #fig.update_traces(customdata=custom_data_list)
+    # print(custom_data_list)
+    # fig.update_traces(customdata=custom_data_list)
 
     fig.update_layout(additional_formatting)
 
