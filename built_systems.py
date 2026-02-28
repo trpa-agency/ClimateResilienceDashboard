@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from utils import (
+    convert_to_utc,
+    create_stacked_bar_plot_with_dropdown,
     get_fs_data,
     get_fs_data_spatial,
     get_fs_data_spatial_query,
@@ -10,8 +12,6 @@ from utils import (
     stacked_area,
     stackedbar,
     trendline,
-    create_stacked_bar_plot_with_dropdown,
-    convert_to_utc,
 )
 
 # # get data for affordable units

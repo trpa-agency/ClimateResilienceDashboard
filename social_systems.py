@@ -6,12 +6,12 @@ import plotly.express as px
 import pydeck
 
 from utils import (
+    create_stacked_bar_plot_with_dropdown,
     get_fs_data,
     groupedbar_percent,
     read_file,
     stackedbar,
     trendline,
-    create_stacked_bar_plot_with_dropdown,
 )
 
 
