@@ -6,7 +6,6 @@ import datetime
 import logging
 from climate_conditions import *
 
-
 # Configure logging
 logging.basicConfig(filename="task_scheduler.log", level=logging.INFO)
 
