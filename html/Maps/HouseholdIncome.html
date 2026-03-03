@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Median Household Income — Lake Tahoe Region</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary-blue: #0077C0;
+      --teal:         #208385;
+      --orange:       #FC9A62;
+      --plum:         #632E5A;
+      --water:        #023f64;
+      --text:         #333333;
+      --muted:        #6B7280;
+      --bg:           #F4F7FA;
+      --surface:      #FFFFFF;
+      --border:       #DDE3EA;
+    }
+    html, body { min-height: 100%; background: var(--bg); font-family: 'Open Sans', sans-serif; color: var(--text); font-size: 14px; }
+    .page { max-width: 960px; margin: 0 auto; padding: 40px 20px 60px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+    h1 { font-family: 'Montserrat', sans-serif; font-size: clamp(1.3rem, 3.5vw, 1.85rem); font-weight: 700; color: var(--water); line-height: 1.2; margin-bottom: 8px; }
+    .subtitle { font-size: 0.84rem; color: var(--muted); line-height: 1.65; max-width: 600px; margin-bottom: 28px; }
+    .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,71,120,0.08), 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }
+    .stats-strip { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(0,119,192,0.03) 0%, transparent 100%); }
+    .stat-cell { flex: 1; min-width: 140px; padding: 16px 24px; border-right: 1px solid var(--border); }
+    .stat-cell:last-child { border-right: none; }
+    .stat-geo { font-family: 'Montserrat', sans-serif; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 4px; }
+    .stat-value { font-family: 'Montserrat', sans-serif; font-size: 1.25rem; font-weight: 700; line-height: 1.1; }
+    .stat-desc { font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
+    .stat-change { display: inline-flex; align-items: center; gap: 3px; font-size: 0.68rem; font-weight: 600; margin-top: 4px; padding: 2px 6px; border-radius: 4px; }
+    .stat-change.up { color: #166534; background: #dcfce7; }
+    .stat-change.down { color: #991b1b; background: #fee2e2; }
+    .stat-skeleton { height: 1.25rem; border-radius: 4px; background: linear-gradient(90deg, #e8edf2 25%, #d8e0e8 50%, #e8edf2 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; margin-top: 4px; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px 24px 12px; border-bottom: 1px solid var(--border); }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 500; color: var(--muted); cursor: pointer; padding: 3px 0; transition: color 0.15s; user-select: none; }
+    .legend-item:hover { color: var(--text); }
+    .legend-item.faded { opacity: 0.3; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .view-toggle { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
+    .toggle-btn { background: none; border: none; border-radius: 6px; padding: 6px 13px; font-family: 'Open Sans', sans-serif; font-size: 0.76rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    .toggle-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .toggle-btn.active { background: var(--surface); color: var(--primary-blue); box-shadow: 0 1px 4px rgba(0,71,120,0.12); }
+    .toggle-btn:hover:not(.active) { color: var(--text); }
+    .chart-area { padding: 20px 16px 16px; position: relative; }
+    .chart-canvas-wrap { position: relative; height: 360px; }
+    .loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: var(--surface); z-index: 10; transition: opacity 0.3s; }
+    .loader.hidden { opacity: 0; pointer-events: none; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--primary-blue); border-radius: 50%; animation: spin 0.75s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { font-size: 0.82rem; color: var(--muted); text-align: center; }
+    .custom-tooltip { position: absolute; pointer-events: none; background: var(--water); color: #fff; border-radius: 10px; padding: 12px 16px; font-size: 0.78rem; line-height: 1.55; box-shadow: 0 8px 24px rgba(2,31,64,0.22); z-index: 100; min-width: 180px; transform: translate(-50%, calc(-100% - 14px)); white-space: nowrap; }
+    .custom-tooltip::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid var(--water); }
+    .tooltip-year { font-family: 'Montserrat', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 9px; }
+    .tooltip-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .tooltip-row:last-child { margin-bottom: 0; }
+    .tooltip-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .tooltip-label { color: rgba(255,255,255,0.65); flex: 1; font-size: 0.75rem; }
+    .tooltip-value { font-weight: 700; color: #fff; font-size: 0.82rem; }
+    .card-footer { padding: 11px 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+    .footer-note { font-size: 0.7rem; color: var(--muted); }
+    .footer-note a { color: var(--primary-blue); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+    @media (max-width: 600px) {
+      .page { padding: 20px 12px 40px; }
+      .toolbar { padding: 10px 14px; }
+      .chart-area { padding: 12px 6px 10px; }
+      .chart-canvas-wrap { height: 260px; }
+      .stat-cell { min-width: 110px; padding: 12px 14px; }
+      .stat-value { font-size: 1.05rem; }
+      .card-footer { padding: 10px 14px; flex-direction: column; align-items: flex-start; }
+      .toggle-btn { padding: 5px 9px; font-size: 0.72rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="eyebrow"><div class="eyebrow-dot"></div>4.1.a · Economic Resilience</div>
+    <h1>Median Household Income</h1>
+    <p class="subtitle">Annual median household income across the Lake Tahoe Basin, South Lake, and North Lake communities. Data loaded live from the TRPA Climate Resilience Dashboard.</p>
+  </header>
+
+  <div class="card">
+    <div class="stats-strip" id="stats-strip">
+      <div class="stat-cell"><div class="stat-geo" style="color:var(--teal)">Lake Tahoe Region</div><div class="stat-skeleton" style="width:100px"></div></div>
+      <div class="stat-cell"><div class="stat-geo" style="color:var(--orange)">South Lake</div><div class="stat-skeleton" style="width:100px"></div></div>
+      <div class="stat-cell"><div class="stat-geo" style="color:var(--plum)">North Lake</div><div class="stat-skeleton" style="width:100px"></div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="legend" id="legend"></div>
+      <div class="view-toggle">
+        <button class="toggle-btn active" id="btn-trend" onclick="switchView('trend')">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1,12 4,7.5 7,9 10,4.5 13,2"/>
+            <circle cx="4" cy="7.5" r="1.2" fill="currentColor" stroke="none"/>
+            <circle cx="7" cy="9" r="1.2" fill="currentColor" stroke="none"/>
+            <circle cx="10" cy="4.5" r="1.2" fill="currentColor" stroke="none"/>
+          </svg>
+          Trend
+        </button>
+        <button class="toggle-btn" id="btn-bar" onclick="switchView('bar')">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+            <rect x="1" y="5" width="3" height="8" rx="0.6"/>
+            <rect x="5.5" y="2.5" width="3" height="10.5" rx="0.6"/>
+            <rect x="10" y="0.5" width="3" height="12.5" rx="0.6"/>
+          </svg>
+          Grouped
+        </button>
+      </div>
+    </div>
+
+    <div class="chart-area">
+      <div class="chart-canvas-wrap">
+        <div class="loader" id="loader">
+          <div class="spinner"></div>
+          <span class="loader-text">Loading data from TRPA…</span>
+        </div>
+        <canvas id="income-chart"></canvas>
+      </div>
+      <div class="custom-tooltip" id="tooltip" style="display:none;"></div>
+    </div>
+
+    <div class="card-footer">
+      <span class="footer-note">Source: <a href="https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135" target="_blank" rel="noopener">TRPA Climate Resilience Dashboard</a> · MapServer/135</span>
+      <span class="footer-note">Median household income (USD) · Annual survey estimates</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const REST_URL =
+  "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135/query" +
+  "?where=Category%3D%27Household+Income%27&outFields=*&orderByFields=year_sample+ASC&f=json&resultRecordCount=2000";
+
+const GEO_CONFIG = [
+  { key: "Lake Tahoe Region", match: ["lake tahoe region", "basin"], label: "Lake Tahoe Region", color: "#208385" },
+  { key: "South Lake",        match: ["south lake"],                  label: "South Lake",        color: "#FC9A62" },
+  { key: "North Lake",        match: ["north lake"],                  label: "North Lake",        color: "#632E5A" },
+];
+
+let currentView = "trend", chartInst = null, processedData = {}, allYears = [], hiddenSeries = new Set();
+const fmt  = v => v == null ? "N/A" : "$" + Math.round(v).toLocaleString("en-US");
+const fmtK = v => v == null ? "" : "$" + (v >= 1000 ? (v/1000).toFixed(0)+"k" : v);
+const pct  = (a,b) => a && b ? ((b-a)/a*100).toFixed(1) : null;
+
+function matchGeo(g) { const l = g.toLowerCase(); return GEO_CONFIG.find(c => c.match.some(m => l.includes(m))) || null; }
+
+async function fetchData() {
+  const resp = await fetch(REST_URL);
+  if (!resp.ok) throw new Error("HTTP " + resp.status);
+  const json = await resp.json();
+  if (json.error) throw new Error(json.error.message || "ArcGIS error");
+  const raw = {};
+  for (const feat of json.features) {
+    const f = feat.attributes;
+    const geo   = (f.Geography || f.geography || f.GEOGRAPHY || "").trim();
+    const year  = parseInt(f.year_sample || f.Year || f.year || 0);
+    const value = parseFloat(f.value || f.Value || f.VALUE || 0);
+    if (!year || isNaN(value) || value === 0) continue;
+    const cfg = matchGeo(geo);
+    if (!cfg) continue;
+    if (!raw[cfg.key]) raw[cfg.key] = {};
+    raw[cfg.key][year] = value;
+  }
+  return raw;
+}
+
+function processData(raw) {
+  const yearSet = new Set(), out = {};
+  for (const cfg of GEO_CONFIG) {
+    if (!raw[cfg.key]) continue;
+    out[cfg.key] = Object.entries(raw[cfg.key]).map(([y,v]) => ({year:parseInt(y),value:v})).sort((a,b)=>a.year-b.year);
+    out[cfg.key].forEach(d => yearSet.add(d.year));
+  }
+  return { out, years: [...yearSet].sort((a,b)=>a-b) };
+}
+
+function buildBarDatasets() {
+  return GEO_CONFIG.filter(g => processedData[g.key] && !hiddenSeries.has(g.key)).map(g => {
+    const dm = Object.fromEntries(processedData[g.key].map(p=>[p.year,p.value]));
+    return { label:g.label, geoKey:g.key, data:allYears.map(y=>dm[y]??null), backgroundColor:g.color, borderRadius:3, borderSkipped:false, borderWidth:0 };
+  });
+}
+
+function buildLineDatasets() {
+  return GEO_CONFIG.filter(g => processedData[g.key] && !hiddenSeries.has(g.key)).map(g => {
+    const dm = Object.fromEntries(processedData[g.key].map(p=>[p.year,p.value]));
+    return { label:g.label, geoKey:g.key, data:allYears.map(y=>dm[y]??null),
+      borderColor:g.color, backgroundColor:g.color, pointRadius:4, pointHoverRadius:6,
+      pointBorderWidth:2, pointBorderColor:"#fff", borderWidth:2.5, fill:false, tension:0.3, spanGaps:true };
+  });
+}
+
+function externalTooltip(context) {
+  const tt = context.tooltip, el = document.getElementById("tooltip");
+  if (tt.opacity === 0) { el.style.display="none"; return; }
+  let html = `<div class="tooltip-year">${tt.title?.[0]??""}</div>`;
+  tt.dataPoints.forEach(item => {
+    if (item.raw == null) return;
+    const cfg = GEO_CONFIG.find(g => g.key === item.dataset.geoKey);
+    if (!cfg) return;
+    html += `<div class="tooltip-row"><div class="tooltip-swatch" style="background:${cfg.color}"></div><span class="tooltip-label">${cfg.label}</span><span class="tooltip-value">${fmt(item.raw)}</span></div>`;
+  });
+  el.innerHTML = html; el.style.display = "block";
+  const ca = document.querySelector(".chart-area").getBoundingClientRect();
+  const cd = document.querySelector(".card").getBoundingClientRect();
+  el.style.left = (tt.caretX + (ca.left-cd.left) + 16) + "px";
+  el.style.top  = (tt.caretY + (ca.top -cd.top)  + 20) + "px";
+}
+
+function renderChart(view) {
+  const ctx = document.getElementById("income-chart").getContext("2d");
+  if (chartInst) chartInst.destroy();
+  const isBar = view === "bar";
+  chartInst = new Chart(ctx, {
+    type: isBar ? "bar" : "line",
+    data: { labels: allYears, datasets: isBar ? buildBarDatasets() : buildLineDatasets() },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      animation:{ duration:400, easing:"easeInOutQuart" },
+      interaction:{ mode:"index", intersect:false },
+      plugins:{ legend:{display:false}, tooltip:{enabled:false, external:externalTooltip} },
+      scales:{
+        x:{ grid:{display:false}, border:{color:"rgba(107,114,128,0.2)"},
+          ticks:{font:{family:"'Open Sans',sans-serif",size:11},color:"#6B7280",maxRotation:0,autoSkip:true,maxTicksLimit:window.innerWidth<480?5:12} },
+        y:{ grid:{color:"rgba(107,114,128,0.08)"}, border:{dash:[4,4],display:false},
+          ticks:{font:{family:"'Open Sans',sans-serif",size:11},color:"#6B7280",callback:v=>fmtK(v)} }
+      }
+    }
+  });
+}
+
+function buildLegend() {
+  document.getElementById("legend").innerHTML = GEO_CONFIG.filter(g=>processedData[g.key]).map(g=>
+    `<div class="legend-item${hiddenSeries.has(g.key)?" faded":""}" onclick="toggleSeries('${g.key}')">
+      <div class="legend-swatch" style="background:${g.color}"></div><span>${g.label}</span>
+    </div>`).join("");
+}
+
+function toggleSeries(key) {
+  hiddenSeries.has(key) ? hiddenSeries.delete(key) : hiddenSeries.add(key);
+  buildLegend(); renderChart(currentView);
+}
+
+function buildStats() {
+  document.getElementById("stats-strip").innerHTML = GEO_CONFIG.filter(g=>processedData[g.key]).map(g => {
+    const pts=processedData[g.key], v0=pts[0]?.value, vN=pts[pts.length-1]?.value, y0=pts[0]?.year, yN=pts[pts.length-1]?.year;
+    const ch=pct(v0,vN), up=parseFloat(ch)>=0;
+    return `<div class="stat-cell">
+      <div class="stat-geo" style="color:${g.color}">${g.label}</div>
+      <div class="stat-value" style="color:${g.color}">${fmt(vN)}</div>
+      <div class="stat-desc">Latest (${yN})</div>
+      ${ch!=null?`<div class="stat-change ${up?"up":"down"}">${up?"▲":"▼"} ${Math.abs(ch)}% since ${y0}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function switchView(view) {
+  currentView=view;
+  document.getElementById("btn-bar").classList.toggle("active", view==="bar");
+  document.getElementById("btn-trend").classList.toggle("active", view==="trend");
+  document.getElementById("tooltip").style.display="none";
+  renderChart(view);
+}
+
+document.getElementById("income-chart").addEventListener("mouseleave", () => {
+  document.getElementById("tooltip").style.display="none";
+});
+
+(async () => {
+  try {
+    const raw = await fetchData();
+    const { out, years } = processData(raw);
+    processedData=out; allYears=years;
+    if (!years.length) throw new Error("No matching data returned from service.");
+    document.getElementById("loader").classList.add("hidden");
+    buildLegend(); buildStats(); renderChart(currentView);
+  } catch(err) {
+    console.error(err);
+    document.getElementById("loader").innerHTML=`
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e05252" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span class="loader-text" style="color:#e05252">${err.message}</span>`;
+  }
+})();
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import pydeck
+# import pydeck
 
 from utils import (
     get_fs_data,
@@ -22,6 +22,7 @@ def get_data_household_income():
     )
     # get only household income data
     df = data.loc[(data["Category"] == "Household Income")].copy()
+    df = df[df['Geography'].isin(['Basin', 'South Lake', 'North Lake'])]
     df["Geography"] = df["Geography"].replace({"Basin": "Lake Tahoe Region"})
     df = df.rename(columns={"year_sample": "Year"})
     return df
@@ -243,7 +244,7 @@ def get_data_tenure_by_age():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
-    mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2021)
+    mask = (data["Category"] == "Tenure by Age") & (data["year_sample"] == 2024) & (data["Geography"].isin(["Basin", "South Lake", "North Lake"]))
     val = (
         data[mask]
         .loc[:, ["variable_name", "value", "Geography"]]
@@ -346,7 +347,7 @@ def get_data_tenure_by_race():
     data = get_fs_data(
         "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135"
     )
-    mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2022)
+    mask = (data["Category"] == "Tenure by Race") & (data["year_sample"] == 2024) & (data["Geography"].isin(["Basin", "South Lake", "North Lake"]))
     val = data[mask].loc[:, ["variable_name", "value", "Geography"]]
     val["Race"] = val["variable_name"].replace(
         {
