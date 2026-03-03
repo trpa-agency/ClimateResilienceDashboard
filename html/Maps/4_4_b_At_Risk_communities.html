@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>At Risk Communities in the Tahoe Basin</title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css" />
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html, body {
+        padding: 0; margin: 0;
+        height: 100%; width: 100%;
+        overflow: hidden;
+        font-family: 'DM Sans', sans-serif;
+      }
+
+      #viewDiv {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* ══════════════════════════════════════════
+         SHARED PANEL STYLES
+      ══════════════════════════════════════════ */
+      .panel {
+        background: rgba(22, 28, 33, 0.97);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        box-shadow: 0 4px 28px rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 10;
+      }
+
+      .panel-header {
+        background: #152030;
+        color: #b8d8cf;
+        padding: 11px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .panel-header-left {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .panel-title {
+        font-family: 'Space Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .chevron {
+        font-size: 10px;
+        color: #5e8a7e;
+        transition: transform 0.22s ease;
+        flex-shrink: 0;
+      }
+      .panel-header.collapsed .chevron { transform: rotate(-90deg); }
+
+      .panel-body {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-direction: column;
+      }
+
+      /* ══════════════════════════════════════════
+         LAYER ROWS
+      ══════════════════════════════════════════ */
+      .layer-list { padding: 6px; display: flex; flex-direction: column; gap: 2px; }
+
+      .layer-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 10px;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: background 0.15s;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        min-height: 44px;
+      }
+      .layer-toggle:hover,
+      .layer-toggle:active { background: rgba(255,255,255,0.07); }
+      .layer-toggle.child { padding-left: 22px; }
+
+      .layer-group-header {
+        padding: 8px 10px 2px 10px;
+        font-size: 9.5px;
+        font-family: 'Space Mono', monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #4e7a70;
+        user-select: none;
+      }
+
+      .radio-indicator {
+        width: 17px; height: 17px;
+        border-radius: 50%;
+        border: 2px solid #3a4a50;
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: border-color 0.18s;
+      }
+      .radio-indicator::after {
+        content: '';
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #2e8b7a;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .layer-toggle.active .radio-indicator { border-color: #2e8b7a; }
+      .layer-toggle.active .radio-indicator::after { opacity: 1; }
+
+      .layer-label {
+        font-size: 13px;
+        color: #c8d8d4;
+        font-weight: 400;
+        line-height: 1.3;
+        flex: 1;
+        transition: color 0.15s;
+      }
+      .layer-toggle.dimmed .layer-label { color: #48585e; }
+
+      .divider {
+        height: 1px;
+        background: rgba(255,255,255,0.06);
+        margin: 3px 0;
+      }
+
+      /* ══════════════════════════════════════════
+         LEGEND
+      ══════════════════════════════════════════ */
+      #legendInner {
+        padding: 2px 0;
+      }
+      #legendInner .esri-legend              { background: transparent !important; padding: 4px 8px !important; }
+      #legendInner .esri-legend__layer-caption{ color: #8bbfb5 !important; font-size: 11px !important; font-family: 'DM Sans', sans-serif !important; }
+      #legendInner .esri-legend__layer-cell--info { color: #c8d8d4 !important; font-size: 11px !important; }
+
+      /* ══════════════════════════════════════════
+         LOADING
+      ══════════════════════════════════════════ */
+      #loadingMsg {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(22,28,33,0.95);
+        color: #b8d8cf;
+        padding: 14px 24px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-family: 'Space Mono', monospace;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+        pointer-events: none;
+        z-index: 30;
+      }
+
+      /* ══════════════════════════════════════════
+         ESRI overrides
+      ══════════════════════════════════════════ */
+      .esri-widget--button.active,
+      .esri-widget--button.active:hover,
+      .esri-widget--button.active:focus { cursor: default; background-color: #999696; }
+      .esri-widget--button.active path,
+      .esri-widget--button.active:hover path,
+      .esri-widget--button.active:focus path { fill: #e4e4e4; }
+
+      /* ══════════════════════════════════════════
+         DESKTOP  (>= 520px)
+         Layer panel top-right, Legend bottom-left
+         Both always visible
+      ══════════════════════════════════════════ */
+      @media (min-width: 520px) {
+        #bottomBar { display: contents; } /* unwrap — children position themselves */
+
+        #layerPanel {
+          position: absolute;
+          top: 15px; right: 15px;
+          width: 240px;
+          max-height: calc(100% - 30px);
+        }
+        #legendPanel {
+          position: absolute;
+          bottom: 28px; left: 15px;
+          width: 200px;
+          max-height: 55vh;
+        }
+        .panel-body { display: flex; }
+      }
+
+      /* ══════════════════════════════════════════
+         MOBILE  (< 520px)
+         Both panels in a bottom bar, side by side,
+         collapsible drawers
+      ══════════════════════════════════════════ */
+      @media (max-width: 519px) {
+        #bottomBar {
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          display: flex;
+          gap: 6px;
+          padding: 6px;
+          z-index: 10;
+          pointer-events: none;
+        }
+        #layerPanel, #legendPanel {
+          position: static;
+          flex: 1;
+          max-height: 58vh;
+          border-radius: 10px 10px 6px 6px;
+          pointer-events: all;
+        }
+        .panel-body { display: none; }
+        .panel-body.open { display: flex; }
+      }
+    </style>
+
+    <script>
+      require([
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/widgets/Fullscreen",
+        "esri/widgets/Home",
+        "esri/widgets/Legend"
+      ], function(WebMap, MapView, Fullscreen, Home, Legend) {
+
+        const map = new WebMap({
+          portalItem: { id: "76703565932a4b6f9167e013d752a550" }
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [-120.01, 39.01],
+          zoom: 9
+        });
+
+        var fullscreen = new Fullscreen({ view: view });
+        view.ui.add(fullscreen, "top-left");
+
+        view.when(function() {
+          document.getElementById("loadingMsg").style.display = "none";
+
+          var home = new Home({ view: view });
+          view.ui.add(home, "top-left");
+
+          view.on("mouse-wheel", function(evt) { evt.stopPropagation(); });
+
+          // ── Legend ───────────────────────────────────────────────────
+          new Legend({
+            view: view,
+            style: "classic",
+            container: document.getElementById("legendInner")
+          });
+
+          // ── Layer Panel ──────────────────────────────────────────────
+          buildLayerPanel(map.layers);
+
+          // ── Responsive setup ─────────────────────────────────────────
+          setupCollapsibles();
+          window.addEventListener("resize", setupCollapsibles);
+        });
+
+        // Wire up collapsible headers — on mobile they start closed,
+        // on desktop the panel-body is always display:flex via CSS.
+        function setupCollapsibles() {
+          var isMobile = window.innerWidth < 520;
+          setupPanel("layerHeader", "layerBody", !isMobile);
+          setupPanel("legendHeader", "legendBodyWrap", !isMobile);
+        }
+
+        function setupPanel(headerId, bodyId, forceOpen) {
+          var header = document.getElementById(headerId);
+          var body   = document.getElementById(bodyId);
+
+          // Remove old listener by cloning the node
+          var newHeader = header.cloneNode(true);
+          header.parentNode.replaceChild(newHeader, header);
+
+          if (forceOpen) {
+            body.classList.add("open");
+            body.style.display = "flex";
+            newHeader.classList.remove("collapsed");
+          } else {
+            // Keep current state if already set; default to closed on first run
+            if (!body.dataset.initialized) {
+              body.classList.remove("open");
+              body.style.display = "none";
+              newHeader.classList.add("collapsed");
+              body.dataset.initialized = "1";
+            }
+          }
+
+          newHeader.addEventListener("click", function() {
+            // On desktop the CSS forces display:flex so toggling only matters on mobile
+            if (window.innerWidth >= 520) return;
+            var isOpen = body.classList.contains("open");
+            if (isOpen) {
+              body.classList.remove("open");
+              body.style.display = "none";
+              this.classList.add("collapsed");
+            } else {
+              body.classList.add("open");
+              body.style.display = "flex";
+              this.classList.remove("collapsed");
+            }
+          });
+        }
+
+        // ── Layer registry & single-select ──────────────────────────────
+        var layerRegistry = [];
+
+        function selectLayer(entry) {
+          layerRegistry.forEach(function(e) {
+            e.layer.visible = false;
+            e.row.classList.remove("active");
+            e.row.classList.add("dimmed");
+          });
+          entry.layer.visible = true;
+          entry.row.classList.add("active");
+          entry.row.classList.remove("dimmed");
+        }
+
+        function buildLayerPanel(layers) {
+          var list = document.getElementById("layerList");
+          list.innerHTML = "";
+          layerRegistry = [];
+
+          if (!layers || layers.length === 0) {
+            list.innerHTML = '<p style="font-size:12px;color:#555;padding:8px 10px;">No layers found.</p>';
+            return;
+          }
+
+          layers.toArray().slice().reverse().forEach(function(layer, idx) {
+            addLayerRow(list, layer, idx, false);
+          });
+
+          var def = layerRegistry.find(function(e) { return e.layer.visible; }) || layerRegistry[0];
+          if (def) selectLayer(def);
+        }
+
+        function addLayerRow(container, layer, idx, isChild) {
+          if (layer.type === "group" && layer.layers) {
+            var gh = document.createElement("div");
+            gh.className = "layer-group-header";
+            gh.textContent = layer.title || "Group";
+            container.appendChild(gh);
+            layer.layers.toArray().slice().reverse().forEach(function(child, ci) {
+              addLayerRow(container, child, ci, true);
+            });
+            if (!isChild) {
+              var dv = document.createElement("div");
+              dv.className = "divider";
+              container.appendChild(dv);
+            }
+            return;
+          }
+
+          var row = document.createElement("div");
+          row.className = "layer-toggle" + (isChild ? " child" : "") + " dimmed";
+
+          var indicator = document.createElement("div");
+          indicator.className = "radio-indicator";
+
+          var label = document.createElement("span");
+          label.className = "layer-label";
+          label.textContent = layer.title || ("Layer " + idx);
+
+          row.appendChild(indicator);
+          row.appendChild(label);
+          container.appendChild(row);
+
+          var entry = { layer: layer, row: row };
+          layerRegistry.push(entry);
+          row.addEventListener("click", function() { selectLayer(entry); });
+
+          if (!isChild) {
+            var dv = document.createElement("div");
+            dv.className = "divider";
+            container.appendChild(dv);
+          }
+        }
+
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv"></div>
+    <div id="loadingMsg">Loading map…</div>
+
+    <!-- bottomBar: flex row on mobile, unwrapped on desktop via display:contents -->
+    <div id="bottomBar">
+
+      <div id="layerPanel" class="panel">
+        <div class="panel-header" id="layerHeader">
+          <div class="panel-header-left">
+            <span class="panel-title">⬡ Layers</span>
+          </div>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="panel-body" id="layerBody">
+          <div class="layer-list" id="layerList">
+            <p style="font-size:11px;color:#444;padding:6px 10px;font-family:'Space Mono',monospace;">Loading…</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="legendPanel" class="panel">
+        <div class="panel-header" id="legendHeader">
+          <div class="panel-header-left">
+            <span class="panel-title">⬡ Legend</span>
+          </div>
+          <span class="chevron">▾</span>
+        </div>
+        <div class="panel-body" id="legendBodyWrap">
+          <div id="legendInner"></div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>
