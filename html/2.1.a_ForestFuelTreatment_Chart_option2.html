@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lake Tahoe Forest Fuels Reduction</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.1/plotly.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #edf4f9;
+      --surface: #ffffff;
+      --ink:     #01161E;
+      --muted:   #598392;
+      --border:  #BFD7ED;
+      --accent:  #0077C0;
+      --accent2: #00A99D;
+      --c1: #0077C0;
+      --c2: #00A99D;
+      --c3: #A48352;
+      --c4: #FC9A62;
+
+      /* Forest fuels zone colors */
+      --zone1: #ABCD66;
+      --zone2: #E69800;
+      --zone3: #A87000;
+      --zone4: #F5CA7A;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 60% -10%, rgba(171,205,102,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 10% 90%, rgba(168,112,0,0.05) 0%, transparent 60%);
+      font-family: 'Lexend Deca', sans-serif;
+      color: var(--ink);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px 64px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--zone3) 0%, var(--zone2) 35%, var(--zone4) 65%, var(--zone1) 100%);
+      z-index: 100;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(1,22,30,0.04), 0 8px 40px rgba(168,112,0,0.08);
+      width: 100%;
+      max-width: 1100px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      padding: 32px 44px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .header-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--zone3) 0%, var(--zone2) 100%);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-icon svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .header-text h1 {
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    .header-text p {
+      margin-top: 6px;
+      font-size: 0.875rem;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.55;
+      max-width: 560px;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(171,205,102,0.04) 0%, transparent 100%);
+    }
+    .stat {
+      flex: 1;
+      padding: 16px 28px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .stat-value {
+      font-family: 'Lexend Deca', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--zone2);
+      margin-top: 2px;
+      min-height: 2rem;
+    }
+    .stat:first-child .stat-value  { color: var(--zone3); }
+    .stat:nth-child(3) .stat-value { color: var(--zone1); }
+    .stat-value.loading {
+      background: linear-gradient(90deg, #f0ead8 25%, #e8dfc0 50%, #f0ead8 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 4px;
+      width: 100px; height: 1.5rem;
+      display: inline-block;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Chart wrap */
+    .chart-wrap {
+      padding: 24px 12px 12px;
+      position: relative;
+      min-height: 440px;
+    }
+    #forest-chart { width: 100%; height: 440px; }
+
+    /* Loader */
+    .loader {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; background: var(--surface); z-index: 10;
+      transition: opacity 0.3s;
+    }
+    .loader.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--border);
+      border-top-color: var(--zone2);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { font-size: 0.84rem; color: var(--muted); }
+
+    /* Error */
+    .error-msg {
+      display: none; position: absolute; inset: 0;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px; padding: 24px; text-align: center;
+    }
+    .error-msg.visible { display: flex; }
+    .error-msg svg { width: 36px; height: 36px; stroke: #b83f5d; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .error-msg p { font-size: 0.88rem; color: var(--muted); max-width: 380px; line-height: 1.5; }
+    .retry-btn {
+      background: var(--zone2); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 8px 20px; font-family: 'Lexend Deca', sans-serif;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .retry-btn:hover { opacity: 0.85; }
+
+    /* Footer */
+    .card-footer {
+      padding: 14px 44px;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(171,205,102,0.03) 0%, transparent 100%);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+    .footer-note { font-size: 0.74rem; color: var(--muted); font-weight: 300; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="card-header">
+    <div class="header-icon">
+      <!-- Tree / forest icon -->
+      <svg viewBox="0 0 24 24">
+        <polygon points="12 2 22 20 2 20"/>
+        <line x1="12" y1="20" x2="12" y2="23"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Forest Fuels Reduction</h1>
+      <p>Annual acres of forest health treatment by treatment zone across the Lake Tahoe region, sourced from EIP indicator project accomplishments.</p>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-label">Total Acres Treated</div>
+      <div class="stat-value loading" id="stat-total"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Peak Year</div>
+      <div class="stat-value loading" id="stat-peak-year"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Peak Year Acres</div>
+      <div class="stat-value loading" id="stat-peak-acres"></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Years of Data</div>
+      <div class="stat-value loading" id="stat-years"></div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <span class="loader-text">Fetching treatment data…</span>
+    </div>
+    <div class="error-msg" id="error-msg">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p id="error-detail">Could not load forest fuels data.</p>
+      <button class="retry-btn" onclick="loadAndRender()">Retry</button>
+    </div>
+    <div id="forest-chart"></div>
+  </div>
+
+  <div class="card-footer">
+    <span class="footer-note">Source: LakeTahoeInfo EIP Indicator Project Accomplishments</span>
+    <span class="footer-note">Treatment Zone · Indicator 19</span>
+  </div>
+
+</div>
+
+<script>
+  const API_URL_DIRECT = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/19";
+  const API_URL = "https://corsproxy.io/?" + encodeURIComponent(API_URL_DIRECT);
+  const CACHE_KEY = "forest_fuels_cache";
+  const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+
+  const ZONE_COLORS = {
+    "Defense Zone":          "#ABCD66",
+    "Threat Zone":           "#E69800",
+    "General Forest Zone":   "#A87000",
+    "Lake Tahoe Basin":      "#F5CA7A",
+  };
+  // Fallback palette for any unexpected zones
+  const FALLBACK_COLORS = ["#ABCD66", "#E69800", "#A87000", "#F5CA7A", "#6B9E3A", "#C8860A"];
+
+  const YEAR_ORDER = ["2007","2008","2009","2010","2011","2012","2013","2014",
+                      "2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025"];
+
+  // ── Cache ──────────────────────────────────────────────────────────────────
+  function readCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts, data } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL) return null;
+      return data;
+    } catch { return null; }
+  }
+  function writeCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch {}
+  }
+
+  // ── Data processing ────────────────────────────────────────────────────────
+  function processData(raw) {
+    // Filter to Treatment Zone subcategory only
+    const filtered = raw.filter(r => r.PMSubcategoryName1 === "Treatment Zone");
+
+    // Rename and normalize
+    const rows = filtered.map(r => ({
+      year:  String(r.IndicatorProjectYear),
+      zone:  r.PMSubcategoryOption1 === "Community Defense Zone" ? "Defense Zone" : r.PMSubcategoryOption1,
+      acres: parseFloat(r.IndicatorProjectValue) || 0,
+    }));
+
+    // Group by year + zone
+    const grouped = {};
+    rows.forEach(r => {
+      const key = `${r.year}||${r.zone}`;
+      if (!grouped[key]) grouped[key] = { year: r.year, zone: r.zone, acres: 0 };
+      grouped[key].acres += r.acres;
+    });
+
+    return Object.values(grouped);
+  }
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
+  function setStats(data) {
+    const setEl = (id, text) => {
+      const el = document.getElementById(id);
+      el.classList.remove("loading");
+      el.textContent = text;
+    };
+
+    const totalAcres = data.reduce((s, d) => s + d.acres, 0);
+
+    // Sum by year for peak
+    const byYear = {};
+    data.forEach(d => { byYear[d.year] = (byYear[d.year] || 0) + d.acres; });
+    const peak = Object.entries(byYear).sort((a, b) => b[1] - a[1])[0];
+
+    const years = [...new Set(data.map(d => d.year))];
+
+    setEl("stat-total",      totalAcres.toLocaleString("en-US", { maximumFractionDigits: 0 }));
+    setEl("stat-peak-year",  peak ? peak[0] : "—");
+    setEl("stat-peak-acres", peak ? peak[1].toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—");
+    setEl("stat-years",      String(years.length));
+  }
+
+  // ── Chart ──────────────────────────────────────────────────────────────────
+  function renderChart(data) {
+    if (!data.length) return;
+
+    // Get sorted years present in data
+    const allYears = [...new Set(data.map(d => d.year))]
+      .sort((a, b) => {
+        const ia = YEAR_ORDER.indexOf(a);
+        const ib = YEAR_ORDER.indexOf(b);
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      });
+
+    // Get all zones, sorted for consistent legend order
+    const allZones = [...new Set(data.map(d => d.zone))].sort();
+
+    // Build one trace per zone (stacked bar)
+    const traces = allZones.map((zone, i) => {
+      const color = ZONE_COLORS[zone] || FALLBACK_COLORS[i % FALLBACK_COLORS.length];
+
+      const y = allYears.map(year => {
+        const row = data.find(d => d.year === year && d.zone === zone);
+        return row ? row.acres : 0;
+      });
+
+      return {
+        name: zone,
+        x: allYears,
+        y,
+        type: "bar",
+        marker: { color, line: { width: 0 } },
+        customdata: allYears.map(() => [zone]),
+        hovertemplate:
+          "<b>%{y:,.0f} acres</b> of forest health treatment<br>" +
+          "in the <i>%{customdata[0]}</i><extra></extra>",
+      };
+    });
+
+    const layout = {
+      barmode: "stack",
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor:  "rgba(0,0,0,0)",
+      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#01161E" },
+      xaxis: {
+        title: { text: "Year", standoff: 14 },
+        showgrid: false,
+        zeroline: false,
+        linecolor: "#BFD7ED",
+        tickfont: { size: 12 },
+        type: "category",
+      },
+      yaxis: {
+        title: { text: "Acres Treated", standoff: 14 },
+        showgrid: true,
+        gridcolor: "#e8f0d8",
+        zeroline: false,
+        tickformat: ",.0f",
+        tickfont: { size: 12 },
+      },
+      hovermode: "x unified",
+      hoverlabel: {
+        bgcolor: "#A87000",
+        font: { color: "#fff", family: "'Lexend Deca', sans-serif", size: 12 },
+        bordercolor: "#A87000",
+      },
+      legend: {
+        title: { text: "Forest Health Treatment Zone", font: { size: 12 } },
+        orientation: "h",
+        entrywidth: 160,
+        yanchor: "bottom",
+        y: 1.05,
+        xanchor: "right",
+        x: 0.95,
+        font: { size: 12 },
+      },
+      margin: { t: 20, r: 30, b: 60, l: 90 },
+      dragmode: false,
+    };
+
+    Plotly.react("forest-chart", traces, layout, { displayModeBar: false, responsive: true });
+  }
+
+  // ── Fetch ──────────────────────────────────────────────────────────────────
+  async function fetchData() {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  }
+
+  function initFromData(raw) {
+    const data = processData(raw);
+    setStats(data);
+    renderChart(data);
+  }
+
+  async function loadAndRender() {
+    document.getElementById("loader").classList.remove("hidden");
+    document.getElementById("error-msg").classList.remove("visible");
+
+    // Show shimmer on stats
+    ["stat-total","stat-peak-year","stat-peak-acres","stat-years"].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.add("loading");
+      el.textContent = "";
+    });
+
+    const cached = readCache();
+    if (cached) {
+      initFromData(cached);
+      document.getElementById("loader").classList.add("hidden");
+      fetchData().then(d => { writeCache(d); initFromData(d); }).catch(() => {});
+      return;
+    }
+
+    try {
+      const raw = await fetchData();
+      writeCache(raw);
+      initFromData(raw);
+      document.getElementById("loader").classList.add("hidden");
+    } catch (err) {
+      console.error(err);
+      document.getElementById("loader").classList.add("hidden");
+      document.getElementById("error-msg").classList.add("visible");
+      document.getElementById("error-detail").innerHTML =
+        `<strong>Error:</strong> ${err.message}`;
+    }
+  }
+
+  loadAndRender();
+</script>
+</body>
+</html>

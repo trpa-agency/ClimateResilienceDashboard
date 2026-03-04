@@ -30,7 +30,10 @@
 
 * Forest Fuels treatments
   * [Fuel Treatments - Chart](2.1.a_ForestFuel.html)
+    * [Option 1 - Fuel Treatments - Chart](2.1.a_ForestFuelTreatment_Chart_option1.html)
+    * [Option 2 - Fuel Treatments - Chart](2.1.a_ForestFuelTreatment_Chart_option2.html)
   * [Fuel Treatments - Map](Maps/2.1.a_ForestFuelTreatment.html)
+    * [Option 1 -Fuel Treatments - Map](Maps/2.1.a_ForestFuelTreatment_MapFilters.html)
 * Old Growth Forest and Tree Species
   * [Seral Stage - Chart](2.1.b_OldGrowthForest_SeralStage.html)
   * [Tree Species - Chart](2.1.b_OldGrowthForest_Species.html)

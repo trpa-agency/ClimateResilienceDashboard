@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Forest Fuel Treatment — Chart</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css" />
+
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+  <!-- ArcGIS for service queries only — no map -->
+  <script src="https://js.arcgis.com/4.29/"></script>
+
+  <style>
+    :root {
+      --font: 'Lexend Deca', sans-serif;
+      --j1:#01161E; --j2:#123559; --j3:#598392; --j4:#aec3b0; --j5:#eff6e0;
+      --mz1:#208385; --mz2:#FC9A62; --mz3:#F9C63E;
+      --mz4:#632E5A; --mz5:#A48352; --mz6:#BCEDB8;
+      --brand:var(--j2); --border:var(--j4); --text:var(--j1); --muted:var(--j3);
+    }
+
+    *, *::before, *::after { box-sizing:border-box; }
+    html, body { margin:0; padding:0; height:100%; background:var(--j5); font-family:var(--font); color:var(--text); }
+
+    /* ── Layout ── */
+    .app { display:grid; grid-template-columns:260px 1fr; height:100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background:white; border-right:1px solid var(--border);
+      display:flex; flex-direction:column; overflow:hidden;
+    }
+    .sidebar-header {
+      padding:16px 16px 12px;
+      border-bottom:1px solid var(--border);
+    }
+    .sidebar-header h2 {
+      font-size:13px; font-weight:700; margin:0 0 2px;
+      color:var(--text); letter-spacing:-0.01em;
+    }
+    .sidebar-header p { font-size:11px; color:var(--muted); margin:0; }
+
+    .sidebar-scroll { flex:1; overflow-y:auto; padding-bottom:72px; }
+    .sidebar-scroll::-webkit-scrollbar { width:4px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+
+    .sec { padding:14px 16px 12px; border-bottom:1px solid var(--border); }
+    .sec-lbl {
+      font-size:10px; font-weight:600; text-transform:uppercase;
+      letter-spacing:0.08em; color:var(--muted); margin-bottom:10px;
+      display:flex; align-items:center; gap:6px;
+    }
+
+    /* year */
+    .yr-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .yr-badge { font-size:13px; font-weight:700; color:white; background:var(--brand); padding:3px 12px; border-radius:20px; min-width:50px; text-align:center; }
+    .yr-sep { font-size:11px; color:var(--muted); }
+
+    /* pills */
+    .pill-group { display:flex; flex-wrap:wrap; gap:5px; }
+    .pill {
+      font-family:var(--font); font-size:11px; font-weight:500;
+      padding:4px 10px; border-radius:20px;
+      border:1.5px solid var(--border); background:white; color:var(--j2);
+      cursor:pointer; transition:all 0.15s; user-select:none;
+    }
+    .pill:hover { border-color:var(--j3); background:var(--j5); }
+    .pill.on { background:var(--brand); border-color:var(--brand); color:white; font-weight:600; }
+    .pill[data-ci="0"].on { background:var(--mz1); border-color:var(--mz1); }
+    .pill[data-ci="1"].on { background:var(--mz2); border-color:var(--mz2); }
+    .pill[data-ci="2"].on { background:var(--mz3); border-color:var(--mz3); color:var(--j1); }
+    .pill[data-ci="3"].on { background:var(--mz4); border-color:var(--mz4); }
+    .pill[data-ci="4"].on { background:var(--mz5); border-color:var(--mz5); }
+    .pill[data-ci="5"].on { background:var(--mz6); border-color:var(--mz6); color:var(--j1); }
+    .loading-hint { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:8px; }
+
+    /* stats footer in sidebar */
+    .sidebar-stats {
+      position:absolute; bottom:0; left:0; width:260px;
+      background:white; border-top:1px solid var(--border);
+      padding:10px 16px; display:grid; grid-template-columns:1fr 1fr; gap:6px;
+    }
+    .stat { text-align:center; }
+    .stat .v { font-size:18px; font-weight:700; color:var(--brand); line-height:1.1; }
+    .stat .l { font-size:9px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+
+    /* reset btn */
+    .reset-btn {
+      width:100%; font-family:var(--font); font-size:11px; font-weight:500;
+      padding:7px; border-radius:6px; border:1.5px solid var(--border);
+      background:white; color:var(--muted); cursor:pointer; transition:all 0.15s;
+      display:flex; align-items:center; justify-content:center; gap:5px;
+    }
+    .reset-btn:hover { border-color:var(--brand); color:var(--brand); }
+
+    /* ── Main chart area ── */
+    .main {
+      display:flex; flex-direction:column; overflow:hidden; padding:20px;
+      gap:16px;
+    }
+
+    .chart-header {
+      display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+    }
+    .chart-header h1 {
+      font-size:16px; font-weight:700; margin:0; color:var(--text);
+      letter-spacing:-0.02em;
+    }
+    .chart-header p { font-size:11px; color:var(--muted); margin:4px 0 0; }
+
+    .toggle-group { display:flex; gap:6px; }
+    .tbtn {
+      font-family:var(--font); font-size:11px; font-weight:500;
+      padding:5px 14px; border-radius:20px;
+      border:1.5px solid var(--border); background:white; color:var(--j2);
+      cursor:pointer; transition:all 0.15s;
+    }
+    .tbtn.on { background:var(--brand); border-color:var(--brand); color:white; font-weight:600; }
+    .tbtn:hover:not(.on) { border-color:var(--j3); background:var(--j5); }
+
+    /* chart cards grid */
+    .charts-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:16px; flex:1; min-height:0;
+    }
+
+    .chart-card {
+      background:white; border-radius:10px;
+      border:1px solid var(--border);
+      padding:16px 16px 8px;
+      display:flex; flex-direction:column; overflow:hidden;
+    }
+    .card-title {
+      font-size:11px; font-weight:600; color:var(--muted);
+      text-transform:uppercase; letter-spacing:0.06em;
+      margin-bottom:8px; flex-shrink:0;
+    }
+    .plot { flex:1; min-height:0; }
+
+    /* loading overlay */
+    .loading-overlay {
+      position:fixed; inset:0; background:rgba(255,255,255,0.85);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:12px; z-index:100; font-size:13px; color:var(--muted);
+      transition:opacity 0.3s;
+    }
+    .loading-overlay.hidden { opacity:0; pointer-events:none; }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loader">
+  <calcite-loader label="Loading treatment data..."></calcite-loader>
+  <span>Loading treatment data...</span>
+</div>
+
+<div class="app">
+
+  <!-- Sidebar filters -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Forest Fuel Treatment</h2>
+      <p>Lake Tahoe Region · Filter data below</p>
+    </div>
+
+    <div class="sidebar-scroll">
+
+      <div class="sec">
+        <div class="sec-lbl">
+          <calcite-icon icon="clock" scale="s"></calcite-icon>Year Range
+        </div>
+        <div class="yr-row">
+          <span class="yr-badge" id="lblMin">2020</span>
+          <span class="yr-sep">to</span>
+          <span class="yr-badge" id="lblMax">2025</span>
+        </div>
+        <calcite-slider id="yearRange"></calcite-slider>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">
+          <calcite-icon icon="effects" scale="s"></calcite-icon>Fuels Treatment Type
+        </div>
+        <div class="pill-group" id="pgFuels">
+          <div class="loading-hint"><calcite-loader inline scale="s" label="loading"></calcite-loader>Loading...</div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-lbl">
+          <calcite-icon icon="organization" scale="s"></calcite-icon>Ownership Type
+        </div>
+        <div class="pill-group" id="pgOwner">
+          <div class="loading-hint"><calcite-loader inline scale="s" label="loading"></calcite-loader>Loading...</div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <button class="reset-btn" id="resetBtn">
+          <calcite-icon icon="reset" scale="s"></calcite-icon>Reset all filters
+        </button>
+      </div>
+
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="stat"><div class="v" id="sCount">—</div><div class="l">Features</div></div>
+      <div class="stat"><div class="v" id="sAcres">—</div><div class="l">Total Acres</div></div>
+    </div>
+  </div>
+
+  <!-- Main chart area -->
+  <div class="main">
+    <div class="chart-header">
+      <div>
+        <h1 id="mainTitle">Acres by Fuels Treatment Type</h1>
+        <p id="mainSub">Showing all years · all ownership types</p>
+      </div>
+      <div class="toggle-group">
+        <button class="tbtn on" id="tFuels">Fuels Treatment</button>
+        <button class="tbtn"    id="tOwner">Ownership Type</button>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card" style="grid-column:1/-1; flex:none; height:320px;">
+        <div class="card-title" id="barTitle">Acres Treated by Category</div>
+        <div class="plot" id="plotBar"></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Treatments Over Time</div>
+        <div class="plot" id="plotLine"></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-title">Share by Category</div>
+        <div class="plot" id="plotPie"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+require([
+  "esri/layers/FeatureLayer"
+], function(FeatureLayer) {
+
+  const SERVICE_URL = "https://services.arcgis.com/"; // replaced by WebMap layer on load below
+
+  const FIELDS = ["FuelsTx","Ownership_Type"];
+  const MZ = ["#208385","#FC9A62","#F9C63E","#632E5A","#A48352","#BCEDB8"];
+  const JX = ["#01161E","#123559","#598392","#aec3b0","#598392","#eff6e0"];
+
+  const state = { yearMin:2020, yearMax:2025, FuelsTx:new Set(), Ownership_Type:new Set() };
+  let fl = null, chartDim = "FuelsTx", timer = null;
+
+  // Load the layer from the same WebMap portal item
+  const { WebMap } = window.__esri || {};
+
+  // Use FeatureLayer directly from the known service
+  // We load via WebMap so we get the same layer as the map page
+  require(["esri/WebMap"], function(WebMap) {
+    const wm = new WebMap({ portalItem:{ id:"0303bdff0aa04b628f8a60a8c72c53a1" } });
+    wm.load().then(() => {
+      fl = wm.layers.getItemAt(0);
+      return fl.load();
+    }).then(() => {
+      init();
+    });
+  });
+
+  async function init() {
+    await initSlider();
+    await buildPills("FuelsTx","pgFuels");
+    await buildPills("Ownership_Type","pgOwner");
+    await refresh();
+    document.getElementById("loader").classList.add("hidden");
+  }
+
+  // ── Slider ─────────────────────────────────────────────────
+  async function initSlider() {
+    await customElements.whenDefined("calcite-slider");
+    const el = document.getElementById("yearRange");
+    try {
+      const q = fl.createQuery();
+      q.outStatistics = [
+        { statisticType:"min", onStatisticField:"YEAR", outStatisticFieldName:"lo" },
+        { statisticType:"max", onStatisticField:"YEAR", outStatisticFieldName:"hi" }
+      ];
+      const res = await fl.queryFeatures(q);
+      const attr = res.features[0]?.attributes;
+      const lo = 2020, hi = parseInt(attr?.hi ?? 2025);
+      state.yearMin = lo; state.yearMax = hi;
+      el.setAttribute("min",lo);          el.setAttribute("max",hi);
+      el.setAttribute("min-value",lo);    el.setAttribute("max-value",hi);
+      el.setAttribute("step","1");        el.setAttribute("snap","");
+      el.setAttribute("label-handles",""); el.setAttribute("label-ticks","");
+      el.setAttribute("ticks", hi - lo);
+      document.getElementById("lblMin").textContent = lo;
+      document.getElementById("lblMax").textContent = hi;
+    } catch(e) {
+      el.setAttribute("min","2020"); el.setAttribute("max","2025");
+      el.setAttribute("min-value","2020"); el.setAttribute("max-value","2025");
+      el.setAttribute("step","1"); el.setAttribute("snap","");
+      el.setAttribute("label-handles",""); el.setAttribute("label-ticks","");
+      el.setAttribute("ticks","5");
+    }
+  }
+
+  document.getElementById("yearRange").addEventListener("calciteSliderInput", e => {
+    state.yearMin = parseInt(e.target.minValue);
+    state.yearMax = parseInt(e.target.maxValue);
+    document.getElementById("lblMin").textContent = state.yearMin;
+    document.getElementById("lblMax").textContent = state.yearMax;
+    updateSubtitle();
+    schedule();
+  });
+
+  // ── Pills ──────────────────────────────────────────────────
+  async function buildPills(field, cid) {
+    const wrap = document.getElementById(cid);
+    try {
+      const q = fl.createQuery();
+      q.outFields=[field]; q.returnDistinctValues=true;
+      q.returnGeometry=false; q.orderByFields=[`${field} ASC`];
+      const res  = await fl.queryFeatures(q);
+      const vals = [...new Set(res.features.map(f=>f.attributes[field]).filter(v=>v!=null&&v!==""))].sort();
+      wrap.innerHTML = "";
+      vals.forEach((val,i) => {
+        const b = document.createElement("button");
+        b.className="pill"; b.textContent=val.length>26?val.slice(0,24)+"…":val;
+        b.title=val; b.dataset.ci=String(i%6);
+        b.addEventListener("click",()=>{
+          state[field].has(val)?(state[field].delete(val),b.classList.remove("on"))
+                               :(state[field].add(val),b.classList.add("on"));
+          updateSubtitle(); schedule();
+        });
+        wrap.appendChild(b);
+      });
+    } catch(e) { wrap.textContent="Could not load"; }
+  }
+
+  // ── Reset ──────────────────────────────────────────────────
+  document.getElementById("resetBtn").addEventListener("click", async () => {
+    FIELDS.forEach(f=>state[f].clear());
+    document.querySelectorAll(".pill").forEach(p=>p.classList.remove("on"));
+    await customElements.whenDefined("calcite-slider");
+    const el=document.getElementById("yearRange");
+    const lo=parseInt(el.getAttribute("min")), hi=parseInt(el.getAttribute("max"));
+    state.yearMin=lo; state.yearMax=hi;
+    el.setAttribute("min-value",lo); el.setAttribute("max-value",hi);
+    document.getElementById("lblMin").textContent=lo;
+    document.getElementById("lblMax").textContent=hi;
+    updateSubtitle(); refresh();
+  });
+
+  // ── Subtitle ───────────────────────────────────────────────
+  function updateSubtitle() {
+    const yrStr = `${state.yearMin}–${state.yearMax}`;
+    const fuels = state.FuelsTx.size ? [...state.FuelsTx].join(", ") : "all treatment types";
+    const own   = state.Ownership_Type.size ? [...state.Ownership_Type].join(", ") : "all ownership";
+    document.getElementById("mainSub").textContent = `${yrStr} · ${fuels} · ${own}`;
+  }
+
+  // ── WHERE clause ───────────────────────────────────────────
+  function buildWhere() {
+    const parts=[`YEAR >= ${state.yearMin} AND YEAR <= ${state.yearMax}`];
+    FIELDS.forEach(f=>{
+      if(state[f].size){
+        const vals=[...state[f]].map(v=>`'${v.replace(/'/g,"''")}'`).join(",");
+        parts.push(`${f} IN (${vals})`);
+      }
+    });
+    return parts.join(" AND ");
+  }
+
+  function schedule(){ clearTimeout(timer); timer=setTimeout(refresh,300); }
+
+  // ── Refresh all charts + stats ─────────────────────────────
+  async function refresh() {
+    if (!fl) return;
+    fl.definitionExpression = buildWhere();
+    await Promise.all([updateStats(), drawBar(), drawLine(), drawPie()]);
+  }
+
+  // ── Stats ──────────────────────────────────────────────────
+  async function updateStats() {
+    const q = fl.createQuery();
+    q.where = buildWhere(); q.returnGeometry = false;
+    q.outStatistics = [
+      {statisticType:"count",onStatisticField:"OBJECTID_1",outStatisticFieldName:"cnt"},
+      {statisticType:"sum",  onStatisticField:"ACRES",     outStatisticFieldName:"tot"}
+    ];
+    const res = await fl.queryFeatures(q);
+    const a   = res.features[0]?.attributes;
+    if(a){
+      document.getElementById("sCount").textContent=(a.cnt||0).toLocaleString();
+      document.getElementById("sAcres").textContent=a.tot?fmt(a.tot):"—";
+    }
+  }
+
+  // ── Bar chart ──────────────────────────────────────────────
+  async function drawBar() {
+    const q = fl.createQuery();
+    q.where = buildWhere(); q.returnGeometry = false;
+    q.outStatistics = [{statisticType:"sum",onStatisticField:"ACRES",outStatisticFieldName:"tot"}];
+    q.groupByFieldsForStatistics = [chartDim];
+    q.orderByFields = ["tot DESC"];
+    const res  = await fl.queryFeatures(q);
+    const rows = res.features.filter(f=>f.attributes[chartDim]);
+    const cats = rows.map(f=>f.attributes[chartDim]);
+    const vals = rows.map(f=>Math.round(f.attributes.tot||0));
+    const pal  = chartDim==="FuelsTx"?MZ:JX;
+    const clrs = cats.map((_,i)=>pal[i%pal.length]);
+    const lbls = cats.map(c=>c.length>28?c.slice(0,26)+"…":c);
+
+    document.getElementById("barTitle").textContent =
+      chartDim==="FuelsTx" ? "Acres Treated by Fuels Treatment Type" : "Acres Treated by Ownership Type";
+    document.getElementById("mainTitle").textContent =
+      chartDim==="FuelsTx" ? "Acres by Fuels Treatment Type" : "Acres by Ownership Type";
+
+    Plotly.react("plotBar",
+      [{type:"bar", x:vals, y:lbls, orientation:"h",
+        marker:{color:clrs, line:{width:0}},
+        hovertemplate:"<b>%{y}</b><br>%{x:,.0f} acres<extra></extra>",
+        text:vals.map(v=>fmt(v)), textposition:"outside",
+        textfont:{family:"Lexend Deca, sans-serif", size:10, color:"#123559"}}],
+      { margin:{t:8,r:60,b:36,l:180},
+        xaxis:{title:{text:"Acres",font:{family:"Lexend Deca, sans-serif",size:10}},
+               tickfont:{family:"Lexend Deca, sans-serif",size:9}, gridcolor:"#eff6e0"},
+        yaxis:{tickfont:{family:"Lexend Deca, sans-serif",size:10}, automargin:true},
+        plot_bgcolor:"white", paper_bgcolor:"white", bargap:0.3, showlegend:false },
+      {responsive:true, displayModeBar:false}
+    );
+  }
+
+  // ── Line chart — acres by year ─────────────────────────────
+  async function drawLine() {
+    const q = fl.createQuery();
+    q.where = buildWhere(); q.returnGeometry = false;
+    q.outStatistics = [{statisticType:"sum",onStatisticField:"ACRES",outStatisticFieldName:"tot"}];
+    q.groupByFieldsForStatistics = ["YEAR"];
+    q.orderByFields = ["YEAR ASC"];
+    const res   = await fl.queryFeatures(q);
+    const years = res.features.map(f=>f.attributes.YEAR);
+    const acres = res.features.map(f=>Math.round(f.attributes.tot||0));
+
+    Plotly.react("plotLine",
+      [{type:"scatter", mode:"lines+markers", x:years, y:acres,
+        line:{color:"#123559", width:2.5},
+        marker:{color:"#208385", size:6},
+        hovertemplate:"<b>%{x}</b><br>%{y:,.0f} acres<extra></extra>"}],
+      { margin:{t:8,r:16,b:36,l:60},
+        xaxis:{title:{text:"Year",font:{family:"Lexend Deca, sans-serif",size:10}},
+               tickfont:{family:"Lexend Deca, sans-serif",size:9}, dtick:1},
+        yaxis:{title:{text:"Acres",font:{family:"Lexend Deca, sans-serif",size:10}},
+               tickfont:{family:"Lexend Deca, sans-serif",size:9}, gridcolor:"#eff6e0"},
+        plot_bgcolor:"white", paper_bgcolor:"white", showlegend:false },
+      {responsive:true, displayModeBar:false}
+    );
+  }
+
+  // ── Pie / donut chart ──────────────────────────────────────
+  async function drawPie() {
+    const q = fl.createQuery();
+    q.where = buildWhere(); q.returnGeometry = false;
+    q.outStatistics = [{statisticType:"sum",onStatisticField:"ACRES",outStatisticFieldName:"tot"}];
+    q.groupByFieldsForStatistics = [chartDim];
+    q.orderByFields = ["tot DESC"];
+    const res  = await fl.queryFeatures(q);
+    const rows = res.features.filter(f=>f.attributes[chartDim]);
+    const lbls = rows.map(f=>f.attributes[chartDim]);
+    const vals = rows.map(f=>Math.round(f.attributes.tot||0));
+    const pal  = chartDim==="FuelsTx"?MZ:JX;
+    const clrs = lbls.map((_,i)=>pal[i%pal.length]);
+
+    Plotly.react("plotPie",
+      [{type:"pie", labels:lbls, values:vals, hole:0.45,
+        marker:{colors:clrs, line:{color:"white", width:2}},
+        textfont:{family:"Lexend Deca, sans-serif", size:10},
+        hovertemplate:"<b>%{label}</b><br>%{value:,.0f} acres<br>%{percent}<extra></extra>",
+        textinfo:"percent", showlegend:true}],
+      { margin:{t:8,r:8,b:8,l:8},
+        paper_bgcolor:"white",
+        legend:{font:{family:"Lexend Deca, sans-serif", size:10}, orientation:"v", x:1, y:0.5},
+        showlegend:true },
+      {responsive:true, displayModeBar:false}
+    );
+  }
+
+  // ── Toggles ────────────────────────────────────────────────
+  document.getElementById("tFuels").addEventListener("click", () => {
+    chartDim="FuelsTx";
+    document.getElementById("tFuels").classList.add("on");
+    document.getElementById("tOwner").classList.remove("on");
+    refresh();
+  });
+  document.getElementById("tOwner").addEventListener("click", () => {
+    chartDim="Ownership_Type";
+    document.getElementById("tOwner").classList.add("on");
+    document.getElementById("tFuels").classList.remove("on");
+    refresh();
+  });
+
+  function fmt(n){
+    if(n>=1e6) return (n/1e6).toFixed(1)+"M";
+    if(n>=1e3) return (n/1e3).toFixed(1)+"k";
+    return Math.round(n).toLocaleString();
+  }
+
+}); // end require
+</script>
+</body>
+</html>

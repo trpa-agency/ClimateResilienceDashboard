@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Forest Fuel Treatment — Climate Resilience Dashboard</title>
+
+  <!-- Lexend Deca font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Calcite -->
+  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.2/calcite.esm.js"></script>
+  <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/2.13.2/calcite.css" />
+
+  <!-- ArcGIS JS SDK -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
+  <script src="https://js.arcgis.com/4.29/"></script>
+
+  <!-- ArcGIS Map Components -->
+  <script defer type="module" src="https://js.arcgis.com/map-components/4.29/arcgis-map-components.esm.js"></script>
+
+  <style>
+    /* ── Base ─────────────────────────────────────────────── */
+    :root {
+      --font-main: 'Lexend Deca', sans-serif;
+
+      /* Jurisdiction palette */
+      --j1: #01161E;
+      --j2: #123559;
+      --j3: #598392;
+      --j4: #aec3b0;
+      --j5: #eff6e0;
+
+      /* Management zones */
+      --mz1: #208385;
+      --mz2: #FC9A62;
+      --mz3: #F9C63E;
+      --mz4: #632E5A;
+      --mz5: #A48352;
+      --mz6: #BCEDB8;
+
+      /* UI derived */
+      --brand:       var(--j2);
+      --brand-light: var(--j3);
+      --surface:     var(--j5);
+      --border:      var(--j4);
+      --text-dark:   var(--j1);
+      --text-mid:    var(--j2);
+      --text-light:  var(--j3);
+
+      --panel-width: 300px;
+    }
+
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%; width: 100%;
+      overflow: hidden;
+      font-family: var(--font-main);
+    }
+
+    /* Override Calcite font globally */
+    calcite-shell,
+    calcite-panel,
+    calcite-block,
+    calcite-label,
+    calcite-slider {
+      font-family: var(--font-main) !important;
+    }
+
+    /* ── Shell panel width ───────────────────────────────── */
+    calcite-shell-panel {
+      --calcite-shell-panel-width: var(--panel-width);
+    }
+
+    /* ── Map fills shell content area ───────────────────── */
+    arcgis-map {
+      height: 100%;
+      width: 100%;
+      display: block;
+    }
+
+    /* ── Filter panel layout ─────────────────────────────── */
+    .filter-wrap {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      background: white;
+    }
+
+    .filter-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 76px;
+    }
+
+    .filter-scroll::-webkit-scrollbar { width: 4px; }
+    .filter-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    /* ── Section ─────────────────────────────────────────── */
+    .section {
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-main);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-light);
+      margin-bottom: 10px;
+    }
+
+    /* ── Year slider ─────────────────────────────────────── */
+    .year-badges {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .year-badge {
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      background: var(--brand);
+      padding: 3px 12px;
+      border-radius: 20px;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .year-sep {
+      font-size: 11px;
+      color: var(--text-light);
+      font-family: var(--font-main);
+    }
+
+    .slider-wrap {
+      padding: 2px 6px 6px;
+    }
+
+    /* Tint Calcite slider track to brand color */
+    #yearRange {
+      --calcite-slider-full-handle-height: 16px;
+      --calcite-slider-handle-size: 16px;
+    }
+
+    /* ── Filter pills (custom, not calcite-chip) ─────────── */
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 2px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-main);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: white;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      line-height: 1.3;
+    }
+
+    .pill:hover {
+      border-color: var(--brand-light);
+      color: var(--brand);
+      background: var(--j5);
+    }
+
+    .pill.active {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: white;
+      font-weight: 600;
+    }
+
+    .pill.active:hover {
+      background: var(--j3);
+      border-color: var(--j3);
+    }
+
+    /* Color-coded pills for FuelsTx using management zone palette */
+    .pill[data-color="0"].active { background: var(--mz1); border-color: var(--mz1); }
+    .pill[data-color="1"].active { background: var(--mz2); border-color: var(--mz2); }
+    .pill[data-color="2"].active { background: var(--mz3); border-color: var(--mz3); color: var(--j1); }
+    .pill[data-color="3"].active { background: var(--mz4); border-color: var(--mz4); }
+    .pill[data-color="4"].active { background: var(--mz5); border-color: var(--mz5); }
+    .pill[data-color="5"].active { background: var(--mz6); border-color: var(--mz6); color: var(--j1); }
+
+    .pills-loading {
+      font-size: 12px;
+      color: var(--text-light);
+      font-family: var(--font-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Stats footer ────────────────────────────────────── */
+    .stats-bar {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 10px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat .val {
+      font-family: var(--font-main);
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.1;
+    }
+
+    .stat .lbl {
+      font-family: var(--font-main);
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+<calcite-shell>
+
+  <!-- Map using arcgis web components -->
+  <arcgis-map id="arcgisMap" item-id="0303bdff0aa04b628f8a60a8c72c53a1">
+    <arcgis-zoom position="top-left"></arcgis-zoom>
+    <arcgis-home position="top-left"></arcgis-home>
+    <arcgis-fullscreen position="top-left"></arcgis-fullscreen>
+    <arcgis-expand position="top-right" expand-tooltip="Legend" expanded>
+      <arcgis-legend></arcgis-legend>
+    </arcgis-expand>
+    <arcgis-expand position="bottom-left" expand-tooltip="Bookmarks">
+      <arcgis-bookmarks></arcgis-bookmarks>
+    </arcgis-expand>
+  </arcgis-map>
+
+  <!-- Filter panel -->
+  <calcite-shell-panel slot="panel-start" display-mode="dock">
+    <calcite-panel
+      heading="Filter Treatments"
+
+    >
+      <calcite-action
+        slot="header-actions-end"
+        icon="reset"
+        text="Reset"
+        title="Reset all filters"
+        id="resetBtn"
+        scale="s"
+      ></calcite-action>
+
+      <div class="filter-wrap">
+        <div class="filter-scroll">
+
+          <!-- YEAR -->
+          <div class="section">
+            <div class="section-label">
+              <calcite-icon icon="clock" scale="s"></calcite-icon>
+              Year Range
+            </div>
+            <div class="year-badges">
+              <span class="year-badge" id="lblMin">—</span>
+              <span class="year-sep">to</span>
+              <span class="year-badge" id="lblMax">—</span>
+            </div>
+            <div class="slider-wrap">
+              <calcite-slider id="yearRange"></calcite-slider>
+            </div>
+          </div>
+
+          <!-- FUELS TX -->
+          <div class="section">
+            <div class="section-label">
+              <calcite-icon icon="fire" scale="s"></calcite-icon>
+              Fuels Treatment Type
+            </div>
+            <div class="pill-group" id="pills-FuelsTx">
+              <div class="pills-loading">
+                <calcite-loader inline scale="s" label="loading"></calcite-loader>
+                Loading...
+              </div>
+            </div>
+          </div>
+
+          <!-- OWNERSHIP -->
+          <div class="section">
+            <div class="section-label">
+              <calcite-icon icon="organization" scale="s"></calcite-icon>
+              Ownership Type
+            </div>
+            <div class="pill-group" id="pills-Ownership_Type">
+              <div class="pills-loading">
+                <calcite-loader inline scale="s" label="loading"></calcite-loader>
+                Loading...
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /filter-scroll -->
+
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="val" id="statCount">—</div>
+            <div class="lbl">Features</div>
+          </div>
+          <div class="stat">
+            <div class="val" id="statAcres">—</div>
+            <div class="lbl">Total Acres</div>
+          </div>
+        </div>
+      </div>
+
+    </calcite-panel>
+  </calcite-shell-panel>
+
+</calcite-shell>
+
+<script>
+  const FIELDS = ["FuelsTx", "Ownership_Type"];
+
+  const state = {
+    yearMin: 2020,
+    yearMax: 2025,
+    FuelsTx: new Set(),
+    Ownership_Type: new Set()
+  };
+
+  let featureLayer = null;
+  let filterTimer = null;
+
+  // ── Wait for arcgis-map to be ready ───────────────────────
+  const arcgisMap = document.getElementById("arcgisMap");
+
+  arcgisMap.addEventListener("arcgisViewReadyChange", async () => {
+    const map   = arcgisMap.map;
+    featureLayer = map.layers.getItemAt(0);
+    await featureLayer.load();
+
+    await initSlider();
+
+    for (const f of FIELDS) {
+      await buildPills(f);
+    }
+
+    await updateStats();
+  });
+
+  // ── Year slider ───────────────────────────────────────────
+  async function initSlider() {
+    try {
+      const q = featureLayer.createQuery();
+      q.outStatistics = [
+        { statisticType: "min", onStatisticField: "YEAR", outStatisticFieldName: "lo" },
+        { statisticType: "max", onStatisticField: "YEAR", outStatisticFieldName: "hi" }
+      ];
+      const res  = await featureLayer.queryFeatures(q);
+      const attr = res.features[0]?.attributes ?? {};
+      const lo   = 2020;  // fixed start year
+      const hi   = parseInt(attr.hi ?? 2024);
+
+      state.yearMin = lo;
+      state.yearMax = hi;
+
+      setSlider(lo, hi, 2020, hi);
+      state.yearMin = 2020;
+      state.yearMax = hi;
+      document.getElementById("lblMin").textContent = 2020;
+      document.getElementById("lblMax").textContent = hi;
+
+    } catch(e) {
+      console.warn("Year query failed", e);
+      setSlider(2020, 2025, 2020, 2025);
+      document.getElementById("lblMin").textContent = 2020;
+      document.getElementById("lblMax").textContent = 2025;
+    }
+  }
+
+  function setSlider(min, max, minVal, maxVal) {
+    // Set via attribute strings first — avoids the race condition
+    // where JS props fire before the component upgrades
+    const el = document.getElementById("yearRange");
+    el.setAttribute("min",       min);
+    el.setAttribute("max",       max);
+    el.setAttribute("min-value", minVal);
+    el.setAttribute("max-value", maxVal);
+    el.setAttribute("step",      "1");
+    el.setAttribute("snap",      "");
+    el.setAttribute("label-handles", "");
+    el.setAttribute("label-ticks",   "");
+    el.setAttribute("ticks",     String(Math.ceil((max - min) / 5)));
+  }
+
+  document.getElementById("yearRange").addEventListener("calciteSliderInput", e => {
+    const lo = parseInt(e.target.minValue);
+    const hi = parseInt(e.target.maxValue);
+    state.yearMin = lo;
+    state.yearMax = hi;
+    document.getElementById("lblMin").textContent = lo;
+    document.getElementById("lblMax").textContent = hi;
+    scheduleFilter();
+  });
+
+  // ── Pills ─────────────────────────────────────────────────
+  async function buildPills(field) {
+    const wrap = document.getElementById(`pills-${field}`);
+    try {
+      const q = featureLayer.createQuery();
+      q.outFields = [field];
+      q.returnDistinctValues = true;
+      q.returnGeometry = false;
+      q.orderByFields = [`${field} ASC`];
+
+      const res    = await featureLayer.queryFeatures(q);
+      const values = [...new Set(
+        res.features.map(f => f.attributes[field]).filter(v => v != null && v !== "")
+      )].sort();
+
+      wrap.innerHTML = "";
+      if (!values.length) {
+        wrap.textContent = "No data";
+        return;
+      }
+
+      values.forEach((val, i) => {
+        const pill = document.createElement("button");
+        pill.className = "pill";
+        pill.textContent = val.length > 28 ? val.slice(0, 26) + "…" : val;
+        pill.title = val;
+        pill.dataset.value = val;
+        pill.dataset.color = String(i % 6);
+
+        pill.addEventListener("click", () => {
+          if (state[field].has(val)) {
+            state[field].delete(val);
+            pill.classList.remove("active");
+          } else {
+            state[field].add(val);
+            pill.classList.add("active");
+          }
+          scheduleFilter();
+        });
+
+        wrap.appendChild(pill);
+      });
+
+    } catch(e) {
+      console.warn("Pills failed for", field, e);
+      wrap.textContent = "Could not load";
+    }
+  }
+
+  // ── Reset ─────────────────────────────────────────────────
+  document.getElementById("resetBtn").addEventListener("click", async () => {
+    FIELDS.forEach(f => {
+      state[f].clear();
+      document.getElementById(`pills-${f}`)
+        .querySelectorAll(".pill")
+        .forEach(p => p.classList.remove("active"));
+    });
+
+    const slider = document.getElementById("yearRange");
+    const lo = parseInt(slider.getAttribute("min"));
+    const hi = parseInt(slider.getAttribute("max"));
+    state.yearMin = lo;
+    state.yearMax = hi;
+    slider.setAttribute("min-value", lo);
+    slider.setAttribute("max-value", hi);
+    document.getElementById("lblMin").textContent = lo;
+    document.getElementById("lblMax").textContent = hi;
+
+    applyFilter();
+  });
+
+  // ── Filter ────────────────────────────────────────────────
+  function scheduleFilter() {
+    clearTimeout(filterTimer);
+    filterTimer = setTimeout(applyFilter, 280);
+  }
+
+  async function applyFilter() {
+    if (!featureLayer) return;
+
+    const parts = [`YEAR >= ${state.yearMin} AND YEAR <= ${state.yearMax}`];
+    FIELDS.forEach(f => {
+      if (state[f].size > 0) {
+        const vals = [...state[f]].map(v => `'${v.replace(/'/g,"''")}'`).join(",");
+        parts.push(`${f} IN (${vals})`);
+      }
+    });
+
+    const where = parts.join(" AND ");
+    featureLayer.definitionExpression = where;
+
+    // Zoom to filtered extent
+    try {
+      const view = arcgisMap.view;
+      const q = featureLayer.createQuery();
+      q.where = where;
+      q.returnGeometry = true;
+      const res = await featureLayer.queryExtent(q);
+      if (res.count > 0 && res.extent) {
+        await view.goTo(res.extent.expand(1.2), { duration: 600 });
+      }
+    } catch(e) { console.warn("Zoom failed", e); }
+
+    await updateStats();
+  }
+
+  // ── Stats ─────────────────────────────────────────────────
+  async function updateStats() {
+    if (!featureLayer) return;
+    try {
+      const q = featureLayer.createQuery();
+      q.where          = featureLayer.definitionExpression || "1=1";
+      q.returnGeometry = false;
+      q.outStatistics  = [
+        { statisticType: "count", onStatisticField: "OBJECTID_1", outStatisticFieldName: "cnt" },
+        { statisticType: "sum",   onStatisticField: "ACRES",      outStatisticFieldName: "tot" }
+      ];
+      const res  = await featureLayer.queryFeatures(q);
+      const attr = res.features[0]?.attributes;
+      if (attr) {
+        document.getElementById("statCount").textContent = (attr.cnt || 0).toLocaleString();
+        document.getElementById("statAcres").textContent = attr.tot ? fmt(attr.tot) : "—";
+      }
+    } catch(e) { console.warn("Stats failed", e); }
+  }
+
+  function fmt(n) {
+    if (n >= 1e6) return (n/1e6).toFixed(1)+"M";
+    if (n >= 1e3) return (n/1e3).toFixed(1)+"k";
+    return Math.round(n).toLocaleString();
+  }
+</script>
+</body>
+</html>
