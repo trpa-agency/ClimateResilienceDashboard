@@ -9,21 +9,30 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --primary-blue: #0077C0;
-      --teal:         #208385;
-      --orange:       #FC9A62;
-      --plum:         #632E5A;
-      --water:        #023f64;
-      --text:         #333333;
-      --muted:        #6B7280;
-      --bg:           #F4F7FA;
-      --surface:      #FFFFFF;
-      --border:       #DDE3EA;
+      /* TRPA Climate Resilience Dashboard — official palette */
+      --water:        #023f64;   /* deep navy — headers, tooltips */
+      --forest:       #208385;   /* teal — primary accent */
+      --risk:         #FCB42C;   /* amber */
+      --precip-light: #BFD7ED;
+      --precip-dark:  #60A3D9;
+      /* management_zones palette for series */
+      --mz1: #208385;
+      --mz2: #FC9A62;
+      --mz3: #F9C63E;
+      --mz4: #632E5A;
+      --mz5: #A48352;
+      --mz6: #BCEDB8;
+      /* UI */
+      --text:    #333333;
+      --muted:   #6B7280;
+      --bg:      #F4F7FA;
+      --surface: #FFFFFF;
+      --border:  #DDE3EA;
     }
     html, body { min-height: 100%; background: var(--bg); font-family: 'Open Sans', sans-serif; color: var(--text); font-size: 14px; }
     .page { max-width: 960px; margin: 0 auto; padding: 40px 20px 60px; }
-    .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
-    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+    .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--forest); margin-bottom: 10px; }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--forest); }
     h1 { font-family: 'Montserrat', sans-serif; font-size: clamp(1.3rem, 3.5vw, 1.85rem); font-weight: 700; color: var(--water); line-height: 1.2; margin-bottom: 8px; }
     .subtitle { font-size: 0.84rem; color: var(--muted); line-height: 1.65; max-width: 600px; margin-bottom: 28px; }
     .card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,71,120,0.08), 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }
@@ -51,7 +60,7 @@
     /* Group toggle */
     .group-toggle { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px; gap: 2px; }
     .toggle-btn { background: none; border: none; border-radius: 6px; padding: 6px 13px; font-family: 'Open Sans', sans-serif; font-size: 0.76rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-    .toggle-btn.active { background: var(--surface); color: var(--primary-blue); box-shadow: 0 1px 4px rgba(0,71,120,0.12); }
+    .toggle-btn.active { background: var(--surface); color: var(--water); box-shadow: 0 1px 4px rgba(2,63,100,0.15); }
     .toggle-btn:hover:not(.active) { color: var(--text); }
 
     /* Chart */
@@ -59,7 +68,7 @@
     .chart-canvas-wrap { position: relative; height: 360px; }
     .loader { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: var(--surface); z-index: 10; transition: opacity 0.3s; }
     .loader.hidden { opacity: 0; pointer-events: none; }
-    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--primary-blue); border-radius: 50%; animation: spin 0.75s linear infinite; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--forest); border-radius: 50%; animation: spin 0.75s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loader-text { font-size: 0.82rem; color: var(--muted); text-align: center; }
 
@@ -79,7 +88,7 @@
     /* Footer */
     .card-footer { padding: 11px 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
     .footer-note { font-size: 0.7rem; color: var(--muted); }
-    .footer-note a { color: var(--primary-blue); text-decoration: none; }
+    .footer-note a { color: var(--forest); text-decoration: none; }
     .footer-note a:hover { text-decoration: underline; }
 
     /* Mobile */
@@ -108,7 +117,7 @@
 
     <!-- Stats strip -->
     <div class="stats-strip" id="stats-strip">
-      <div class="stat-cell"><div class="stat-geo" style="color:var(--teal)">Lake Tahoe Region</div><div class="stat-skeleton" style="width:100px"></div></div>
+      <div class="stat-cell"><div class="stat-geo" style="color:var(--water)">Lake Tahoe Region</div><div class="stat-skeleton" style="width:100px"></div></div>
     </div>
 
     <!-- Toolbar: legend + group toggle -->
@@ -143,29 +152,25 @@
 </div>
 
 <script>
-const REST_URL =
-  "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135/query" +
-  "?where=Category%3D%27Household+Income%27&outFields=*&orderByFields=year_sample+ASC&f=json&resultRecordCount=2000";
-
-// Basin is always shown, fixed color
+// Basin is always shown, fixed color — using water deep navy per style guide
 const BASIN_KEY   = "Lake Tahoe Region";
-const BASIN_COLOR = "#0077C0";
+const BASIN_COLOR = "#023f64";
 
-// All geographies with their group membership
+// All geographies — series colors from management_zones palette: ["#208385","#FC9A62","#F9C63E","#632E5A","#A48352","#BCEDB8"]
 const ALL_GEO = [
   // Basin — always on
-  { key: "Lake Tahoe Region", label: "Lake Tahoe Region", color: "#0077C0", groups: ["basin"], exact: ["basin"], match: ["lake tahoe region"] },
+  { key: "Lake Tahoe Region", label: "Lake Tahoe Region", color: "#023f64", groups: ["basin"], exact: ["basin"], match: ["lake tahoe region"] },
   // State
-  { key: "CA",                label: "California",        color: "#208385",  groups: ["state"], match: ["california", " ca "], exact: ["ca"] },
-  { key: "NV",                label: "Nevada",            color: "#FCB42C",  groups: ["state"], match: ["nevada", " nv "],     exact: ["nv"] },
-  // County
-  { key: "Douglas County",   label: "Douglas County",    color: "#208385",  groups: ["county"], match: ["douglas"] },
-  { key: "El Dorado County",  label: "El Dorado County",  color: "#FC9A62",  groups: ["county"], match: ["el dorado", "eldorado"] },
-  { key: "Placer County",     label: "Placer County",     color: "#F9C63E",  groups: ["county"], match: ["placer"] },
-  { key: "Washoe County",     label: "Washoe County",     color: "#632E5A",  groups: ["county"], match: ["washoe"] },
+  { key: "CA",                label: "California",        color: "#208385", groups: ["state"], match: ["california", " ca "], exact: ["ca"] },
+  { key: "NV",                label: "Nevada",            color: "#FC9A62", groups: ["state"], match: ["nevada", " nv "],     exact: ["nv"] },
+  // County — management_zones colors
+  { key: "Douglas County",    label: "Douglas County",    color: "#208385", groups: ["county"], match: ["douglas"] },
+  { key: "El Dorado County",  label: "El Dorado County",  color: "#FC9A62", groups: ["county"], match: ["el dorado", "eldorado"] },
+  { key: "Placer County",     label: "Placer County",     color: "#F9C63E", groups: ["county"], match: ["placer"] },
+  { key: "Washoe County",     label: "Washoe County",     color: "#632E5A", groups: ["county"], match: ["washoe"] },
   // North / South
-  { key: "South Lake",        label: "South Lake",        color: "#FC9A62",  groups: ["ns"],     match: ["south lake"] },
-  { key: "North Lake",        label: "North Lake",        color: "#632E5A",  groups: ["ns"],     match: ["north lake"] },
+  { key: "South Lake",        label: "South Lake",        color: "#FC9A62", groups: ["ns"],     match: ["south lake"] },
+  { key: "North Lake",        label: "North Lake",        color: "#632E5A", groups: ["ns"],     match: ["north lake"] },
 ];
 
 // Which group keys are shown per toggle state (basin is always added separately)
@@ -192,23 +197,47 @@ function matchGeo(raw) {
 }
 
 async function fetchData() {
-  const resp = await fetch(REST_URL);
-  if (!resp.ok) throw new Error("HTTP " + resp.status);
-  const json = await resp.json();
-  if (json.error) throw new Error(json.error.message || "ArcGIS error");
-  const raw = {};
-  for (const feat of json.features) {
-    const f     = feat.attributes;
-    const geo   = (f.Geography || f.geography || f.GEOGRAPHY || "").trim();
-    const year  = parseInt(f.year_sample || f.Year || f.year || 0);
-    const value = parseFloat(f.value || f.Value || f.VALUE || 0);
-    if (!year || isNaN(value) || value === 0) continue;
-    const cfg = matchGeo(geo);
-    if (!cfg) continue;
-    if (!raw[cfg.key]) raw[cfg.key] = {};
-    raw[cfg.key][year] = value;
-  }
-  return raw;
+  return new Promise((resolve, reject) => {
+    const cbName = "_trpa_cb_" + Date.now();
+    const script = document.createElement("script");
+    const url =
+      "https://maps.trpa.org/server/rest/services/LTinfo_Climate_Resilience_Dashboard/MapServer/135/query" +
+      "?where=Category%3D%27Household+Income%27&outFields=*&orderByFields=year_sample+ASC&resultRecordCount=2000" +
+      "&f=json&callback=" + cbName;
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error("Request timed out"));
+    }, 15000);
+
+    function cleanup() {
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      clearTimeout(timeout);
+    }
+
+    window[cbName] = function(json) {
+      cleanup();
+      if (json.error) { reject(new Error(json.error.message || "ArcGIS error")); return; }
+      const raw = {};
+      for (const feat of json.features) {
+        const f     = feat.attributes;
+        const geo   = (f.Geography || f.geography || f.GEOGRAPHY || "").trim();
+        const year  = parseInt(f.year_sample || f.Year || f.year || 0);
+        const value = parseFloat(f.value || f.Value || f.VALUE || 0);
+        if (!year || isNaN(value) || value === 0) continue;
+        const cfg = matchGeo(geo);
+        if (!cfg) continue;
+        if (!raw[cfg.key]) raw[cfg.key] = {};
+        raw[cfg.key][year] = value;
+      }
+      resolve(raw);
+    };
+
+    script.onerror = () => { cleanup(); reject(new Error("Failed to load data (network error)")); };
+    script.src = url;
+    document.head.appendChild(script);
+  });
 }
 
 function processData(raw) {
@@ -272,8 +301,9 @@ function externalTooltip(context) {
     if (item.raw == null) return;
     const cfg = ALL_GEO.find(g => g.key === item.dataset.geoKey);
     if (!cfg) return;
+    const swatchColor = cfg.key === BASIN_KEY ? "#ffffff" : cfg.color;
     html += `<div class="tooltip-row">
-      <div class="tooltip-swatch" style="background:${cfg.color}"></div>
+      <div class="tooltip-swatch" style="background:${swatchColor};${cfg.key === BASIN_KEY ? "border:1.5px dashed rgba(255,255,255,0.6);" : ""}"></div>
       <span class="tooltip-label">${cfg.label}</span>
       <span class="tooltip-value">${fmt(item.raw)}</span>
     </div>`;

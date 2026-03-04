@@ -1,11 +1,12 @@
-from schedule import every, repeat, run_pending
-import time
-import os
-import subprocess
 import datetime
 import logging
-from climate_conditions import *
+import os
+import subprocess
+import time
 
+from schedule import every, repeat, run_pending
+
+from climate_conditions import *
 
 # Configure logging
 logging.basicConfig(filename="task_scheduler.log", level=logging.INFO)

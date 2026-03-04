@@ -1,12 +1,12 @@
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import pytz
 from arcgis.features import FeatureLayer
-import plotly.graph_objects as go
-import numpy as np
 
 
 # Reads in csv file
