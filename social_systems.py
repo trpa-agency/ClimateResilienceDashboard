@@ -16,7 +16,6 @@ from utils import (
 # import pydeck
 
 
-
 # get data for household income
 def get_data_household_income():
     data = get_fs_data(
