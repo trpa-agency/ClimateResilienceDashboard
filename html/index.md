@@ -114,3 +114,8 @@
   * [Ethnicity - Chart Option 2](4.4.a_RaceEthnicity_v2.html)
 * Number/share of households with access and functional needs (These can be referred to as vulnerable populations including populations such as persons with disabilities, older adults, children, limited English proficiency, and transportation disadvantages)
   * [Access Needs - Map](Maps/4.4.b_At_Risk_communities.html)
+
+### Prompts
+* [Fuels Treatment Chart Prompt](resources\prompt_ForestFuelTreatment_Chart.md)
+* [Fuels Treatment Map Prompt](resources\prompt_ForestFuelTreatment_Map.md)
+### Prototypes
