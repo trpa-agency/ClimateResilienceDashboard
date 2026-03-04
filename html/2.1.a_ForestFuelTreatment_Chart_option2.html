@@ -1,246 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lake Tahoe Forest Fuels Reduction</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.1/plotly.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lake Tahoe Forest Fuels Reduction</title>
 
-    :root {
-      --bg:      #edf4f9;
-      --surface: #ffffff;
-      --ink:     #01161E;
-      --muted:   #598392;
-      --border:  #BFD7ED;
-      --accent:  #0077C0;
-      --accent2: #00A99D;
-      --c1: #0077C0;
-      --c2: #00A99D;
-      --c3: #A48352;
-      --c4: #FC9A62;
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 
-      /* Forest fuels zone colors */
-      --zone1: #ABCD66;
-      --zone2: #E69800;
-      --zone3: #A87000;
-      --zone4: #F5CA7A;
-    }
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      background-image:
-        radial-gradient(ellipse 80% 60% at 60% -10%, rgba(171,205,102,0.07) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 10% 90%, rgba(168,112,0,0.05) 0%, transparent 60%);
-      font-family: 'Lexend Deca', sans-serif;
-      color: var(--ink);
-    }
+:root {
+  --font:'Lexend Deca',sans-serif;
+  --j1:#01161E; --j2:#123559; --j3:#598392; --j4:#aec3b0; --j5:#eff6e0;
+  --mz1:#208385; --mz2:#FC9A62; --mz3:#F9C63E;
+  --mz4:#632E5A; --mz5:#A48352; --mz6:#BCEDB8;
+  --zone1:#ABCD66; --zone2:#E69800; --zone3:#A87000; --zone4:#F5CA7A;
+  --bg:var(--j5); --surface:#fff; --ink:var(--j1);
+  --muted:var(--j3); --border:var(--j4); --brand:var(--j2);
+}
 
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 48px 24px 64px;
-    }
+html,body {
+  min-height:100%; background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 60% -10%,rgba(32,131,133,.06) 0%,transparent 70%),
+    radial-gradient(ellipse 60% 40% at 10% 90%,rgba(168,112,0,.04) 0%,transparent 60%);
+  font-family:var(--font); color:var(--ink);
+}
+body { display:flex; flex-direction:column; align-items:center; padding:40px 24px 64px; }
+body::before {
+  content:''; position:fixed; top:0;left:0;right:0; height:3px;
+  background:linear-gradient(90deg,var(--mz1) 0%,var(--mz2) 40%,var(--mz3) 70%,var(--mz6) 100%);
+  z-index:100;
+}
 
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--zone3) 0%, var(--zone2) 35%, var(--zone4) 65%, var(--zone1) 100%);
-      z-index: 100;
-    }
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px;
+  box-shadow:0 2px 4px rgba(1,22,30,.04),0 8px 40px rgba(1,22,30,.06);
+  width:100%; max-width:1100px; overflow:hidden;
+  animation:fadeUp .45s ease both;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      box-shadow: 0 2px 4px rgba(1,22,30,0.04), 0 8px 40px rgba(168,112,0,0.08);
-      width: 100%;
-      max-width: 1100px;
-      overflow: hidden;
-      animation: fadeUp 0.5s ease both;
-    }
+/* Header */
+.card-header {
+  padding:28px 36px 22px; border-bottom:1px solid var(--border);
+  display:flex; align-items:flex-start; gap:16px;
+}
+.header-icon {
+  width:44px;height:44px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--mz1) 0%,var(--j2) 100%);
+  border-radius:12px; display:flex; align-items:center; justify-content:center;
+}
+.header-icon svg { width:24px;height:24px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round; }
+.header-text h1 { font-size:1.45rem;font-weight:400;line-height:1.2;color:var(--ink); }
+.header-text p  { margin-top:5px;font-size:.85rem;color:var(--muted);font-weight:300;line-height:1.55;max-width:580px; }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+/* Stats strip */
+.stats-strip {
+  display:flex; border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(188,237,184,.12) 0%,transparent 100%);
+}
+.stat { flex:1;padding:14px 24px;border-right:1px solid var(--border); }
+.stat:last-child { border-right:none; }
+.stat-label { font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:500; }
+.stat-value { font-size:1.45rem;font-weight:600;color:var(--brand);margin-top:2px;min-height:1.8rem;transition:color .3s; }
+.stat:nth-child(1) .stat-value { color:var(--mz1); }
+.stat:nth-child(2) .stat-value { color:var(--mz2); }
+.stat:nth-child(3) .stat-value { color:var(--zone2); }
+.stat:nth-child(4) .stat-value { color:var(--brand); }
+.stat-value.loading {
+  background:linear-gradient(90deg,#e8f0e0 25%,#d8e8d0 50%,#e8f0e0 75%);
+  background-size:200% 100%; animation:shimmer 1.2s infinite;
+  border-radius:6px; width:80px;height:1.6rem; display:inline-block;
+}
+@keyframes shimmer { to{background-position:-200% 0} }
 
-    .card-header {
-      padding: 32px 44px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-      gap: 18px;
-    }
+/* ── Dimension switcher ── */
+.dim-bar {
+  padding:12px 36px 0;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:0;
+}
+.dim-tab {
+  font-family:var(--font); font-size:11px; font-weight:500;
+  padding:7px 16px; border:none; border-bottom:2px solid transparent;
+  background:none; color:var(--muted); cursor:pointer;
+  transition:all .15s; white-space:nowrap;
+  margin-bottom:-1px;
+}
+.dim-tab:hover { color:var(--brand); }
+.dim-tab.on {
+  color:var(--brand); font-weight:600;
+  border-bottom-color:var(--brand);
+}
 
-    .header-icon {
-      width: 48px; height: 48px; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--zone3) 0%, var(--zone2) 100%);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .header-icon svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* ── Filter bar ── */
+.filter-bar {
+  padding:12px 36px 12px; border-bottom:1px solid var(--border);
+  display:flex; align-items:flex-start; flex-wrap:wrap; gap:14px;
+  min-height:52px;
+}
+.filter-label {
+  font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);margin-bottom:6px;
+  display:flex;align-items:center;gap:5px;
+}
+.pill-group { display:flex;flex-wrap:wrap;gap:5px; }
+.pill {
+  font-family:var(--font);font-size:11px;font-weight:500;
+  padding:4px 11px;border-radius:20px;
+  border:1.5px solid var(--border);background:white;color:var(--j2);
+  cursor:pointer;transition:all .15s;user-select:none;line-height:1.4;
+}
+.pill:hover { border-color:var(--j3);background:var(--j5); }
+.pill.on { background:var(--brand);border-color:var(--brand);color:white;font-weight:600; }
+/* color overrides by data-ci */
+.pill[data-ci="0"].on { background:var(--mz1);border-color:var(--mz1); }
+.pill[data-ci="1"].on { background:var(--mz2);border-color:var(--mz2); }
+.pill[data-ci="2"].on { background:var(--mz3);border-color:var(--mz3);color:var(--j1); }
+.pill[data-ci="3"].on { background:var(--mz4);border-color:var(--mz4); }
+.pill[data-ci="4"].on { background:var(--mz5);border-color:var(--mz5); }
+.pill[data-ci="5"].on { background:var(--mz6);border-color:var(--mz6);color:var(--j1); }
+.pill[data-ci="6"].on { background:var(--zone1);border-color:var(--zone1);color:var(--j1); }
+.pill[data-ci="7"].on { background:var(--zone2);border-color:var(--zone2); }
+.pill[data-ci="8"].on { background:var(--zone3);border-color:var(--zone3); }
+.pill[data-ci="9"].on { background:var(--zone4);border-color:var(--zone4);color:var(--j1); }
 
-    .header-text h1 {
-      font-family: 'Lexend Deca', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 400;
-      line-height: 1.2;
-    }
-    .header-text p {
-      margin-top: 6px;
-      font-size: 0.875rem;
-      color: var(--muted);
-      font-weight: 300;
-      line-height: 1.55;
-      max-width: 560px;
-    }
+.filter-actions { margin-left:auto;display:flex;align-items:flex-end;gap:8px;padding-bottom:2px; }
+.action-btn {
+  font-family:var(--font);font-size:11px;font-weight:500;
+  padding:5px 13px;border-radius:20px;
+  border:1.5px solid var(--border);background:white;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+  display:flex;align-items:center;gap:5px;
+}
+.action-btn:hover { border-color:var(--j3); }
+.action-btn.reset { color:var(--muted); }
+.action-btn.reset:hover { color:var(--brand); }
+.action-btn.download { color:var(--brand); }
+.action-btn.download:hover { background:var(--brand);border-color:var(--brand);color:white; }
+.action-btn svg { width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
 
-    /* Stats strip */
-    .stats-strip {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(171,205,102,0.04) 0%, transparent 100%);
-    }
-    .stat {
-      flex: 1;
-      padding: 16px 28px;
-      border-right: 1px solid var(--border);
-    }
-    .stat:last-child { border-right: none; }
-    .stat-label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    .stat-value {
-      font-family: 'Lexend Deca', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--zone2);
-      margin-top: 2px;
-      min-height: 2rem;
-    }
-    .stat:first-child .stat-value  { color: var(--zone3); }
-    .stat:nth-child(3) .stat-value { color: var(--zone1); }
-    .stat-value.loading {
-      background: linear-gradient(90deg, #f0ead8 25%, #e8dfc0 50%, #f0ead8 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.2s infinite;
-      border-radius: 4px;
-      width: 100px; height: 1.5rem;
-      display: inline-block;
-    }
-    @keyframes shimmer { to { background-position: -200% 0; } }
+/* Chart */
+.chart-wrap { padding:20px 16px 12px;position:relative;min-height:420px; }
+#forest-chart { width:100%;height:420px; }
+.loader {
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;
+  background:var(--surface);z-index:10;transition:opacity .3s;
+}
+.loader.hidden { opacity:0;pointer-events:none; }
+.spinner { width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--mz1);border-radius:50%;animation:spin .8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loader-text { font-size:.82rem;color:var(--muted); }
+.error-msg { display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:24px;text-align:center; }
+.error-msg.visible { display:flex; }
+.error-msg p { font-size:.86rem;color:var(--muted);max-width:360px;line-height:1.5; }
+.retry-btn { background:var(--mz1);color:#fff;border:none;border-radius:8px;padding:8px 20px;font-family:var(--font);font-size:.82rem;font-weight:500;cursor:pointer;transition:opacity .15s; }
+.retry-btn:hover { opacity:.85; }
 
-    /* Chart wrap */
-    .chart-wrap {
-      padding: 24px 12px 12px;
-      position: relative;
-      min-height: 440px;
-    }
-    #forest-chart { width: 100%; height: 440px; }
-
-    /* Loader */
-    .loader {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 16px; background: var(--surface); z-index: 10;
-      transition: opacity 0.3s;
-    }
-    .loader.hidden { opacity: 0; pointer-events: none; }
-    .spinner {
-      width: 38px; height: 38px;
-      border: 3px solid var(--border);
-      border-top-color: var(--zone2);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loader-text { font-size: 0.84rem; color: var(--muted); }
-
-    /* Error */
-    .error-msg {
-      display: none; position: absolute; inset: 0;
-      align-items: center; justify-content: center;
-      flex-direction: column; gap: 12px; padding: 24px; text-align: center;
-    }
-    .error-msg.visible { display: flex; }
-    .error-msg svg { width: 36px; height: 36px; stroke: #b83f5d; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-    .error-msg p { font-size: 0.88rem; color: var(--muted); max-width: 380px; line-height: 1.5; }
-    .retry-btn {
-      background: var(--zone2); color: #fff;
-      border: none; border-radius: 8px;
-      padding: 8px 20px; font-family: 'Lexend Deca', sans-serif;
-      font-size: 0.82rem; font-weight: 500; cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    .retry-btn:hover { opacity: 0.85; }
-
-    /* Footer */
-    .card-footer {
-      padding: 14px 44px;
-      border-top: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(171,205,102,0.03) 0%, transparent 100%);
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .footer-note { font-size: 0.74rem; color: var(--muted); font-weight: 300; }
-  </style>
+/* Footer */
+.card-footer {
+  padding:12px 36px;border-top:1px solid var(--border);
+  background:linear-gradient(180deg,rgba(188,237,184,.06) 0%,transparent 100%);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;
+}
+.footer-note { font-size:.72rem;color:var(--muted);font-weight:300; }
+</style>
 </head>
 <body>
-
 <div class="card">
 
+  <!-- Header -->
   <div class="card-header">
     <div class="header-icon">
-      <!-- Tree / forest icon -->
-      <svg viewBox="0 0 24 24">
-        <polygon points="12 2 22 20 2 20"/>
-        <line x1="12" y1="20" x2="12" y2="23"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><polygon points="12 2 22 20 2 20"/><line x1="12" y1="20" x2="12" y2="23"/></svg>
     </div>
     <div class="header-text">
       <h1>Forest Fuels Reduction</h1>
-      <p>Annual acres of forest health treatment by treatment zone across the Lake Tahoe region, sourced from EIP indicator project accomplishments.</p>
+      <p>Annual acres of forest health treatment across the Lake Tahoe region. Filter and group by treatment zone, fuels treatment type, or land ownership.</p>
     </div>
   </div>
 
+  <!-- Stats -->
   <div class="stats-strip">
-    <div class="stat">
-      <div class="stat-label">Total Acres Treated</div>
-      <div class="stat-value loading" id="stat-total"></div>
+    <div class="stat"><div class="stat-label">Total Acres Treated</div><div class="stat-value loading" id="stat-total"></div></div>
+    <div class="stat"><div class="stat-label">Peak Year</div><div class="stat-value loading" id="stat-peak-year"></div></div>
+    <div class="stat"><div class="stat-label">Peak Year Acres</div><div class="stat-value loading" id="stat-peak-acres"></div></div>
+    <div class="stat"><div class="stat-label">Groups Shown</div><div class="stat-value loading" id="stat-groups"></div></div>
+  </div>
+
+  <!-- Dimension tabs -->
+  <div class="dim-bar">
+    <button class="dim-tab on" data-dim="CATEGORY">Treatment Zone</button>
+    <button class="dim-tab"    data-dim="FuelsTx">Fuels Treatment Type</button>
+    <button class="dim-tab"    data-dim="Ownership_Type">Ownership Type</button>
+  </div>
+
+  <!-- Filter pills + actions -->
+  <div class="filter-bar">
+    <div id="filter-group" style="display:flex;flex-direction:column;">
+      <div class="filter-label" id="filter-label">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 20 2 20"/><line x1="12" y1="20" x2="12" y2="23"/></svg>
+        Treatment Zone
+      </div>
+      <div class="pill-group" id="pills"></div>
     </div>
-    <div class="stat">
-      <div class="stat-label">Peak Year</div>
-      <div class="stat-value loading" id="stat-peak-year"></div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Peak Year Acres</div>
-      <div class="stat-value loading" id="stat-peak-acres"></div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Years of Data</div>
-      <div class="stat-value loading" id="stat-years"></div>
+    <div class="filter-actions">
+      <button class="action-btn reset" id="reset-btn">
+        <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+        Reset
+      </button>
+      <button class="action-btn download" id="download-btn">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download CSV
+      </button>
     </div>
   </div>
 
+  <!-- Chart -->
   <div class="chart-wrap">
-    <div class="loader" id="loader">
-      <div class="spinner"></div>
-      <span class="loader-text">Fetching treatment data…</span>
-    </div>
+    <div class="loader" id="loader"><div class="spinner"></div><span class="loader-text">Fetching treatment data…</span></div>
     <div class="error-msg" id="error-msg">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <p id="error-detail">Could not load forest fuels data.</p>
+      <p id="error-detail">Could not load data.</p>
       <button class="retry-btn" onclick="loadAndRender()">Retry</button>
     </div>
     <div id="forest-chart"></div>
@@ -248,217 +234,349 @@
 
   <div class="card-footer">
     <span class="footer-note">Source: LakeTahoeInfo EIP Indicator Project Accomplishments</span>
-    <span class="footer-note">Treatment Zone · Indicator 19</span>
+    <span class="footer-note" id="footer-dim">Grouped by: Treatment Zone</span>
   </div>
 
 </div>
 
 <script>
-  const API_URL_DIRECT = "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/19";
-  const API_URL = "https://corsproxy.io/?" + encodeURIComponent(API_URL_DIRECT);
-  const CACHE_KEY = "forest_fuels_cache";
-  const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+// ── Config ────────────────────────────────────────────────
+// EIP API — always available, has CATEGORY (Treatment Zone)
+const EIP_URL = "https://corsproxy.io/?" + encodeURIComponent(
+  "https://www.laketahoeinfo.org/WebServices/GetReportedEIPIndicatorProjectAccomplishments/JSON/e17aeb86-85e3-4260-83fd-a2b32501c476/19"
+);
+// ArcGIS feature service — fill in your layer URL to enable FuelsTx + Ownership_Type tabs
+// Example: "https://services3.arcgis.com/YOURORG/arcgis/rest/services/ForestFuelTreatments/FeatureServer/0/query"
+const AGOL_SERVICE = "https://services6.arcgis.com/1KtlSd2mklZMBKaz/ArcGIS/rest/services/Tahoe_Forest_Fuels_Tx_OFFICIAL_Public_View/FeatureServer/0/query";
 
-  const ZONE_COLORS = {
-    "Defense Zone":          "#ABCD66",
-    "Threat Zone":           "#E69800",
-    "General Forest Zone":   "#A87000",
-    "Lake Tahoe Basin":      "#F5CA7A",
+const CACHE_KEY = "fft_v3_data";
+const CACHE_TTL = 6 * 60 * 60 * 1000;
+
+// Dimension definitions
+const DIMS = {
+  CATEGORY: {
+    label: "Treatment Zone",
+    icon: `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 20 2 20"/><line x1="12" y1="20" x2="12" y2="23"/></svg>`,
+    palette: ["#ABCD66","#E69800","#A87000","#F5CA7A","#6B9E3A","#C8860A"]
+  },
+  FuelsTx: {
+    label: "Fuels Treatment Type",
+    icon: `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 6-8 8-8 14a8 8 0 0 0 16 0c0-6-8-8-8-14z"/></svg>`,
+    palette: ["#208385","#FC9A62","#F9C63E","#632E5A","#A48352","#BCEDB8","#ABCD66","#E69800","#598392","#aec3b0"]
+  },
+  Ownership_Type: {
+    label: "Ownership Type",
+    icon: `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    palette: ["#123559","#598392","#A48352","#208385","#FC9A62","#BCEDB8","#F9C63E","#632E5A","#aec3b0","#ABCD66"]
+  }
+};
+
+const YEAR_ORDER = Array.from({length:25},(_,i)=>String(2000+i));
+
+// ── State ─────────────────────────────────────────────────
+let rawRows   = [];   // rows for current dimension (points to eipRows or agolRows)
+let activeDim = "CATEGORY";
+let activeVals = new Set();
+
+// ── Cache ─────────────────────────────────────────────────
+function readCache() {
+  try {
+    const r = localStorage.getItem(CACHE_KEY);
+    if (!r) return null;
+    const {ts,data} = JSON.parse(r);
+    if (Date.now()-ts > CACHE_TTL) return null;
+    return data;
+  } catch { return null; }
+}
+function writeCache(data) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(),data})); } catch {}
+}
+
+// ── Data stores — fetched once each ───────────────────────
+let eipRows  = [];   // CATEGORY (Treatment Zone) — from EIP API
+let agolRows = [];   // FuelsTx + Ownership_Type — from ArcGIS service
+let hasAgol  = false;
+
+// ── Fetch both sources in parallel ────────────────────────
+async function fetchAll() {
+  const results = await Promise.allSettled([fetchEIP(), fetchAGOL()]);
+
+  if (results[0].status === "fulfilled") {
+    eipRows = results[0].value;
+  } else {
+    throw new Error("EIP fetch failed: " + results[0].reason?.message);
+  }
+
+  if (results[1].status === "fulfilled") {
+    agolRows = results[1].value;
+    hasAgol  = agolRows.length > 0;
+  } else {
+    console.warn("AGOL fetch failed:", results[1].reason?.message);
+    hasAgol = false;
+  }
+
+  updateDimTabs();
+  // Return rows appropriate for current activeDim
+  return getRowsForDim(activeDim);
+}
+
+function getRowsForDim(dim) {
+  if (dim === "CATEGORY") return eipRows;
+  return hasAgol ? agolRows : eipRows;
+}
+
+async function fetchEIP() {
+  const res = await fetch(EIP_URL);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const raw = await res.json();
+  const filtered = raw.filter(r => r.PMSubcategoryName1 === "Treatment Zone");
+  const rows = filtered.map(r => ({
+    year:     String(r.IndicatorProjectYear),
+    CATEGORY: r.PMSubcategoryOption1 === "Community Defense Zone"
+              ? "Defense Zone" : (r.PMSubcategoryOption1 || "Unknown"),
+    FuelsTx:        "—",
+    Ownership_Type: "—",
+    acres: parseFloat(r.IndicatorProjectValue) || 0
+  }));
+  const grouped = {};
+  rows.forEach(r => {
+    const k = `${r.year}||${r.CATEGORY}`;
+    if (!grouped[k]) grouped[k] = {...r};
+    else grouped[k].acres += r.acres;
+  });
+  return Object.values(grouped);
+}
+
+async function fetchAGOL() {
+  if (!AGOL_SERVICE) throw new Error("No AGOL_SERVICE configured");
+  const params = new URLSearchParams({
+    where: "ACRES > 0 AND YEAR IS NOT NULL",
+    outFields: "YEAR,ACRES,FuelsTx,Ownership_Type",
+    returnGeometry: false,
+    resultRecordCount: 5000,
+    orderByFields: "YEAR ASC",
+    f: "json"
+  });
+  const res = await fetch(`${AGOL_SERVICE}?${params}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message);
+  return (json.features||[]).map(f => ({
+    year:           String(f.attributes.YEAR),
+    CATEGORY:       "—",
+    FuelsTx:        f.attributes.FuelsTx        || "Unknown",
+    Ownership_Type: f.attributes.Ownership_Type || "Unknown",
+    acres:          parseFloat(f.attributes.ACRES) || 0
+  }));
+}
+
+function updateDimTabs() {
+  document.querySelectorAll(".dim-tab").forEach(tab => {
+    const dim = tab.dataset.dim;
+    const needsAgol = dim === "FuelsTx" || dim === "Ownership_Type";
+    if (needsAgol && !hasAgol) {
+      tab.disabled = true;
+      tab.title = "ArcGIS service unavailable";
+      tab.style.opacity = "0.4";
+      tab.style.cursor = "not-allowed";
+    } else {
+      tab.disabled = false;
+      tab.title = "";
+      tab.style.opacity = "";
+      tab.style.cursor = "";
+    }
+  });
+}
+
+// ── Aggregation ───────────────────────────────────────────
+function aggregate(rows, dim) {
+  const map = {};
+  rows.forEach(r => {
+    const key = `${r.year}||${r[dim]}`;
+    if (!map[key]) map[key] = {year:r.year, group:r[dim], acres:0};
+    map[key].acres += r.acres;
+  });
+  return Object.values(map);
+}
+
+// ── Filter ────────────────────────────────────────────────
+function getFiltered() {
+  if (!activeVals.size) return rawRows;
+  return rawRows.filter(r => activeVals.has(r[activeDim]));
+}
+
+// ── Pills ─────────────────────────────────────────────────
+function buildPills(dim) {
+  const vals   = [...new Set(rawRows.map(r=>r[dim]))].filter(v=>v&&v!=="Unknown").sort();
+  const wrap   = document.getElementById("pills");
+  const label  = document.getElementById("filter-label");
+  const dimCfg = DIMS[dim];
+
+  label.innerHTML = `${dimCfg.icon} ${dimCfg.label}`;
+  wrap.innerHTML  = "";
+  activeVals.clear();
+
+  vals.forEach((val,i) => {
+    const btn = document.createElement("button");
+    btn.className   = "pill";
+    btn.textContent = val.length > 30 ? val.slice(0,28)+"…" : val;
+    btn.title   = val;
+    btn.dataset.ci  = String(i % dimCfg.palette.length);
+    btn.addEventListener("click", () => {
+      activeVals.has(val) ? (activeVals.delete(val), btn.classList.remove("on"))
+                          : (activeVals.add(val),    btn.classList.add("on"));
+      refresh();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+// ── Reset ─────────────────────────────────────────────────
+document.getElementById("reset-btn").addEventListener("click", () => {
+  activeVals.clear();
+  document.querySelectorAll(".pill").forEach(p=>p.classList.remove("on"));
+  refresh();
+});
+
+// ── Dimension tabs ────────────────────────────────────────
+document.querySelectorAll(".dim-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".dim-tab").forEach(t=>t.classList.remove("on"));
+    tab.classList.add("on");
+    activeDim = tab.dataset.dim;
+    rawRows = getRowsForDim(activeDim);
+    buildPills(activeDim);
+    document.getElementById("footer-dim").textContent = `Grouped by: ${DIMS[activeDim].label}`;
+    refresh();
+  });
+});
+
+// ── Download CSV ──────────────────────────────────────────
+document.getElementById("download-btn").addEventListener("click", () => {
+  const filtered = getFiltered();
+  const rows = [["Year","Category","FuelsTx","Ownership_Type","Acres"]];
+  filtered.forEach(r => {
+    rows.push([r.year, r.CATEGORY, r.FuelsTx, r.Ownership_Type, r.acres.toFixed(2)]);
+  });
+  const csv  = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `ForestFuelTreatment_${activeDim}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ── Stats ─────────────────────────────────────────────────
+function updateStats(filtered) {
+  const setEl = (id,txt) => {
+    const el = document.getElementById(id);
+    el.classList.remove("loading");
+    el.textContent = txt;
   };
-  // Fallback palette for any unexpected zones
-  const FALLBACK_COLORS = ["#ABCD66", "#E69800", "#A87000", "#F5CA7A", "#6B9E3A", "#C8860A"];
+  const total   = filtered.reduce((s,r)=>s+r.acres,0);
+  const byYear  = {};
+  filtered.forEach(r=>{ byYear[r.year]=(byYear[r.year]||0)+r.acres; });
+  const peak    = Object.entries(byYear).sort((a,b)=>b[1]-a[1])[0];
+  const groups  = new Set(filtered.map(r=>r[activeDim])).size;
 
-  const YEAR_ORDER = ["2007","2008","2009","2010","2011","2012","2013","2014",
-                      "2015","2016","2017","2018","2019","2020","2021","2022","2023","2024","2025"];
+  setEl("stat-total",      Math.round(total).toLocaleString());
+  setEl("stat-peak-year",  peak ? peak[0] : "—");
+  setEl("stat-peak-acres", peak ? Math.round(peak[1]).toLocaleString() : "—");
+  setEl("stat-groups",     String(groups));
+}
 
-  // ── Cache ──────────────────────────────────────────────────────────────────
-  function readCache() {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      if (!raw) return null;
-      const { ts, data } = JSON.parse(raw);
-      if (Date.now() - ts > CACHE_TTL) return null;
-      return data;
-    } catch { return null; }
+// ── Chart ─────────────────────────────────────────────────
+function renderChart(filtered) {
+  const agg     = aggregate(filtered, activeDim);
+  const dimCfg  = DIMS[activeDim];
+
+  if (!agg.length) {
+    Plotly.react("forest-chart",[],{},{displayModeBar:false,responsive:true});
+    return;
   }
-  function writeCache(data) {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch {}
-  }
 
-  // ── Data processing ────────────────────────────────────────────────────────
-  function processData(raw) {
-    // Filter to Treatment Zone subcategory only
-    const filtered = raw.filter(r => r.PMSubcategoryName1 === "Treatment Zone");
+  const allYears = [...new Set(agg.map(d=>d.year))].sort((a,b)=>{
+    const ia=YEAR_ORDER.indexOf(a), ib=YEAR_ORDER.indexOf(b);
+    return (ia===-1?999:ia)-(ib===-1?999:ib);
+  });
+  const allGroups = [...new Set(agg.map(d=>d.group))].sort();
 
-    // Rename and normalize
-    const rows = filtered.map(r => ({
-      year:  String(r.IndicatorProjectYear),
-      zone:  r.PMSubcategoryOption1 === "Community Defense Zone" ? "Defense Zone" : r.PMSubcategoryOption1,
-      acres: parseFloat(r.IndicatorProjectValue) || 0,
-    }));
-
-    // Group by year + zone
-    const grouped = {};
-    rows.forEach(r => {
-      const key = `${r.year}||${r.zone}`;
-      if (!grouped[key]) grouped[key] = { year: r.year, zone: r.zone, acres: 0 };
-      grouped[key].acres += r.acres;
+  const traces = allGroups.map((grp,i) => {
+    const color = dimCfg.palette[i % dimCfg.palette.length];
+    const y = allYears.map(yr => {
+      const row = agg.find(d=>d.year===yr&&d.group===grp);
+      return row ? row.acres : 0;
     });
-
-    return Object.values(grouped);
-  }
-
-  // ── Stats ──────────────────────────────────────────────────────────────────
-  function setStats(data) {
-    const setEl = (id, text) => {
-      const el = document.getElementById(id);
-      el.classList.remove("loading");
-      el.textContent = text;
+    return {
+      name: grp,
+      x: allYears, y,
+      type:"bar",
+      marker:{ color, line:{width:0} },
+      customdata: allYears.map(()=>[grp]),
+      hovertemplate:"<b>%{y:,.0f} acres</b><br>%{customdata[0]}<extra></extra>"
     };
+  });
 
-    const totalAcres = data.reduce((s, d) => s + d.acres, 0);
+  Plotly.react("forest-chart", traces, {
+    barmode:"stack",
+    paper_bgcolor:"rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font:{ family:"'Lexend Deca',sans-serif", size:12, color:"#01161E" },
+    xaxis:{
+      title:{text:"Year",standoff:12}, showgrid:false, zeroline:false,
+      linecolor:"#aec3b0", tickfont:{size:11}, type:"category"
+    },
+    yaxis:{
+      title:{text:"Acres Treated",standoff:12}, showgrid:true,
+      gridcolor:"rgba(174,195,176,.3)", zeroline:false,
+      tickformat:",.0f", tickfont:{size:11}
+    },
+    hovermode:"x unified",
+    hoverlabel:{ bgcolor:"#123559", font:{color:"#eff6e0",family:"'Lexend Deca',sans-serif",size:12}, bordercolor:"#123559" },
+    legend:{
+      title:{text:dimCfg.label, font:{size:11,color:"#598392"}},
+      orientation:"h", yanchor:"bottom", y:1.02, xanchor:"right", x:1,
+      font:{size:11}, bgcolor:"rgba(255,255,255,.8)", bordercolor:"#aec3b0", borderwidth:1
+    },
+    margin:{t:16,r:24,b:56,l:80},
+    dragmode:false,
+    transition:{duration:350,easing:"cubic-in-out"}
+  }, { displayModeBar:false, responsive:true });
+}
 
-    // Sum by year for peak
-    const byYear = {};
-    data.forEach(d => { byYear[d.year] = (byYear[d.year] || 0) + d.acres; });
-    const peak = Object.entries(byYear).sort((a, b) => b[1] - a[1])[0];
+// ── Refresh ───────────────────────────────────────────────
+function refresh() {
+  const filtered = getFiltered();
+  updateStats(filtered);
+  renderChart(filtered);
+}
 
-    const years = [...new Set(data.map(d => d.year))];
+// ── Load ──────────────────────────────────────────────────
+async function loadAndRender() {
+  document.getElementById("loader").classList.remove("hidden");
+  document.getElementById("error-msg").classList.remove("visible");
+  ["stat-total","stat-peak-year","stat-peak-acres","stat-groups"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.add("loading"); el.textContent="";
+  });
 
-    setEl("stat-total",      totalAcres.toLocaleString("en-US", { maximumFractionDigits: 0 }));
-    setEl("stat-peak-year",  peak ? peak[0] : "—");
-    setEl("stat-peak-acres", peak ? peak[1].toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—");
-    setEl("stat-years",      String(years.length));
+  try {
+    await fetchAll();
+    rawRows = getRowsForDim(activeDim);
+    buildPills(activeDim);
+    refresh();
+    document.getElementById("loader").classList.add("hidden");
+  } catch(err) {
+    console.error(err);
+    document.getElementById("loader").classList.add("hidden");
+    document.getElementById("error-msg").classList.add("visible");
+    document.getElementById("error-detail").textContent = `Error: ${err.message}`;
   }
+}
 
-  // ── Chart ──────────────────────────────────────────────────────────────────
-  function renderChart(data) {
-    if (!data.length) return;
-
-    // Get sorted years present in data
-    const allYears = [...new Set(data.map(d => d.year))]
-      .sort((a, b) => {
-        const ia = YEAR_ORDER.indexOf(a);
-        const ib = YEAR_ORDER.indexOf(b);
-        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-      });
-
-    // Get all zones, sorted for consistent legend order
-    const allZones = [...new Set(data.map(d => d.zone))].sort();
-
-    // Build one trace per zone (stacked bar)
-    const traces = allZones.map((zone, i) => {
-      const color = ZONE_COLORS[zone] || FALLBACK_COLORS[i % FALLBACK_COLORS.length];
-
-      const y = allYears.map(year => {
-        const row = data.find(d => d.year === year && d.zone === zone);
-        return row ? row.acres : 0;
-      });
-
-      return {
-        name: zone,
-        x: allYears,
-        y,
-        type: "bar",
-        marker: { color, line: { width: 0 } },
-        customdata: allYears.map(() => [zone]),
-        hovertemplate:
-          "<b>%{y:,.0f} acres</b> of forest health treatment<br>" +
-          "in the <i>%{customdata[0]}</i><extra></extra>",
-      };
-    });
-
-    const layout = {
-      barmode: "stack",
-      paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor:  "rgba(0,0,0,0)",
-      font: { family: "'Lexend Deca', sans-serif", size: 13, color: "#01161E" },
-      xaxis: {
-        title: { text: "Year", standoff: 14 },
-        showgrid: false,
-        zeroline: false,
-        linecolor: "#BFD7ED",
-        tickfont: { size: 12 },
-        type: "category",
-      },
-      yaxis: {
-        title: { text: "Acres Treated", standoff: 14 },
-        showgrid: true,
-        gridcolor: "#e8f0d8",
-        zeroline: false,
-        tickformat: ",.0f",
-        tickfont: { size: 12 },
-      },
-      hovermode: "x unified",
-      hoverlabel: {
-        bgcolor: "#A87000",
-        font: { color: "#fff", family: "'Lexend Deca', sans-serif", size: 12 },
-        bordercolor: "#A87000",
-      },
-      legend: {
-        title: { text: "Forest Health Treatment Zone", font: { size: 12 } },
-        orientation: "h",
-        entrywidth: 160,
-        yanchor: "bottom",
-        y: 1.05,
-        xanchor: "right",
-        x: 0.95,
-        font: { size: 12 },
-      },
-      margin: { t: 20, r: 30, b: 60, l: 90 },
-      dragmode: false,
-    };
-
-    Plotly.react("forest-chart", traces, layout, { displayModeBar: false, responsive: true });
-  }
-
-  // ── Fetch ──────────────────────────────────────────────────────────────────
-  async function fetchData() {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  }
-
-  function initFromData(raw) {
-    const data = processData(raw);
-    setStats(data);
-    renderChart(data);
-  }
-
-  async function loadAndRender() {
-    document.getElementById("loader").classList.remove("hidden");
-    document.getElementById("error-msg").classList.remove("visible");
-
-    // Show shimmer on stats
-    ["stat-total","stat-peak-year","stat-peak-acres","stat-years"].forEach(id => {
-      const el = document.getElementById(id);
-      el.classList.add("loading");
-      el.textContent = "";
-    });
-
-    const cached = readCache();
-    if (cached) {
-      initFromData(cached);
-      document.getElementById("loader").classList.add("hidden");
-      fetchData().then(d => { writeCache(d); initFromData(d); }).catch(() => {});
-      return;
-    }
-
-    try {
-      const raw = await fetchData();
-      writeCache(raw);
-      initFromData(raw);
-      document.getElementById("loader").classList.add("hidden");
-    } catch (err) {
-      console.error(err);
-      document.getElementById("loader").classList.add("hidden");
-      document.getElementById("error-msg").classList.add("visible");
-      document.getElementById("error-detail").innerHTML =
-        `<strong>Error:</strong> ${err.message}`;
-    }
-  }
-
-  loadAndRender();
+loadAndRender();
 </script>
 </body>
 </html>
